@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- GENERAL SETTINGS -->
+    <PreferenceCategory android:title="General settings">
+
+        <CheckBoxPreference android:key="preference_capture_continuous"
+            android:title="Continuous preview"
+            android:entries="@array/capturemodes" />
+
+        <ListPreference android:title="Recognize"
+            android:key="sourceLanguageCodeOcrPref"
+            android:entries="@array/languagenames"
+            android:entryValues="@array/iso6393" />
+
+    </PreferenceCategory>
+
+    <!-- TRANSLATION SETTINGS -->
+    <PreferenceCategory android:title="Translation settings">
+
+        <CheckBoxPreference android:key="preference_translation_toggle_translation"
+            android:title="Translate"/>
+
+        <ListPreference android:key="targetLanguageCodeTranslationPref"
+            android:title="Translate to"
+            android:entries="@array/translationtargetlanguagenames_google"
+            android:entryValues="@array/translationtargetiso6391_google" />
+
+
+    </PreferenceCategory>
+
+    <!-- ADVANCED SETTINGS -->
+    <PreferenceCategory android:title="Advanced settings">
+
+        <ListPreference android:key="preference_ocr_engine_mode"
+            android:title="OCR engine"
+            android:entries="@array/ocrenginemodes"
+            android:entryValues="@array/ocrenginemodes"/>
+
+        <CheckBoxPreference
+            android:key="preferences_auto_focus"
+            android:title="Autofocus"/>
+
+        <CheckBoxPreference
+            android:key="preferences_disable_continuous_focus"
+            android:defaultValue="true"
+            android:title="Standard focus mode" />
+
+        <CheckBoxPreference
+            android:key="preferences_play_beep"
+            android:defaultValue="true"
+            android:title="Beep"/>
+    </PreferenceCategory>
+</PreferenceScreen>
