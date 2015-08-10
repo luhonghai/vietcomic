@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Global Translator</string>
+    <string name="title_activity_main">Global Translator</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_pref">Camera Settings</string>
+
+
+    <string name="error_message">we\'re very sorry to say that an unexpected error has occurred for you \n could you please send us feedback, so we can fix it ASAP!</string>
+
+    <string name="dialog_close">close</string>
+
+    <string name="txtTermCondition"><a href="http://www.accenteasy.com/useraccounts/TnC">terms &amp; conditions</a></string>
+    <string name="lostpassword"><a href="#">click here if you have forgotten your password</a></string>
+
+    <string name="error_message_title">an unexpected error occurred</string>
+    <string name="dialog_ok">OK</string>
+    <string name="processing">processing</string>
+    <string name="unknown">unknown</string>
+    <string name="please_enter_your_message">please enter your message</string>
+    <string name="successfully_submitted">successfully submitted</string>
+    <string name="feedback_success_message">thank you for your feedback \n we appreciate your feedback and will continue to strive to make our application better\n thank you!</string>
+    <string name="description">description</string>
+    <string name="send">send</string>
+    <string name="licence_code">licence code</string>
+    <string name="activate">activate</string>
+    <string name="logout">logout</string>
+    <string name="email_address">email address</string>
+    <string name="hint_email_address">email@address</string>
+    <string name="password">password</string>
+    <string name="login">login</string>
+    <string name="first_name">first name</string>
+    <string name="last_name">last name</string>
+    <string name="confirm_password">confirm password</string>
+    <string name="register">register</string>
+    <string name="reset">reset</string>
+    <string name="enter_confirmation_code_from_email">enter confirmation code from email</string>
+    <string name="confirm_code">confirm code</string>
+    <string name="send_code_again">send code again</string>
+    <string name="change_email">change email</string>
+    <string name="proceed_to_login">proceed to login</string>
+    <string name="skip">skip</string>
+    <string name="do_you_want_help">do you want help?</string>
+    <string name="never">never</string>
+    <string name="yes">yes</string>
+    <string name="menu_about">about</string>\
+    <string name="example_phoneme">TH</string>
+    <string name="example_phoneme_ipa">ɛ</string>
+    <string name="example_phoneme_score">56%</string>
+    <string name="example_word">necessarily</string>
+    <string name="example_word_pronunciation">nɛsə\'sɛrɪli</string>
+    <string name="could_not_login">could not login</string>
+    <string name="invalid_username_or_password">invalid username or password</string>
+    <string name="invalid_email_address_or_password">invalid email address or password</string>
+    <string name="is_not_activated">is not activated</string>
+    <string name="is_temporarily_locked">is temporarily locked</string>
+    <string name="invalid_licence">invalid licence</string>
+    <string name="enter_licence_code">enter licence code</string>
+    <string name="logout_account_message_title">logout account</string>
+    <string name="logout_account_message_content">are you sure you want to logout this account?</string>
+    <string name="dialog_no">no</string>
+    <string name="tab_graph">graph</string>
+    <string name="tab_history">history</string>
+    <string name="tab_tip">tip</string>
+    <string name="tint_search_word">search word</string>
+    <string name="searching">searching</string>
+    <string name="please_wait">please wait &#8230;</string>
+    <string name="not_found">not found</string>
+    <string name="please_try_again">please try again!</string>
+    <string name="missing_email_address">missing email address</string>
+    <string name="please_enter_email">please enter email</string>
+    <string name="missing_data">missing data</string>
+    <string name="please_enter_email_and_password">please enter email address and password</string>
+    <string name="missing_licence_code">missing licence code</string>
+    <string name="please_enter_licence_code">please enter licence code</string>
+    <string name="activated_success_title">your account has already been activated</string>
+    <string name="validation_successful">validation successful</string>
+    <string name="validation_success_message">your account has already been activated.\n please login with your email address and password.</string>
+    <string name="validation_failed">validation failed</string>
+    <string name="could_not_send_code">could not send code</string>
+    <string name="please_check_your_message_at_email_address">please check message in your email %1$s</string>
+    <string name="could_not_send_request">could not send request</string>
+    <string name="could_not_activate_licence_code">could not activate licence code</string>
+    <string name="could_not_register">could not register</string>
+    <string name="could_not_fetch_profile">could not fetch profile</string>
+    <string name="invalid_password">invalid password</string>
+    <string name="both_passwords_must_match">both passwords must match</string>
+    <string name="error_password_length">passwords must be at least 6 characters in length</string>
+    <string name="invalid_email_address">invalid email address</string>
+    <string name="error_email_message">please enter a valid email address</string>
+    <string name="error_network_message">sorry but your internet connection does not appear to be working</string>
+    <string name="error">error</string>
+    <string name="error_create_profile_message">could not create new profile</string>
+    <string name="error_network_title">no internet connection</string>
+    <string name="loading">loading &#8230;</string>
+    <string name="no_tip_found">no tip found</string>
+    <string name="tap_to_reload">tap to reload</string>
+    <string name="menu_help">help</string>
+    <string name="menu_settings">settings</string>
+    <string name="menu_licence">licence</string>
+    <string name="menu_feedback">feedback</string>
+    <string name="menu_logout">logout</string>
+    <string name="could_not_connect_server_message">could not connect to server</string>
+
+    <string name="feedback_url">http://simply-tutorial.appspot.com/contacthandler</string>
+</resources>

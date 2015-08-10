@@ -1,0 +1,79 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "19.1.0"
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 22
+        versionCode 10000
+        versionName "1.0.000"
+        archivesBaseName = "viet-comic"
+    }
+    productFlavors {
+        pro {
+            applicationId = "com.halosolutions.vietcomic"
+            buildConfigField "boolean", "IS_FREE", "false"
+        }
+        free {
+            applicationId = "com.halosolutions.vietcomic.free"
+            buildConfigField "boolean", "IS_FREE", "true"
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("../keystore/keystore.jks")
+            storePassword "W3lcom3123"
+            keyAlias "halo.solutions"
+            keyPassword "W3lcom3123"
+        }
+    }
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File(
+                    output.outputFile.parent,
+
+                    output.outputFile.name.replace(".apk", "-v${variant.versionName}.apk")
+
+            )
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+    compile 'com.google.android.gms:play-services:7.3.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
+        transitive = true;
+    }
+    compile ('cn.pedant.sweetalert:library:1.3') {
+        exclude module: 'appcompat-v7'
+    }
+}

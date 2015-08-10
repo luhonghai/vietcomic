@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:paddingRight="10dp"
+    android:paddingLeft="10dp">
+
+    <RelativeLayout
+        android:id="@+id/back"
+        android:tag="back"
+        style="@style/ListBackContent">
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/btnDelete"
+            android:background="@drawable/delete_history"
+            android:layout_marginLeft="290dp"
+            android:layout_marginStart="290dp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/front"
+        android:tag="front"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@color/background_list_front"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/history_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:textSize="18sp"
+            android:textColor="#ff61bae1"/>
+    </RelativeLayout>
+</FrameLayout>

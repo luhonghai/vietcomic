@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/gb_round"
+                    android:layout_alignRight="@+id/source_text"
+                    android:layout_margin="5dp"/>
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="Choose Language"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <com.rey.material.widget.FloatingActionButton
+                    style="@style/FloatingWaveColorActionButtonSpeak"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:fab_radius="16dp"
+                    app:fab_iconSize="15dp"
+                    android:layout_margin="5dp"/>
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="Text to Speech"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <com.rey.material.widget.FloatingActionButton
+                    style="@style/FloatingWaveColorActionButtonMicrophone"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:fab_radius="16dp"
+                    app:fab_iconSize="15dp"
+                    android:layout_margin="5dp"/>
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="Voice Recognition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <com.rey.material.widget.FloatingActionButton
+                    style="@style/FloatingWaveColorActionButtonTranslate"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:fab_radius="16dp"
+                    app:fab_iconSize="15dp"
+                    android:layout_margin="5dp"/>
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="Translate action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <com.rey.material.widget.FloatingActionButton
+                    style="@style/FloatingWaveColorActionButtonFeedback"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:fab_radius="16dp"
+                    app:fab_iconSize="18dp"
+                    android:layout_margin="5dp"/>
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="Send feedback"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <com.rey.material.widget.FloatingActionButton
+                    style="@style/FloatingWaveColorActionButtonShare"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:fab_radius="16dp"
+                    app:fab_iconSize="15dp"
+                    android:layout_margin="5dp"/>
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="Share translated text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <com.rey.material.widget.FloatingActionButton
+                    style="@style/FloatingWaveColorActionButtonCamera"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:fab_radius="16dp"
+                    app:fab_iconSize="15dp"
+                    android:layout_margin="5dp"/>
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="Take photo and Translate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <com.rey.material.widget.FloatingActionButton
+                    style="@style/FloatingWaveColorActionButtonSwipe"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:fab_radius="16dp"
+                    app:fab_iconSize="18dp"
+                    android:layout_margin="5dp"/>
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="Swipe left to delete history"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
