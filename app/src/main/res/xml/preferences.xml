@@ -1,53 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2013. CMG Ltd All rights reserved.
+  ~
+  ~ This software is the confidential and proprietary information of CMG
+  ~ ("Confidential Information"). You shall not disclose such Confidential
+  ~ Information and shall use it only in accordance with the terms of the
+  ~ license agreement you entered into with CMG.
+  -->
+
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- GENERAL SETTINGS -->
-    <PreferenceCategory android:title="General settings">
 
-        <CheckBoxPreference android:key="preference_capture_continuous"
-            android:title="Continuous preview"
-            android:entries="@array/capturemodes" />
-
-        <ListPreference android:title="Recognize"
-            android:key="sourceLanguageCodeOcrPref"
-            android:entries="@array/languagenames"
-            android:entryValues="@array/iso6393" />
-
+    <!-- <PreferenceCategory android:title="@string/newsletter_category_preferences" > -->
+    <!-- <CheckBoxPreference -->
+    <!-- android:defaultValue="true" -->
+    <!-- android:key="checkbox_newsletter_pensioner" -->
+    <!-- android:summary="@string/summary_checkbox_newsletter_pensioner" -->
+    <!-- android:title="@string/title_checkbox_newsletter_pensioner" /> -->
+    <!-- <CheckBoxPreference -->
+    <!-- android:key="checkbox_newsletter_employee" -->
+    <!-- android:summary="@string/summary_checkbox_newsletter_employee" -->
+    <!-- android:title="@string/title_checkbox_newsletter_employee" /> -->
+    <PreferenceCategory></PreferenceCategory>
+    <PreferenceCategory android:title="@string/mainpage_preferences">
+        <ListPreference
+            android:defaultValue="list_view"
+            android:dialogTitle="@string/dialog_title_list_view_choice"
+            android:entries="@array/entries_view_choice"
+            android:entryValues="@array/entryvalues_view_choice"
+            android:icon="@drawable/ic_menu_list_view"
+            android:key="list_view_choice"
+            android:summary="@string/summary_list_view_choice"
+            android:title="@string/action_bar_list_view" />
+        <ListPreference
+            android:defaultValue="sort_by_date"
+            android:dialogTitle="@string/dialog_title_list_sort_choice"
+            android:entries="@array/entries_sort_choice"
+            android:entryValues="@array/entryvalues_sort_choice"
+            android:icon="@android:drawable/ic_menu_today"
+            android:key="list_sort_choice"
+            android:summary="@string/summary_list_sort_choice"
+            android:title="@string/action_bar_sort_date" />
     </PreferenceCategory>
-
-    <!-- TRANSLATION SETTINGS -->
-    <PreferenceCategory android:title="Translation settings">
-
-        <CheckBoxPreference android:key="preference_translation_toggle_translation"
-            android:title="Translate"/>
-
-        <ListPreference android:key="targetLanguageCodeTranslationPref"
-            android:title="Translate to"
-            android:entries="@array/translationtargetlanguagenames_google"
-            android:entryValues="@array/translationtargetiso6391_google" />
-
-
-    </PreferenceCategory>
-
-    <!-- ADVANCED SETTINGS -->
-    <PreferenceCategory android:title="Advanced settings">
-
-        <ListPreference android:key="preference_ocr_engine_mode"
-            android:title="OCR engine"
-            android:entries="@array/ocrenginemodes"
-            android:entryValues="@array/ocrenginemodes"/>
-
+    <PreferenceCategory android:title="@string/other_preferences">
+        <Preference
+            android:key="changelog_preferences"
+            android:title="@string/title_changelog" />
         <CheckBoxPreference
-            android:key="preferences_auto_focus"
-            android:title="Autofocus"/>
-
-        <CheckBoxPreference
-            android:key="preferences_disable_continuous_focus"
             android:defaultValue="true"
-            android:title="Standard focus mode" />
-
+            android:key="parent_checkbox_report_parent"
+            android:summary="@string/summary_parent_checkbox_report"
+            android:title="@string/title_parent_checkbox_report" />
         <CheckBoxPreference
-            android:key="preferences_play_beep"
             android:defaultValue="true"
-            android:title="Beep"/>
+            android:dependency="parent_checkbox_report_parent"
+            android:key="child_checkbox_send_errors"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:summary="@string/summary_child_send_errors"
+            android:title="@string/title_child_send_errors" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="parent_checkbox_report_parent"
+            android:key="child_checkbox_send_statistics"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:summary="@string/summary_child_send_statistics"
+            android:title="@string/title_child_send_statistics" />
     </PreferenceCategory>
+
 </PreferenceScreen>
