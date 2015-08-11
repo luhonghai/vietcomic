@@ -35,10 +35,10 @@ import com.cmg.android.preference.Preference;
 import com.cmg.android.task.FavoritesTask;
 import com.cmg.android.task.UpdateNewStatusAsync;
 import com.cmg.android.util.ContentUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.data.NewsletterCategory;
 
-import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -54,8 +54,7 @@ public class NewsletterDetailActivity extends ContentFragmentActivity
         implements OnPageChangeListener {
     public static final String REFRESH_MAIN_ACTIVITY_MESSAGE = "com.cmg.android.pension.activity.NewsletterDetailActivity.REFRESH_MAIN_ACTIVITY_MESSAGE";
     public static final String NOTIFY_REFESH_MAIN_ACTIVITY = "NOTIFY_REFESH_MAIN_ACTIVITY";
-    private static Logger log = Logger
-            .getLogger(NewsletterDetailActivity.class);
+   
     private ShareActionProvider actionProvider;
     private DatabaseHandler db;
     private int index = -1;
@@ -119,7 +118,7 @@ public class NewsletterDetailActivity extends ContentFragmentActivity
     private void obtainData() {
         setContentShown(false);
         mHandler = new Handler();
-        log.info("post content runnable");
+        SimpleAppLog.info("post content runnable");
         mHandler.post(mShowContentRunnable);
     }
 
@@ -132,7 +131,7 @@ public class NewsletterDetailActivity extends ContentFragmentActivity
             db = new DatabaseHandler(this);
             String newsletterId = getIntent().getStringExtra(Newsletter.NEWSLETTER_ID);//.getExtras().getString(
             //Newsletter.NEWSLETTER_ID);
-            log.info("NEWSLETTER ID - DETAIL: " + newsletterId);
+            SimpleAppLog.info("NEWSLETTER ID - DETAIL: " + newsletterId);
             newsletter = db.getById(newsletterId);
 
 
@@ -157,7 +156,7 @@ public class NewsletterDetailActivity extends ContentFragmentActivity
                         break;
                     }
                 }
-                log.debug("Add apater to viewpager. Newsletter size: "
+                SimpleAppLog.debug("Add apater to viewpager. Newsletter size: "
                         + newsletters.size() + ". Focus index: " + index);
                 initShareMenu(index);
                 detailFragmentAdapter = new NewsletterDetailFragmentAdapter(
@@ -439,7 +438,7 @@ public class NewsletterDetailActivity extends ContentFragmentActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        log.debug("destroy newsletter detail activity");
+        SimpleAppLog.debug("destroy newsletter detail activity");
         if (db != null) {
             db.recycle();
         }
@@ -485,7 +484,7 @@ public class NewsletterDetailActivity extends ContentFragmentActivity
         isFavorites = newsletter.checkFavor();
 
         changeFavoritesIcon();
-        log.info("open abstract page " + newsletter.getTitle());
+        SimpleAppLog.info("open abstract page " + newsletter.getTitle());
         UpdateNewStatusAsync task = new UpdateNewStatusAsync(this,
                 newsletter);
 

@@ -26,7 +26,6 @@ import android.widget.RelativeLayout;
 
 import com.cmg.android.plmobile.R;
 
-import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +46,6 @@ import java.util.Date;
  * @Last changed: $LastChangedDate$
  */
 public class AndroidCommonUtils {
-    private final static Logger LOG = Logger.getLogger(ContentUtils.class);
 
     public static final String PENSIONER_LETTER = "pensioner_letter";
 
@@ -90,7 +88,7 @@ public class AndroidCommonUtils {
                 ((ViewGroup) view).removeAllViews();
             }
         } catch (Exception ex) {
-            LOG.error("Error when unbindDrawables", ex);
+            SimpleAppLog.error("Error when unbindDrawables", ex);
         }
     }
 

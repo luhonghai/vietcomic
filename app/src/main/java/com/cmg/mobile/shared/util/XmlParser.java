@@ -18,7 +18,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,7 +36,6 @@ import com.cmg.mobile.shared.exception.NewsletterParserException;
  * @Last changed: $LastChangedDate$
  */
 public class XmlParser {
-	private static Logger log = Logger.getLogger(XmlParser.class);
 	private final String xmlRes;
 	private final String rootImageUrl;
 	private final int categoryId;

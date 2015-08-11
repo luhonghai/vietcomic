@@ -17,8 +17,8 @@ import com.cmg.android.http.FileUploader;
 import com.cmg.android.http.exception.UploaderException;
 import com.cmg.android.pension.activity.content.FeedbackActivity;
 import com.cmg.android.plmobile.R;
+import com.cmg.android.util.SimpleAppLog;
 
-import org.apache.log4j.Logger;
 
 import java.io.FileNotFoundException;
 import java.util.Map;
@@ -32,7 +32,6 @@ import java.util.Map;
  * @Last changed: $LastChangedDate$
  */
 public class UploadFeedbackAsync extends AsyncTask<Map<String, String>, Void, String> {
-    private static Logger log = Logger.getLogger(UploadFeedbackAsync.class);
     private final Context context;
 
     public UploadFeedbackAsync(Context context) {
@@ -56,10 +55,10 @@ public class UploadFeedbackAsync extends AsyncTask<Map<String, String>, Void, St
 
             return results.toString();
         } catch (FileNotFoundException e) {
-            log.error(e);
+            SimpleAppLog.error(e);
             return e.getMessage();
         } catch (UploaderException e) {
-            log.error(e);
+            SimpleAppLog.error(e);
             return e.getMessage();
         }
     }

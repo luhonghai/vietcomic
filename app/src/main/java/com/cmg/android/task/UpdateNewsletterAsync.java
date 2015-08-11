@@ -13,16 +13,14 @@ import android.content.Context;
 
 import com.cmg.android.pension.database.DatabaseHandler;
 import com.cmg.android.pension.downloader.DownloadXmlHelper;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.android.util.SyncFileUtil;
 import com.cmg.mobile.shared.data.Newsletter;
 
-import org.apache.log4j.Logger;
 
 import java.util.List;
 
 public class UpdateNewsletterAsync {
-    private static final Logger logger = Logger
-            .getLogger(UpdateNewsletterAsync.class);
     private List<Newsletter> oldList;
     private final Context context;
     private DatabaseHandler db;
@@ -53,15 +51,15 @@ public class UpdateNewsletterAsync {
     public void doSync() {
         if (!completed) {
             try {
-                logger.info("Start sync newsletter");
+                SimpleAppLog.info("Start sync newsletter");
                 newList = DownloadXmlHelper.downloadNewsletters(context);
                 SyncFileUtil syncUtil = new SyncFileUtil(context, db, newList,
                         oldList);
                 syncUtil.syncClientServer();
                 completed = true;
-                logger.info("Completed sync newsletter");
+                SimpleAppLog.info("Completed sync newsletter");
             } catch (Exception e) {
-                logger.error("Cannot update newsletter", e);
+                SimpleAppLog.error("Cannot update newsletter", e);
             }
         }
     }

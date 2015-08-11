@@ -27,10 +27,10 @@ import com.cmg.android.pension.database.DatabaseHandler;
 import com.cmg.android.plmobile.R;
 import com.cmg.android.preference.Preference;
 import com.cmg.android.util.ExceptionHandler;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.data.NewsletterCategory;
 
-import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -38,7 +38,6 @@ import java.util.List;
  * Created by Hai Lu on 10/24/13.
  */
 public class FavoritesFragment extends ProgressSherlockFragment {
-    private static Logger log = Logger.getLogger(FavoritesFragment.class);
 
     public static final String DATE_FORMAT = "MMMM dd, yyyy";
 
@@ -66,7 +65,7 @@ public class FavoritesFragment extends ProgressSherlockFragment {
         @Override
         public void run() {
             init();
-            log.info("init fragment");
+            SimpleAppLog.info("init fragment");
         }
     };
 

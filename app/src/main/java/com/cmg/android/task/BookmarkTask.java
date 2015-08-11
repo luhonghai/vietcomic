@@ -17,15 +17,14 @@ import com.cmg.android.cmgpdf.CmgPDFActivity;
 import com.cmg.android.pension.activity.NewsletterDetailActivity;
 import com.cmg.android.pension.database.DatabaseHandler;
 import com.cmg.android.plmobile.MainActivity;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 
-import org.apache.log4j.Logger;
 
 /**
  * Created by Hai Lu on 10/24/13.
  */
 public class BookmarkTask {
-    private static final Logger log = Logger.getLogger(BookmarkTask.class);
     private final Context context;
     private DatabaseHandler db;
     private Runnable runner;
@@ -58,7 +57,7 @@ public class BookmarkTask {
         if (db == null) {
             db = new DatabaseHandler(context);
         }
-        log.info((isAdd ? "Add" : "Remove") + " bookmark page " +page+ " newsletter id : " + newsletter.getId());
+        SimpleAppLog.info((isAdd ? "Add" : "Remove") + " bookmark page " +page+ " newsletter id : " + newsletter.getId());
         boolean done = false;
         if (isAdd) {
             done = db.addBookmark(newsletter.getId(), page);
@@ -93,7 +92,7 @@ public class BookmarkTask {
             Intent intent = new Intent(NewsletterDetailActivity.REFRESH_MAIN_ACTIVITY_MESSAGE);
             intent.putExtra(NewsletterDetailActivity.NOTIFY_REFESH_MAIN_ACTIVITY, "true");
             context.sendBroadcast(intent);
-            log.info("Bookmark updated");
+            SimpleAppLog.info("Bookmark updated");
         }
         return null;
     }

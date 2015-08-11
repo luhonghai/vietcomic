@@ -32,9 +32,9 @@ import com.cmg.android.pension.animation.SplashPanel;
 import com.cmg.android.service.StartupService;
 import com.cmg.android.task.UpdateAsync;
 import com.cmg.android.util.ContentUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.android.util.Utilities;
 
-import org.apache.log4j.Logger;
 
 import java.io.File;
 
@@ -47,7 +47,6 @@ import java.io.File;
  * @Last changed: $LastChangedDate$
  */
 public class SplashScreen extends Activity {
-    private static Logger log = Logger.getLogger(SplashScreen.class);
     public static final String SPLASH_SCREEN_MESSAGE = "com.cmg.android.plmobile.SplashScreen";
     public static final String MESSAGE_ACTION = "MESSAGE_ACTION";
     public static final String START_MAIN_ACTIVITY = "START_MAIN_ACTIVITY";
@@ -166,7 +165,7 @@ public class SplashScreen extends Activity {
                 splashPanel = null;
             }
         } catch (Exception ex) {
-            log.error("Error when destroy splash screen", ex);
+            SimpleAppLog.error("Error when destroy splash screen", ex);
         }
         super.onDestroy();
     }
@@ -184,7 +183,7 @@ public class SplashScreen extends Activity {
                 return true;
             }
         } catch (Exception ex) {
-            log.error("Error when check is online", ex);
+            SimpleAppLog.error("Error when check is online", ex);
         }
         return false;
     }
@@ -193,7 +192,7 @@ public class SplashScreen extends Activity {
      * start main activity
      */
     public void startMainActivity() {
-        log.info("start main activity");
+        SimpleAppLog.info("start main activity");
         try {
             Class<?> mainActivity = Class.forName(context
                     .getResources().getString(R.string.main_activity));
@@ -208,13 +207,13 @@ public class SplashScreen extends Activity {
 //			}
             startActivity(intent);
         } catch (Exception e) {
-            log.error("Cannot start main activity", e);
+            SimpleAppLog.error("Cannot start main activity", e);
         }
 //		return null;
 //		AsyncTask<Void, Void, Void> startUp = new AsyncTask<Void, Void, Void>() {
 //			@Override
 //			protected Void doInBackground(Void... params) {
-//				
+//
 //			}
 //
 //		};
@@ -334,7 +333,7 @@ public class SplashScreen extends Activity {
                 alert.setCanceledOnTouchOutside(false);
             }
         } catch (Exception ex) {
-            log.error("Error when create confirm dialog", ex);
+            SimpleAppLog.error("Error when create confirm dialog", ex);
             startMainActivity();
         }
     }
@@ -353,7 +352,7 @@ public class SplashScreen extends Activity {
             alert.setMessage(updateMessage);
             alert.show();
         } catch (Exception ex) {
-            log.error("Error when show confirm dialog", ex);
+            SimpleAppLog.error("Error when show confirm dialog", ex);
             startMainActivity();
         }
     }
@@ -377,7 +376,7 @@ public class SplashScreen extends Activity {
                     .startActivities();
             finish();
         } catch (Exception ex) {
-            log.error("Error when install updated APK", ex);
+            SimpleAppLog.error("Error when install updated APK", ex);
             startMainActivity();
         }
     }
@@ -392,7 +391,7 @@ public class SplashScreen extends Activity {
             showProgressUpdate();
             progressDialog.setProgress(progress);
         } catch (Exception ex) {
-            log.error("Error when updateProgress", ex);
+            SimpleAppLog.error("Error when updateProgress", ex);
         }
     }
 
@@ -414,7 +413,7 @@ public class SplashScreen extends Activity {
                 progressDialog.show();
             }
         } catch (Exception ex) {
-            log.error("Error when show progress update", ex);
+            SimpleAppLog.error("Error when show progress update", ex);
         }
     }
 }

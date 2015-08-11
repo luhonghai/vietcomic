@@ -14,10 +14,10 @@ import android.os.AsyncTask;
 
 import com.cmg.android.plmobile.SplashScreen;
 import com.cmg.android.util.FileUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.util.FileHelper;
 import com.cmg.mobile.shared.util.StringUtils;
 
-import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,7 +36,6 @@ import javax.net.ssl.HttpsURLConnection;
  * @Last changed: $LastChangedDate$
  */
 public class UpdateAsync extends AsyncTask<Void, Void, Void> {
-    private static Logger log = Logger.getLogger(UpdateAsync.class);
     private static final int BUFFER_LENGTH = 1024;
     private final Context context;
     private final String apkUrl;
@@ -78,7 +77,7 @@ public class UpdateAsync extends AsyncTask<Void, Void, Void> {
             intent.putExtra(SplashScreen.PROGRESS_VALUE, progress);
             context.sendBroadcast(intent);
         } catch (Exception ex) {
-            log.error("Error when post progress to view", ex);
+            SimpleAppLog.error("Error when post progress to view", ex);
         }
     }
 
@@ -97,7 +96,7 @@ public class UpdateAsync extends AsyncTask<Void, Void, Void> {
                 context.sendBroadcast(intent);
             }
         } catch (Exception ex) {
-            log.error("Error when post action to view", ex);
+            SimpleAppLog.error("Error when post action to view", ex);
         }
         super.onPostExecute(v);
     }
@@ -154,21 +153,21 @@ public class UpdateAsync extends AsyncTask<Void, Void, Void> {
             }
             isDone = true;
         } catch (Exception e) {
-            log.error("Cannot update APK", e);
+            SimpleAppLog.error("Cannot update APK", e);
         } finally {
             try {
                 if (fos != null) {
                     fos.close();
                 }
             } catch (Exception ex) {
-                log.error("Cannot close fos stream", ex);
+                SimpleAppLog.error("Cannot close fos stream", ex);
             }
             try {
                 if (is != null) {
                     is.close();
                 }
             } catch (Exception ex) {
-                log.error("Cannot close is stream", ex);
+                SimpleAppLog.error("Cannot close is stream", ex);
             }
 
         }

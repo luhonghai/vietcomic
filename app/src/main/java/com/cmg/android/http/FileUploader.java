@@ -9,6 +9,7 @@
 package com.cmg.android.http;
 
 import com.cmg.android.http.exception.UploaderException;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.common.FileCommon;
 
 import org.apache.http.HttpEntity;
@@ -18,7 +19,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,7 +37,6 @@ import java.util.Map;
  * @Last changed: $LastChangedDate$
  */
 public class FileUploader {
-    private static final Logger log = Logger.getLogger(FileUploader.class);
 
     /**
      * @param entity
@@ -48,7 +47,7 @@ public class FileUploader {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(uploadUrl);
         try {
-            log.info("Upload file to " + uploadUrl);
+            SimpleAppLog.info("Upload file to " + uploadUrl);
             httppost.setEntity(entity);
 
             // Execute HTTP Post Request
@@ -56,13 +55,13 @@ public class FileUploader {
             HttpEntity resEntity = response.getEntity();
             if (entity != null) {
                 String responseString = EntityUtils.toString(resEntity, "UTF-8");
-                log.info("responseString: " + responseString);
+                SimpleAppLog.info("responseString: " + responseString);
                 return responseString;
             }
         } catch (ClientProtocolException e) {
-            log.error(e.getMessage(), e);
+            SimpleAppLog.error(e.getMessage(), e);
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            SimpleAppLog.error(e.getMessage(), e);
         }
         return "";
     }

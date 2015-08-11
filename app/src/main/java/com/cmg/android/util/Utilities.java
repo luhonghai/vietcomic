@@ -13,13 +13,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import java.io.File;
-
-import de.mindpipe.android.logging.log4j.LogConfigurator;
-
 /**
  * DOCME
  *
@@ -29,7 +22,6 @@ import de.mindpipe.android.logging.log4j.LogConfigurator;
  * @Last changed: $LastChangedDate$
  */
 public class Utilities {
-    private final static Logger log = Logger.getLogger(Utilities.class);
     public static final String LOG_FOLDER = "logs";
     public static final String LOG_FILE = "app.log";
 
@@ -58,7 +50,7 @@ public class Utilities {
             return context.getPackageManager().getPackageInfo(
                     context.getPackageName(), 0);
         } catch (NameNotFoundException e) {
-            log.error("Cannot get package info", e);
+            SimpleAppLog.error("Cannot get package info", e);
         }
         return null;
     }
@@ -69,15 +61,6 @@ public class Utilities {
      * @param context
      */
     public static void configureLog4J(Context context) {
-        final LogConfigurator logConfigurator = new LogConfigurator();
-        String logName = getPackageInfo(context).applicationInfo.dataDir
-                + File.separator + LOG_FOLDER + File.separator + LOG_FILE;
-        logConfigurator.setFileName(logName);
 
-        logConfigurator.setRootLevel(Level.DEBUG);
-        // Set log level of a specific logger
-        logConfigurator.setLevel("org.apache", Level.ERROR);
-        logConfigurator.configure();
-        log.info("Log location: " + logName);
     }
 }

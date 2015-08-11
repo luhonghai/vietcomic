@@ -20,8 +20,7 @@ import android.view.SurfaceView;
 
 import com.cmg.android.plmobile.R;
 import com.cmg.android.plmobile.SplashScreen;
-
-import org.apache.log4j.Logger;
+import com.cmg.android.util.SimpleAppLog;
 
 /**
  * DOCME
@@ -32,7 +31,6 @@ import org.apache.log4j.Logger;
  * @Last changed: $LastChangedDate$
  */
 public class SplashPanel extends SurfaceView implements SurfaceHolder.Callback {
-    private static Logger log = Logger.getLogger(SplashPanel.class);
     private static final int ANIMATION_SPEED = 20;
     private static final int FPS = 80;
     private final Context context;
@@ -74,7 +72,7 @@ public class SplashPanel extends SurfaceView implements SurfaceHolder.Callback {
 
         thread = new MainThread(getHolder(), this);
         setFocusable(true);
-        log.info("init animation");
+        SimpleAppLog.info("init animation");
     }
 
     /**
