@@ -24,12 +24,12 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.cmg.android.plmobile.R;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -42,8 +42,6 @@ import java.util.List;
  * @Last changed: $LastChangedDate$
  */
 public final class ImageLoaderHelper {
-    private final static Logger logger = Logger
-            .getLogger(ImageLoaderHelper.class);
 
     /**
      * Constructor
@@ -60,7 +58,7 @@ public final class ImageLoaderHelper {
      * @param images
      */
     public static void silentLoadImageToDiscCache(final List<String> images) {
-        logger.info("init loading disc cache");
+        SimpleAppLog.info("init loading disc cache");
 
     }
 
@@ -85,7 +83,7 @@ public final class ImageLoaderHelper {
             ImageLoader.getInstance().init(config);
             return ImageLoader.getInstance();
         } catch (Exception ex) {
-            logger.error("Error when get image loader instance", ex);
+            SimpleAppLog.error("Error when get image loader instance", ex);
             return null;
         }
     }
@@ -100,13 +98,13 @@ public final class ImageLoaderHelper {
 
         int height = display.getHeight();
         long roundedHeightSize = Math.round((0.2132 * height) + 27.177);
-        logger.info("Height: " + height);
-        logger.info("Round Height: " + roundedHeightSize);
+        SimpleAppLog.info("Height: " + height);
+        SimpleAppLog.info("Round Height: " + roundedHeightSize);
 
         int width = display.getWidth();
         long roundedWidthSize = Math.round((0.4264 * width) - 6.9355);
-        logger.info("Width: " + width);
-        logger.info("Round Width: " + roundedWidthSize);
+        SimpleAppLog.info("Width: " + width);
+        SimpleAppLog.info("Round Width: " + roundedWidthSize);
 
         return (int) ((roundedHeightSize + roundedWidthSize) / 2);
     }

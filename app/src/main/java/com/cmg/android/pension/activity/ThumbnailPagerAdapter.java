@@ -25,11 +25,10 @@ import com.cmg.android.caching.ImageLoaderHelper;
 import com.cmg.android.cmgpdf.util.Utility;
 import com.cmg.android.plmobile.R;
 import com.cmg.android.util.FileUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.data.NewsletterCategory;
 import com.cmg.mobile.shared.util.StringUtils;
-
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,7 +39,6 @@ import java.util.List;
  * Created by Hai Lu on 10/24/13.
  */
 public class ThumbnailPagerAdapter extends BaseAdapter {
-    private static final Logger log = Logger.getLogger(ThumbnailPagerAdapter.class);
     private static final String TAG = ThumbnailPagerAdapter.class
             .getSimpleName();
 
@@ -89,7 +87,7 @@ public class ThumbnailPagerAdapter extends BaseAdapter {
                     line = br.readLine();
                 }
                 String rawText = sb.toString();
-                log.debug("found thumbnail size: " + rawText);
+                SimpleAppLog.debug("found thumbnail size: " + rawText);
                 if (rawText.length() > 0) {
                     rawText = rawText.trim();
                     String[] p = rawText.split("\\|");
@@ -147,7 +145,7 @@ public class ThumbnailPagerAdapter extends BaseAdapter {
 
         final Point p = getThumbnailSize(mPath + Utility.md5(fileUri) + ".s");
         if (p != null) {
-            log.debug("Set point x=" + p.x + " y=" + p.y);
+            SimpleAppLog.debug("Set point x=" + p.x + " y=" + p.y);
             final ImageView imageView = holder.previewPageImageView;
             holder.previewPageImageView.post(new Runnable() {
                 @Override
@@ -157,7 +155,7 @@ public class ThumbnailPagerAdapter extends BaseAdapter {
                 }
             });
         } else {
-            log.debug("Could not found point");
+            SimpleAppLog.debug("Could not found point");
         }
 
         ImageLoaderHelper.getImageLoader(mContext).displayImage(Uri.fromFile(new File(mCachedBitmapFilePath)).toString(), holder.previewPageImageView);

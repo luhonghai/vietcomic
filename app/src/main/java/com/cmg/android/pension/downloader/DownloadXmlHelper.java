@@ -13,13 +13,13 @@ import android.content.Context;
 import com.cmg.android.pension.database.DatabaseHandler;
 import com.cmg.android.plmobile.R;
 import com.cmg.android.util.AndroidCommonUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.data.NewsletterCategory;
 import com.cmg.mobile.shared.exception.NewsletterParserException;
 import com.cmg.mobile.shared.util.FileHelper;
 import com.cmg.mobile.shared.util.XmlParser;
 
-import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import java.io.FileNotFoundException;
@@ -37,7 +37,6 @@ import javax.xml.parsers.ParserConfigurationException;
  * @Last changed: $LastChangedDate$
  */
 public class DownloadXmlHelper {
-    private static Logger logger = Logger.getLogger(DownloadXmlHelper.class);
 
     private Context context;
     private String fileName;
@@ -107,12 +106,12 @@ public class DownloadXmlHelper {
      * Download XML file
      */
     public void downloadFileXml() {
-        logger.info("Begin download xml " + pathXml + " File Name: " + fileName);
+        SimpleAppLog.info("Begin download xml " + pathXml + " File Name: " + fileName);
         try {
             FileHelper.downloadFile(pathXml,
                     context.openFileOutput(fileName, 0), isDownload);
         } catch (Exception e) {
-            logger.error("Error when download file", e);
+            SimpleAppLog.error("Error when download file", e);
         }
     }
 

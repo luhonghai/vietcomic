@@ -35,9 +35,9 @@ import com.cmg.android.preference.Preference;
 import com.cmg.android.task.UpdateNewStatusAsync;
 import com.cmg.android.util.AndroidCommonUtils;
 import com.cmg.android.util.ExceptionHandler;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 
-import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -52,7 +52,6 @@ import at.technikum.mti.fancycoverflow.FancyCoverFlow;
  * @Last changed: $LastChangedDate$
  */
 public class NewsletterFragment extends ProgressSherlockFragment {
-    private static Logger log = Logger.getLogger(NewsletterFragment.class);
     public static final String DATE_FORMAT = "MMMM dd, yyyy";
     private View mContentView;
     private Handler mHandler;
@@ -81,7 +80,7 @@ public class NewsletterFragment extends ProgressSherlockFragment {
         @Override
         public void run() {
             init();
-            log.info("init fragment");
+            SimpleAppLog.info("init fragment");
         }
     };
 

@@ -18,8 +18,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.cmg.android.plmobile.R;
+import com.cmg.android.util.SimpleAppLog;
 
-import org.apache.log4j.Logger;
 
 /**
  * DOCME
@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
  * @Last changed: $LastChangedDate$
  */
 public class HandPanel extends SurfaceView implements SurfaceHolder.Callback {
-    private static Logger log = Logger.getLogger(SplashPanel.class);
     private static final int ANIMATION_SPEED = 5;
     private static final int FPS = 30;
     @SuppressWarnings("unused")
@@ -64,7 +63,7 @@ public class HandPanel extends SurfaceView implements SurfaceHolder.Callback {
                 ANIMATION_SPEED, 5));
         thread = new HandThread(getHolder(), this);
         setFocusable(true);
-        log.info("init animation");
+        SimpleAppLog.info("init animation");
     }
 
     /**

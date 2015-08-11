@@ -12,9 +12,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 
-import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -27,7 +27,6 @@ import java.util.List;
  * @Last changed: $LastChangedDate$
  */
 public class NewsletterDetailFragmentAdapter extends FragmentStatePagerAdapter {
-    private static Logger log = Logger.getLogger(NewsletterDetailFragmentAdapter.class);
     private final List<Newsletter> newsletters;
 
     /**
@@ -43,7 +42,7 @@ public class NewsletterDetailFragmentAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        log.debug("start create instance NewsletterDetailFragment. pos: "
+        SimpleAppLog.debug("start create instance NewsletterDetailFragment. pos: "
                 + position);
         Fragment fragment = new NewsletterDetailFragment();
         Bundle args = new Bundle();

@@ -15,7 +15,6 @@ import android.os.Environment;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.util.StringUtils;
 
-import org.apache.log4j.Logger;
 
 import java.io.File;
 
@@ -29,7 +28,6 @@ import java.io.File;
  */
 public class FileUtils {
 
-    private final static Logger log = Logger.getLogger(FileUtils.class);
     public static final String PDF_FOLDER = "newsletters";
     public static final String SCREENSHOOTS_FOLDER = "screenshoots";
 
@@ -45,7 +43,7 @@ public class FileUtils {
                     .append(File.separator).append(folderName);
             return sb.toString();
         } catch (Exception ex) {
-            log.error("Error when get PDF folder path", ex);
+            SimpleAppLog.error("Error when get PDF folder path", ex);
             return "";
         }
     }
@@ -65,7 +63,7 @@ public class FileUtils {
                     .append(File.separator).append(type);
             return sb.toString();
         } catch (Exception ex) {
-            log.error("Error when get PDF folder path", ex);
+            SimpleAppLog.error("Error when get PDF folder path", ex);
             return "";
         }
     }
@@ -87,7 +85,7 @@ public class FileUtils {
                     .append(StringUtils.getFileName(newsletter.getFileUrl()));
             return sb.toString();
         } catch (Exception ex) {
-            log.error("Error when get PDF file path", ex);
+            SimpleAppLog.error("Error when get PDF file path", ex);
             return "";
         }
     }
@@ -116,7 +114,7 @@ public class FileUtils {
             return Environment.getExternalStorageDirectory() + File.separator
                     + "download" + File.separator;
         } catch (Exception ex) {
-            log.error("Error when get download folder", ex);
+            SimpleAppLog.error("Error when get download folder", ex);
             return "";
         }
     }

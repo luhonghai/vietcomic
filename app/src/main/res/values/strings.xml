@@ -190,7 +190,7 @@
     <string name="title_child_send_errors">Send errors</string>
     <string name="summary_child_send_statistics"></string>
     <string name="title_child_send_statistics">Send statistical data</string>
-    <!-- Book reader -->
+    <!-- ComicBook reader -->
     <string name="go_to_page">Go to page!</string>
     <string name="search_text">Search ...</string>
     <string name="page_out_of_range">Page number out of range. Valid range: 1-%1$d</string>

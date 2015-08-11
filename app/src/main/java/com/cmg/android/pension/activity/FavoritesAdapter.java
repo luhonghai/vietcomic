@@ -12,40 +12,27 @@ package com.cmg.android.pension.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
-import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmg.android.caching.ImageLoaderHelper;
-import com.cmg.android.cmgpdf.CmgPDFActivity;
-import com.cmg.android.cmgpdf.view.TwoWayView;
-import com.cmg.android.common.Environment;
-import com.cmg.android.common.ViewWrapperInfo;
 import com.cmg.android.pension.view.CoverView;
-import com.cmg.android.plmobile.MainActivity;
 import com.cmg.android.plmobile.R;
-import com.cmg.android.util.FileUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
-import com.cmg.mobile.shared.util.ContentGenerater;
 
-import org.apache.log4j.Logger;
-
-import java.io.File;
 import java.util.List;
 
 /**
  * Created by Hai Lu on 10/24/13.
  */
 public class FavoritesAdapter extends BaseAdapter {
-    private static Logger log = Logger.getLogger(FavoritesAdapter.class);
     private final Context mContext;
 
     private final List<Newsletter> mLetter;
@@ -164,7 +151,7 @@ public class FavoritesAdapter extends BaseAdapter {
         ((CoverView) view.coverView).setDownloaded(newsletter.checkDownloaded());
         ((CoverView) view.coverView).setStatus(Newsletter.IS_FAVOR);
 
-        log.info("init two way view. Newsletter " + newsletter.getTitle() + " bookmark pages size: " + newsletter.getBookmarkPages());
+        SimpleAppLog.info("init two way view. Newsletter " + newsletter.getTitle() + " bookmark pages size: " + newsletter.getBookmarkPages());
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(-1, -1);
         ThumbnailPagerAdapter thumbnailPagerAdapter = new ThumbnailPagerAdapter(mContext, newsletter);
         return convertView;

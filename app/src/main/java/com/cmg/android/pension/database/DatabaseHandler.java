@@ -16,10 +16,10 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.cmg.android.preference.Preference;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.data.NewsletterCategory;
 
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,6 @@ import java.util.List;
  * @Last changed: $LastChangedDate$
  */
 public class DatabaseHandler extends SQLiteOpenHelper {
-    private static Logger log = Logger.getLogger(DatabaseHandler.class);
     private static final int DATABASE_VERSION = 4;
     // private static final String DB_PATH = "/data/data/databases/";
     private static final String DATABASE_NAME = "newsletter_database";
@@ -133,7 +132,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + TABLE_NEWSLETTER + " DROP COLUMN "
                         + KEY_PAGE);
             } catch (Exception ex) {
-                log.error("Cannot drop column", ex);
+                SimpleAppLog.error("Cannot drop column", ex);
             }
         }
 
@@ -142,7 +141,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + TABLE_NEWSLETTER + " DROP COLUMN "
                         + KEY_NEW);
             } catch (Exception ex) {
-                log.error("Cannot drop column", ex);
+                SimpleAppLog.error("Cannot drop column", ex);
             }
         }
 
@@ -153,7 +152,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + TABLE_NEWSLETTER + " DROP COLUMN "
                         + KEY_NEW);
             } catch (Exception ex) {
-                log.error("Cannot drop column", ex);
+                SimpleAppLog.error("Cannot drop column", ex);
             }
         }
 
@@ -163,7 +162,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         + KEY_FAVOR);
                 db.execSQL("DROP TABLE " + TABLE_BOOKMARK);
             } catch (Exception ex) {
-                log.error("Cannot drop column", ex);
+                SimpleAppLog.error("Cannot drop column", ex);
             }
         }
     }
@@ -182,7 +181,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + TABLE_NEWSLETTER + " ADD "
                         + KEY_PAGE + " INTEGER");
             } catch (Exception ex) {
-                log.error("Cannot add column", ex);
+                SimpleAppLog.error("Cannot add column", ex);
             }
         }
 
@@ -191,7 +190,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + TABLE_NEWSLETTER + " ADD "
                         + KEY_NEW + " INTEGER");
             } catch (Exception ex) {
-                log.error("Cannot add column", ex);
+                SimpleAppLog.error("Cannot add column", ex);
             }
         }
 
@@ -202,7 +201,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + TABLE_NEWSLETTER + " ADD "
                         + KEY_NEW + " INTEGER");
             } catch (Exception ex) {
-                log.error("Cannot add column", ex);
+                SimpleAppLog.error("Cannot add column", ex);
             }
         }
 
@@ -211,7 +210,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 db.execSQL(CREATE_BOOKMARK_TABLE);
                 db.execSQL("ALTER TABLE " + TABLE_NEWSLETTER + " ADD " + KEY_FAVOR + " INTEGER");
             } catch (Exception e) {
-                log.error("Cannot update database", e);
+                SimpleAppLog.error("Cannot update database", e);
             }
         }
     }
@@ -250,7 +249,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 db.insert(TABLE_NEWSLETTER, null, values);
             }
         } catch (Exception ex) {
-            log.error("Can not create newsletter", ex);
+            SimpleAppLog.error("Can not create newsletter", ex);
         } finally {
             try {
                 if (rowData != null) {
@@ -260,7 +259,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
     }
@@ -293,7 +292,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             db.insert(TABLE_CATEGORY, null, values);
         } catch (Exception ex) {
-            log.error("Can't add category", ex);
+            SimpleAppLog.error("Can't add category", ex);
         } finally {
             try {
                 if (rowData != null) {
@@ -303,7 +302,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
     }
@@ -317,7 +316,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public Newsletter getById(String id) {
         SQLiteDatabase db = null;
         Cursor rowData = null;
-        log.info("Get newsletter id: " + id);
+        SimpleAppLog.info("Get newsletter id: " + id);
         try {
             db = this.getReadableDatabase();
             rowData = db.query(TABLE_NEWSLETTER, new String[]{KEY_ID,
@@ -348,7 +347,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     Integer.parseInt(rowData.getString(9)), newValue, favorValue);
             return newsletter;
         } catch (Exception ex) {
-            log.error("Can not get newsletter by id", ex);
+            SimpleAppLog.error("Can not get newsletter by id", ex);
         } finally {
             try {
                 if (rowData != null) {
@@ -358,7 +357,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
         return null;
@@ -414,7 +413,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }
             return list;
         } catch (Exception ex) {
-            log.error("Can not list newsletter", ex);
+            SimpleAppLog.error("Can not list newsletter", ex);
         } finally {
             try {
                 if (rowData != null) {
@@ -424,7 +423,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
         return null;
@@ -458,14 +457,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     new String[]{newsletter.getId()});
             return isUpdated;
         } catch (Exception ex) {
-            log.error("Can update status newsletter", ex);
+            SimpleAppLog.error("Can update status newsletter", ex);
         } finally {
             try {
                 if (db != null) {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
         return 0;
@@ -489,14 +488,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             return isUpdated;
         } catch (Exception ex) {
-            log.error("Can update new status newsletter", ex);
+            SimpleAppLog.error("Can update new status newsletter", ex);
         } finally {
             try {
                 if (db != null) {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
         return 0;
@@ -521,14 +520,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             return isUpdated;
         } catch (Exception ex) {
-            log.error("Can update new status newsletter", ex);
+            SimpleAppLog.error("Can update new status newsletter", ex);
         } finally {
             try {
                 if (db != null) {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
         return 0;
@@ -559,14 +558,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close();
             return isUpdated;
         } catch (Exception ex) {
-            log.error("Can not update newsletter", ex);
+            SimpleAppLog.error("Can not update newsletter", ex);
         } finally {
             try {
                 if (db != null) {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
         return 0;
@@ -597,7 +596,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close();
             return b;
         } catch (Exception ex) {
-            log.error("Can check isupload newsletter", ex);
+            SimpleAppLog.error("Can check isupload newsletter", ex);
         }
         return false;
     }
@@ -623,7 +622,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 try {
                     newValue = rowData.getInt(0);
                 } catch (Exception ex) {
-                    log.debug("Cannot cast new value", ex);
+                    SimpleAppLog.error("Cannot cast new value", ex);
                 }
                 if (newValue == 1) {
                     b = true;
@@ -633,7 +632,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close();
             return b;
         } catch (Exception e) {
-            log.error("Can check isNew newsletter", e);
+            SimpleAppLog.error("Can check isNew newsletter", e);
         }
         return false;
     }
@@ -659,7 +658,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 try {
                     value = rowData.getInt(0);
                 } catch (Exception ex) {
-                    log.debug("Cannot cast new value", ex);
+                    SimpleAppLog.error("Cannot cast new value", ex);
                 }
                 b = value == Newsletter.IS_FAVOR;
             }
@@ -667,7 +666,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close();
             return b;
         } catch (Exception e) {
-            log.error("Can check isNew newsletter", e);
+            SimpleAppLog.error("Can check isNew newsletter", e);
         }
         return false;
     }
@@ -689,12 +688,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     new String[]{newsletterId, String.valueOf(page)});
             boolean isExisted = (rowData != null && rowData.moveToFirst());
             if (isExisted) {
-                log.info("bookmark is existed. try to remove bookmark");
+                SimpleAppLog.info("bookmark is existed. try to remove bookmark");
                 db.delete(TABLE_BOOKMARK, KEY_NEWSLETTER_ID + "=? and " + KEY_PAGE + "=?", new String[]{newsletterId, String.valueOf(page)});
                 return true;
             }
         } catch (Exception ex) {
-            log.error("Can not create newsletter", ex);
+            SimpleAppLog.error("Can not create newsletter", ex);
         } finally {
             try {
                 if (rowData != null) {
@@ -704,7 +703,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
         return false;
@@ -733,7 +732,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 return true;
             }
         } catch (Exception ex) {
-            log.error("Can not create newsletter", ex);
+            SimpleAppLog.error("Can not create newsletter", ex);
         } finally {
             try {
                 if (rowData != null) {
@@ -743,7 +742,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
         return false;
@@ -767,7 +766,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 newsletter.setBookmarkPages(bookmarkPages);
             }
         } catch (Exception ex) {
-            log.error("Can not getBookmark of newsletter", ex);
+            SimpleAppLog.error("Can not getBookmark of newsletter", ex);
         } finally {
             try {
                 if (rowData != null) {
@@ -777,7 +776,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
 
@@ -864,7 +863,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close();
             return list;
         } catch (Exception ex) {
-            log.error("Can not list newsletters", ex);
+            SimpleAppLog.error("Can not list newsletters", ex);
         }
         return null;
     }
@@ -897,7 +896,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // db.close();
         // return true;
         // } catch (Exception ex) {
-        // log.error("Can not update preferences", ex);
+        // SimpleAppLog.error("Can not update preferences", ex);
         // }
         return false;
     }
@@ -918,7 +917,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		 * pre.setViewType(rowData.getString(1));
 		 * pre.setSortType(rowData.getString(2)); return pre; } rowData.close();
 		 * db.close(); } catch (Exception ex) {
-		 * log.error("Can not update preferences", ex); }
+		 * SimpleAppLog.error("Can not update preferences", ex); }
 		 */
         return null;
     }
@@ -934,14 +933,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db = this.getWritableDatabase();
             db.delete(TABLE_NEWSLETTER, KEY_ID + "=?", new String[]{id});
         } catch (Exception ex) {
-            log.error("Can not delete newsletter by id", ex);
+            SimpleAppLog.error("Can not delete newsletter by id", ex);
         } finally {
             try {
                 if (db != null) {
                     db.close();
                 }
             } catch (Exception ex) {
-                log.error("Error when close database transaction", ex);
+                SimpleAppLog.error("Error when close database transaction", ex);
             }
         }
     }
@@ -959,7 +958,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }
             this.close();
         } catch (Exception ex) {
-            log.error("Error when recycle database object", ex);
+            SimpleAppLog.error("Error when recycle database object", ex);
         }
     }
 

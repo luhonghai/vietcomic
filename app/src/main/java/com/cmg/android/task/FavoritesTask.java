@@ -15,15 +15,15 @@ import android.os.Handler;
 
 import com.cmg.android.pension.activity.NewsletterDetailActivity;
 import com.cmg.android.pension.database.DatabaseHandler;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 
-import org.apache.log4j.Logger;
 
 /**
  * Created by Hai Lu on 10/23/13.
  */
 public class FavoritesTask {
-    private static final Logger log = Logger.getLogger(FavoritesTask.class);
+
     private final Context context;
     private DatabaseHandler db;
     private Runnable runner;
@@ -56,7 +56,7 @@ public class FavoritesTask {
         if (db == null) {
             db = new DatabaseHandler(context);
         }
-        log.info("Set newsletter favorites status: " + (newsletter.checkFavor() ? " IS_FAVOR " : " NOT_FAVOR"));
+        SimpleAppLog.info("Set newsletter favorites status: " + (newsletter.checkFavor() ? " IS_FAVOR " : " NOT_FAVOR"));
         if (db.updateFavorStatus(newsletter) == 1) {
             if (newsletter.checkFavor()) {
             } else {
@@ -64,7 +64,7 @@ public class FavoritesTask {
             Intent intent = new Intent(NewsletterDetailActivity.REFRESH_MAIN_ACTIVITY_MESSAGE);
             intent.putExtra(NewsletterDetailActivity.NOTIFY_REFESH_MAIN_ACTIVITY, "true");
             context.sendBroadcast(intent);
-            log.info("Favorites status updated");
+            SimpleAppLog.info("Favorites status updated");
         }
         return null;
     }

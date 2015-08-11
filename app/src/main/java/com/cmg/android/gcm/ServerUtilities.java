@@ -11,9 +11,8 @@ package com.cmg.android.gcm;
 import android.content.Context;
 
 import com.cmg.android.plmobile.R;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.util.FileHelper;
-
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,8 +31,6 @@ import static com.cmg.android.gcm.CommonUtilities.displayMessage;
  * Helper class used to communicate with the demo server.
  */
 public final class ServerUtilities {
-    private static final Logger LOGGER = Logger
-            .getLogger(ServerUtilities.class);
     private static final int RANDOM_RANGE = 1000;
 
     private static final int MAX_ATTEMPTS = 3;
@@ -53,7 +50,7 @@ public final class ServerUtilities {
      * @return whether the registration succeeded or not.
      */
     public static boolean register(final Context context, final String regId) {
-        LOGGER.info("registering device (regId = " + regId + ")");
+        SimpleAppLog.info("registering device (regId = " + regId + ")");
         String serverUrl = context.getResources()
                 .getString(R.string.gcm_server) + "/register";
         Map<String, String> params = new HashMap<String, String>();
@@ -63,7 +60,7 @@ public final class ServerUtilities {
         // demo server. As the server might be down, we will retry it a couple
         // times.
         for (int i = 1; i <= MAX_ATTEMPTS; i++) {
-            LOGGER.debug("Attempt #" + i + " to register");
+            SimpleAppLog.debug("Attempt #" + i + " to register");
             try {
                 displayMessage(context, context.getString(
                         R.string.server_registering, i, MAX_ATTEMPTS));
@@ -75,16 +72,16 @@ public final class ServerUtilities {
                 // Here we are simplifying and retrying on any error; in a real
                 // application, it should retry only on unrecoverable errors
                 // (like HTTP error code 503).
-                LOGGER.error("Failed to register on attempt " + i, e);
+                SimpleAppLog.error("Failed to register on attempt " + i, e);
                 if (i == MAX_ATTEMPTS) {
                     break;
                 }
                 try {
-                    LOGGER.debug("Sleeping for " + backoff + " ms before retry");
+                    SimpleAppLog.debug("Sleeping for " + backoff + " ms before retry");
                     Thread.sleep(backoff);
                 } catch (InterruptedException e1) {
                     // Activity finished before we complete - exit.
-                    LOGGER.debug("Thread interrupted: abort remaining retries!");
+                    SimpleAppLog.debug("Thread interrupted: abort remaining retries!");
                     Thread.currentThread().interrupt();
                     return false;
                 }
@@ -102,7 +99,7 @@ public final class ServerUtilities {
      * Unregister this account/device pair within the server.
      */
     public static void unregister(final Context context, final String regId) {
-        LOGGER.info("unregistering device (regId = " + regId + ")");
+        SimpleAppLog.info("unregistering device (regId = " + regId + ")");
         String serverUrl = context.getResources()
                 .getString(R.string.gcm_server) + "/unregister";
         Map<String, String> params = new HashMap<String, String>();
@@ -150,7 +147,7 @@ public final class ServerUtilities {
             }
         }
         String body = bodyBuilder.toString();
-        LOGGER.info("Posting '" + body + "' to " + url);
+        SimpleAppLog.info("Posting '" + body + "' to " + url);
         byte[] bytes = body.getBytes();
         HttpURLConnection conn = null;
         try {

@@ -11,13 +11,8 @@ package com.cmg.android.util;
 import android.content.Context;
 import android.content.Intent;
 
-import com.cmg.android.task.CheckUpdateAsync;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.util.ContentGenerater;
-import com.cmg.mobile.shared.util.FileHelper;
-
-import org.apache.log4j.Logger;
-import org.markdown4j.Markdown4jProcessor;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -31,7 +26,6 @@ import java.util.Map;
  * @Last changed: $LastChangedDate$
  */
 public class ContentUtils {
-    private final static Logger logger = Logger.getLogger(ContentUtils.class);
 
     public static final String KEY_SCREENSHOOT = "ADD_SCREEN_SHOOT";
 
@@ -57,21 +51,17 @@ public class ContentUtils {
                     ContentGenerater.generateShareInfo(newsletter));
             return shareIntent;
         } catch (Exception ex) {
-            logger.error("Error when create share intent", ex);
+            SimpleAppLog.error("Error when create share intent", ex);
             throw ex;
         }
     }
 
     public static String generateChangelogHTML(Context context) {
         try {
-            String tmp = FileHelper.readFileContent(context
-                    .openFileInput(CheckUpdateAsync.CHANGELOG_FILE));
-            // String html = new AndDown().markdownToHtml(tmp);
-            String html = new Markdown4jProcessor().process(tmp);
-            logger.info(html);
-            return html;
+
+            return "";
         } catch (Exception e) {
-            logger.error("Can not generate changelog content", e);
+            SimpleAppLog.error("Can not generate changelog content", e);
         }
         return "";
     }

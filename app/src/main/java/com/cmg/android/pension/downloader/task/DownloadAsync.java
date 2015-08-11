@@ -27,20 +27,13 @@ import com.cmg.android.pension.view.DownloadImage;
 import com.cmg.android.plmobile.MainActivity;
 import com.cmg.android.plmobile.R;
 import com.cmg.android.util.FileUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.util.ContentGenerater;
-import com.cmg.mobile.shared.util.FileHelper;
-
-import org.apache.log4j.Logger;
+import com.halosolutions.BookService;
+import com.halosolutions.ComicBook;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * DOCME
@@ -51,7 +44,6 @@ import javax.net.ssl.HttpsURLConnection;
  * @Last changed: $LastChangedDate$
  */
 public class DownloadAsync extends AsyncTask<Void, Void, Boolean> {
-    private static Logger log = Logger.getLogger(DownloadAsync.class);
     public static final String DISPLAY_MESSAGE_ACTION = "com.cmg.android.pension.caching.DownloadAsync";
     public static final String PROGRESS_VALUE = "PROGRESS_VALUE";
     private static final int MAX_PROGRESS = 100;
@@ -86,57 +78,26 @@ public class DownloadAsync extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         String urlPath = newsletter.getFileUrl();
-        FileOutputStream fos = null;
-        InputStream is = null;
         try {
-            URL url = new URL(urlPath);
-            HttpURLConnection connection = null;
-            if (url.getProtocol().toLowerCase().equals("https")) {
-                FileHelper.trustAllHosts();
-                HttpsURLConnection https = (HttpsURLConnection) url
-                        .openConnection();
-                https.setHostnameVerifier(FileHelper.DO_NOT_VERIFY);
-                connection = https;
-            } else {
-                connection = (HttpURLConnection) url.openConnection();
-            }
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-            connection.connect();
-            int lenghtOfFile = connection.getContentLength();
+
 
             String path = FileUtils.getPdfFolder(newsletter.getType(), context);
             File file = new File(path);
             file.mkdirs();
 
             pdfPath = FileUtils.getPdfFile(newsletter, context);
-            File outputFile = new File(pdfPath);
-            fos = new FileOutputStream(outputFile);
+            BookService bookService = new BookService();
+            ComicBook book = new ComicBook();
+            book.setPdfFile(pdfPath);
+            book.setUrl("http://vechai.info/blind-faith-descent/chap-037");
+            bookService.downloadBook(book);
 
-            is = connection.getInputStream();
-
-            byte[] buffer = new byte[BUFFER_LENGTH];
-            int len = 0;
-            long total = 0;
-            while ((len = is.read(buffer)) != -1) {
-                total += len;
-                long current = System.currentTimeMillis();
-
-                progress = (int) ((total * MAX_PROGRESS) / lenghtOfFile);
-                if (progress != lastProgress && progress != MAX_PROGRESS) {
-                    postProgress(context, Integer.toString(progress));
-                    lastProgress = progress;
-                }
-                lastPostTime = current;
-
-                fos.write(buffer, 0, len);
-            }
             postProgress(context, Integer.toString(MAX_PROGRESS));
 
             newsletter.setDownloaded(1);
             DatabaseHandler db = new DatabaseHandler(context);
             db.updateStatusById(newsletter);
-            log.info("Newsletter is downloaded " + newsletter.getId() + " | "
+            SimpleAppLog.info("Newsletter is downloaded " + newsletter.getId() + " | "
                     + newsletter.checkDownloaded());
 
             Intent intent = new Intent(NewsletterDetailActivity.REFRESH_MAIN_ACTIVITY_MESSAGE);
@@ -144,24 +105,9 @@ public class DownloadAsync extends AsyncTask<Void, Void, Boolean> {
             context.sendBroadcast(intent);
 
             isDone = true;
-        } catch (IOException e) {
-            log.error("Error when download newsletter", e);
+        } catch (Exception e) {
+            SimpleAppLog.error("Error when download newsletter", e);
             isDone = false;
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (Exception ex) {
-                    log.error("Error when close stream fos", ex);
-                }
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (Exception ex) {
-                    log.error("Error when close stream is", ex);
-                }
-            }
         }
         return isDone;
     }
@@ -233,11 +179,11 @@ public class DownloadAsync extends AsyncTask<Void, Void, Boolean> {
                 // notification.flags |= Notification.FLAG_ONGOING_EVENT;
                 notificationManager.notify(randomId, notification);
             } catch (Exception ex) {
-                log.error("Error when download newsletter show notification",
+                SimpleAppLog.error("Error when download newsletter show notification",
                         ex);
             }
         } else {
-            log.info("Could not download");
+            SimpleAppLog.info("Could not download");
             Toast.makeText(
                     context,
                     "Could not download newsletter "
@@ -260,7 +206,7 @@ public class DownloadAsync extends AsyncTask<Void, Void, Boolean> {
             intent.putExtra(PROGRESS_VALUE, value);
             context.sendBroadcast(intent);
         } catch (Exception ex) {
-            log.error("Error when post progress to view", ex);
+            SimpleAppLog.error("Error when post progress to view", ex);
         }
     }
 

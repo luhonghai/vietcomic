@@ -8,10 +8,11 @@
  */
 package com.cmg.android.http;
 
+import com.cmg.android.util.SimpleAppLog;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.message.BasicHeader;
-import org.apache.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +36,6 @@ public class SimpleMultipartEntity implements HttpEntity {
 
     public static final String TEST_UPLOAD_URL = "http://192.168.1.115:8080/mobile/upload";
 
-    private static final Logger log = Logger.getLogger(SimpleMultipartEntity.class);
     private final static char[] MULTIPART_CHARS = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
             .toCharArray();
 
@@ -60,7 +60,7 @@ public class SimpleMultipartEntity implements HttpEntity {
             try {
                 out.write(("--" + boundary + "\r\n").getBytes());
             } catch (final IOException e) {
-                log.error(e.getMessage(), e);
+                SimpleAppLog.error(e.getMessage(), e);
             }
         }
         isSetFirst = true;
@@ -73,7 +73,7 @@ public class SimpleMultipartEntity implements HttpEntity {
         try {
             out.write(("\r\n--" + boundary + "--\r\n").getBytes());
         } catch (final IOException e) {
-            log.error(e.getMessage(), e);
+            SimpleAppLog.error(e.getMessage(), e);
         }
         isSetLast = true;
     }
@@ -87,7 +87,7 @@ public class SimpleMultipartEntity implements HttpEntity {
             out.write(value.getBytes());
             out.write(("\r\n--" + boundary + "\r\n").getBytes());
         } catch (final IOException e) {
-            log.error(e.getMessage(), e);
+            SimpleAppLog.error(e.getMessage(), e);
         }
     }
 
@@ -110,12 +110,12 @@ public class SimpleMultipartEntity implements HttpEntity {
             }
             out.flush();
         } catch (final IOException e) {
-            log.error(e.getMessage(), e);
+            SimpleAppLog.error(e.getMessage(), e);
         } finally {
             try {
                 fin.close();
             } catch (final IOException e) {
-                log.error(e.getMessage(), e);
+                SimpleAppLog.error(e.getMessage(), e);
             }
         }
     }
@@ -124,7 +124,7 @@ public class SimpleMultipartEntity implements HttpEntity {
         try {
             addPart(key, value.getName(), new FileInputStream(value));
         } catch (final FileNotFoundException e) {
-            log.error(e.getMessage(), e);
+            SimpleAppLog.error(e.getMessage(), e);
         }
     }
 

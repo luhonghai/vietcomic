@@ -32,9 +32,9 @@ import com.cmg.android.pension.view.ProgressButton;
 import com.cmg.android.plmobile.R;
 import com.cmg.android.preference.Preference;
 import com.cmg.android.task.UpdateNewStatusAsync;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 
-import org.apache.log4j.Logger;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -49,7 +49,6 @@ import java.util.List;
  * @Last changed: $LastChangedDate$
  */
 public class NewsletterAdapter extends BaseAdapter {
-    private static Logger log = Logger.getLogger(NewsletterAdapter.class);
     private final Context mContext;
     private final List<Newsletter> mLetter;
     private String viewType;
@@ -154,7 +153,7 @@ public class NewsletterAdapter extends BaseAdapter {
                                 mContext.unregisterReceiver(((ProgressButton) child)
                                         .getMessageReceiver());
                             } catch (Exception ex) {
-                                log.error("Cannot unregister receiver", ex);
+                                SimpleAppLog.error("Cannot unregister receiver", ex);
                             }
                         }
                         ((ProgressButton) child).recycle();

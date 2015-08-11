@@ -12,9 +12,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.NewsletterCategory;
 
-import org.apache.log4j.Logger;
 
 /**
  * DOCME
@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
  * @Last changed: $LastChangedDate$
  */
 public class Preference {
-    private final static Logger LOG = Logger.getLogger(Preference.class);
 
     public static final String CHECKBOX_NEWSLETTER_PENSIONER = "checkbox_newsletter_pensioner";
     public static final String CHECKBOX_NEWSLETTER_EMPLOYEE = "checkbox_newsletter_employee";
@@ -153,7 +152,7 @@ public class Preference {
                 editor.commit();
                 // databaseHandler.updatePreference(instance);
             } catch (Exception ex) {
-                LOG.error("Cannot update preference", ex);
+                SimpleAppLog.error("Cannot update preference", ex);
             }
         }
     }

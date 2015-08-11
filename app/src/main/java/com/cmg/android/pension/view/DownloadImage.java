@@ -24,9 +24,9 @@ import android.view.View;
 import com.cmg.android.pension.downloader.task.DownloadAsync;
 import com.cmg.android.plmobile.R;
 import com.cmg.android.util.AndroidCommonUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 
-import org.apache.log4j.Logger;
 
 /**
  * DOCME
@@ -37,7 +37,6 @@ import org.apache.log4j.Logger;
  * @Last changed: $LastChangedDate$
  */
 public class DownloadImage extends View {
-    private static Logger log = Logger.getLogger(DownloadImage.class);
     private Paint paint = new Paint();
     private Paint textPaint = new Paint();
     private int mMax;
@@ -431,7 +430,7 @@ public class DownloadImage extends View {
                     setProgress(progress);
                 }
             } catch (Exception ex) {
-                log.error("Error when on receive message", ex);
+                SimpleAppLog.error("Error when on receive message", ex);
             }
         }
     };

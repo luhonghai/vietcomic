@@ -15,7 +15,6 @@ import android.os.Process;
 import com.cmg.android.pension.activity.ForceCloseActivity;
 import com.cmg.android.pension.activity.content.FeedbackActivity;
 
-import org.apache.log4j.Logger;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -30,7 +29,6 @@ import java.io.StringWriter;
  */
 public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandler {
     private final Context context;
-    private static Logger logger = Logger.getLogger(ExceptionHandler.class);
     public final static String STACK_TRACE = "bug";
 
     /**
@@ -50,11 +48,11 @@ public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandl
     public void uncaughtException(Thread thread, Throwable ex) {
         // TODO Auto-generated method stub
         ex.printStackTrace();
-        logger.error("Uncaught exception", ex);
+        SimpleAppLog.error("Uncaught exception", ex);
         StringWriter stackTrace = new StringWriter();
         ex.printStackTrace(new PrintWriter(stackTrace));
-        //logger.error(stackTrace);
-        logger.info("Redirect to Feedback page");
+        //SimpleAppLog.error(stackTrace);
+        SimpleAppLog.info("Redirect to Feedback page");
         Intent forceClose = new Intent(context, FeedbackActivity.class);
         forceClose.putExtra(STACK_TRACE, stackTrace.toString());
         context.startActivity(forceClose);

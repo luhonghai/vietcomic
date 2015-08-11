@@ -31,9 +31,9 @@ import com.cmg.android.common.Environment;
 import com.cmg.android.pension.activity.NewsletterFragmentAdapter;
 import com.cmg.android.preference.Preference;
 import com.cmg.android.util.AndroidCommonUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.NewsletterCategory;
 
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,6 @@ import java.util.List;
  */
 public class MainActivity extends ContentFragmentActivity implements
 		ActionBar.TabListener, OnQueryTextListener {
-	private static Logger log = Logger.getLogger(MainActivity.class);
 	private NewsletterFragmentAdapter newsletterAdapter;
 	private ViewPager mViewPager;
 	private Menu menu;
@@ -66,7 +65,7 @@ public class MainActivity extends ContentFragmentActivity implements
 		super.onCreate(savedInstanceState);
 
 
-		log.info("onCreate main activity");
+		SimpleAppLog.info("onCreate main activity");
 		setContentView(R.layout.newsletter_main_activity);
 		final ActionBar ab = getSupportActionBar();
 		// set up tabs nav
@@ -121,11 +120,9 @@ public class MainActivity extends ContentFragmentActivity implements
 		int orient = getResources().getConfiguration().orientation;
 		switch (orient) {
 		case Configuration.ORIENTATION_LANDSCAPE:
-			ab.setDisplayUseLogoEnabled(true);
 			ab.setDisplayShowTitleEnabled(false);
 			break;
 		case Configuration.ORIENTATION_PORTRAIT:
-			ab.setDisplayUseLogoEnabled(false);
 			ab.setDisplayShowTitleEnabled(true);
 			break;
 		default:
@@ -372,7 +369,7 @@ public class MainActivity extends ContentFragmentActivity implements
 
 	@Override
 	public boolean onQueryTextSubmit(String s) {
-		log.debug("search newsletter: " + s);
+		SimpleAppLog.debug("search newsletter: " + s);
 		search = s;
 		AndroidCommonUtils.hideSoftKeyboard(this);
 		notifyDataSetChanged();

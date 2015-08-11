@@ -8,6 +8,8 @@
  */
 package com.cmg.mobile.shared.util;
 
+import com.cmg.android.util.SimpleAppLog;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -37,7 +39,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 
 /**
  * DOCME
@@ -48,7 +49,6 @@ import org.apache.log4j.Logger;
  * @Last changed: $LastChangedDate$
  */
 public final class FileHelper {
-	private static Logger log = Logger.getLogger(FileHelper.class);
 	public static final int BYTE_LENGTH = 4096;
 
 	public static final int CONNECTION_TIMEOUT = 10000;
@@ -232,7 +232,7 @@ public final class FileHelper {
 				sb.append(line);
 				sb.append("\n");
 			}
-			// log.info("XML String : " + sb.toString());
+			// SimpleAppLog.info("XML String : " + sb.toString());
 			return sb.toString();
 		} catch (FileNotFoundException e) {
 			throw e;
@@ -303,7 +303,7 @@ public final class FileHelper {
 			InputStream stream) {
 		OutputStream outputStream = null;
 		try {
-			log.info("coming to save file txt");
+			SimpleAppLog.info("coming to save file txt");
 			File fod = new File(folder);
 			if (!fod.exists()) {
 				fod.mkdir();
@@ -317,13 +317,13 @@ public final class FileHelper {
 				outputStream.write(bytes, 0, read);
 			}
 		} catch (Exception e) {
-			log.error("error save file temp : " + e.getMessage(), e);
+			SimpleAppLog.error("error save file temp : " + e.getMessage(), e);
 		} finally {
 			if (stream != null) {
 				try {
 					stream.close();
 				} catch (IOException e) {
-					log.error("IOEXCEPTION : " + e.getMessage(), e);
+					SimpleAppLog.error("IOEXCEPTION : " + e.getMessage(), e);
 				}
 			}
 			if (outputStream != null) {
@@ -331,7 +331,7 @@ public final class FileHelper {
 					// outputStream.flush();
 					outputStream.close();
 				} catch (IOException e) {
-					log.error("IOEXCEPTION : " + e.getMessage(), e);
+					SimpleAppLog.error("IOEXCEPTION : " + e.getMessage(), e);
 				}
 
 			}
@@ -343,12 +343,12 @@ public final class FileHelper {
 			InputStream stream) {
 		byte[] imagebytes;
 		try {
-			log.info("coming to save file image");
+			SimpleAppLog.info("coming to save file image");
 			File fod = new File(folder);
 			if (!fod.exists()) {
 				fod.mkdirs();
 			}
-			log.info("creat folder succsess");
+			SimpleAppLog.info("creat folder succsess");
 			FileOutputStream fos = null;
 			BufferedOutputStream bos = null;
 			fos = new FileOutputStream(new File(folder + File.separator + pathFile));
@@ -374,7 +374,7 @@ public final class FileHelper {
 			 * File(folder+File.separator+pathFile));
 			 */
 		} catch (Exception e) {
-			log.error("error save file temp : " + e.getMessage(), e);
+			SimpleAppLog.error("error save file temp : " + e.getMessage(), e);
 		}
 
 	}
@@ -382,7 +382,7 @@ public final class FileHelper {
 	public static void moveFile(File fileMove, String destFolder,
 			String FileName) {
 		try {
-			log.info("move file begin");
+			SimpleAppLog.info("move file begin");
 			File fod = new File(destFolder);
 			if (!fod.exists()) {
 				fod.mkdirs();
@@ -390,7 +390,7 @@ public final class FileHelper {
 			FileUtils.moveFile(fileMove, new File(destFolder + File.separator
 					+ FileName));
 		} catch (Exception e) {
-			log.error("error when move file image : " + e.getMessage(), e);
+			SimpleAppLog.error("error when move file image : " + e.getMessage(), e);
 		}
 	}
 

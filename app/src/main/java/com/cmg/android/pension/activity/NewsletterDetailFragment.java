@@ -45,11 +45,11 @@ import com.cmg.android.plmobile.R;
 import com.cmg.android.util.AndroidCommonUtils;
 import com.cmg.android.util.ExceptionHandler;
 import com.cmg.android.util.FileUtils;
+import com.cmg.android.util.SimpleAppLog;
 import com.cmg.mobile.shared.data.Newsletter;
 import com.cmg.mobile.shared.util.ContentGenerater;
 import com.pagesuite.flowtext.FlowTextView;
 
-import org.apache.log4j.Logger;
 
 import java.io.File;
 
@@ -64,8 +64,6 @@ import at.technikum.mti.fancycoverflow.FancyCoverFlow;
  * @Last changed: $LastChangedDate$
  */
 public class NewsletterDetailFragment extends ProgressSherlockFragment {
-    private static Logger log = Logger
-            .getLogger(NewsletterDetailFragment.class);
     private static final int BEEP_DELAY_TIME = 400;
 
     private View mContentView;
@@ -142,7 +140,7 @@ public class NewsletterDetailFragment extends ProgressSherlockFragment {
     void init() {
         Bundle bundle = getArguments();
         String newsletterId = bundle.getString(Newsletter.NEWSLETTER_ID);
-        log.info("Start read newsletter detail id: " + newsletterId);
+        SimpleAppLog.info("Start read newsletter detail id: " + newsletterId);
         db = new DatabaseHandler(getActivity());
         newsletter = db.getById(newsletterId);
         if (newsletter != null) {
@@ -254,7 +252,7 @@ public class NewsletterDetailFragment extends ProgressSherlockFragment {
         height = ImageLoaderHelper.getHeight(getActivity());
         width = ImageLoaderHelper.getWidth(getActivity());
         if (fancyCoverFlow == null) {
-            log.debug("Start init coverflow");
+            SimpleAppLog.debug("Start init coverflow");
             adapter = new CoverflowPageAdapter(getActivity(), newsletter);
             fancyCoverFlow = new FancyCoverFlow(getActivity());
             fancyCoverFlow.setAdapter(adapter);
@@ -279,12 +277,12 @@ public class NewsletterDetailFragment extends ProgressSherlockFragment {
             }
             // AndroidCommonUtils.setSizeCoverFlowFrame(frame, height, width);
             frame.addView(fancyCoverFlow);
-            log.info("Add fancy cover flow to view");
+            SimpleAppLog.info("Add fancy cover flow to view");
             if (!newsletter.checkDownloaded()) {
-                log.info("Newsletter was not downloaded");
+                SimpleAppLog.info("Newsletter was not downloaded");
                 frame.setVisibility(View.INVISIBLE);
             } else {
-                log.info("Newsletter was downloaded");
+                SimpleAppLog.info("Newsletter was downloaded");
                 frame.setVisibility(View.VISIBLE);
             }
         }
@@ -294,7 +292,7 @@ public class NewsletterDetailFragment extends ProgressSherlockFragment {
      * set data into view
      */
     public void setData() {
-        log.debug("Start setData coverflow");
+        SimpleAppLog.debug("Start setData coverflow");
         height = ImageLoaderHelper.getHeight(getActivity());
         width = ImageLoaderHelper.getWidth(getActivity());
         imageView = (ImageView) mContentView.findViewById(R.id.full_image_view);
@@ -502,7 +500,7 @@ public class NewsletterDetailFragment extends ProgressSherlockFragment {
      * get data
      */
     private void obtainData() {
-        log.debug("start obtainData");
+        SimpleAppLog.debug("start obtainData");
         setContentShown(false);
         mHandler = new Handler();
         mHandler.post(mShowContentRunnable);
@@ -514,7 +512,7 @@ public class NewsletterDetailFragment extends ProgressSherlockFragment {
     @Deprecated
     public void setVisible() {
         if (!isLandscape) {
-            log.info("set visible frame");
+            SimpleAppLog.info("set visible frame");
             frame.setVisibility(View.VISIBLE);
         }
     }
@@ -537,7 +535,7 @@ public class NewsletterDetailFragment extends ProgressSherlockFragment {
                 return true;
             }
         } catch (Exception ex) {
-            log.error("Error when check is online", ex);
+            SimpleAppLog.error("Error when check is online", ex);
         }
         return false;
     }
@@ -561,7 +559,7 @@ public class NewsletterDetailFragment extends ProgressSherlockFragment {
                     && newsletterId.equals(newsletter.getId())) {
                 int progress = Integer.parseInt(progressValue);
                 if (progress == 100) {
-                    log.info("generate UI when download completed");
+                    SimpleAppLog.info("generate UI when download completed");
 //                    setVisible();
                     newsletter.setDownloaded(Newsletter.IS_DOWNLOAD);
                     statusHandler.removeCallbacks(statusRunnale);
