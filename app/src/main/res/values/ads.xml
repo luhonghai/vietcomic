@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="main_ad_unit_id">ca-app-pub-5351525772414542/8467899314</string>
-    <string name="history_ad_unit_id">ca-app-pub-5351525772414542/9944632512</string>
-    <!--<string name="banner_ad_unit_id">ca-app-pub-8407001210266579/2390471049</string>-->
-    <string name="popup_ad_unit_id">ca-app-pub-5351525772414542/4991225713</string>
-</resources>

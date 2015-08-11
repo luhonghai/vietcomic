@@ -1,0 +1,18 @@
+<!--
+  ~ Copyright (c) 2013. CMG Ltd All rights reserved.
+  ~
+  ~ This software is the confidential and proprietary information of CMG
+  ~ ("Confidential Information"). You shall not disclose such Confidential
+  ~ Information and shall use it only in accordance with the terms of the
+  ~ license agreement you entered into with CMG.
+  -->
+
+<resources>
+
+    <!--
+         Customize dimensions originally defined in res/values/dimens.xml (such as
+         screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
+    -->
+    <dimen name="activity_horizontal_margin">128dp</dimen>
+
+</resources>

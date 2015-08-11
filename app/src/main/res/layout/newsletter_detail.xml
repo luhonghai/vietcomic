@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2013. CMG Ltd All rights reserved.
+  ~
+  ~ This software is the confidential and proprietary information of CMG
+  ~ ("Confidential Information"). You shall not disclose such Confidential
+  ~ Information and shall use it only in accordance with the terms of the
+  ~ license agreement you entered into with CMG.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clearTaskOnLaunch="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/tableRow1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/txtTitle"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:lines="2"
+                android:minLines="2"
+                android:text="Large Text"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#9ACD32" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/tableRow2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/txtDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="2"
+                android:text="Medium Text"
+                android:textColor="#9ACD32" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.pagesuite.flowtext.FlowTextView
+                android:id="@+id/txtDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <FrameLayout
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:paddingRight="10dp">
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:id="@+id/full_image_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/icon_pdf" />
+                        <FrameLayout
+                            android:id="@+id/frm_progress_download"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+                        <TextView
+                            android:id="@+id/statusNewsletter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center|top"
+                            android:layout_marginTop="5dp"
+                            android:text="downloading..."
+                            style="@style/StatusInfoOverlayText" />
+                    </FrameLayout>
+                </FrameLayout>
+
+            </com.pagesuite.flowtext.FlowTextView>
+        </LinearLayout>
+
+        <!--<FrameLayout-->
+        <!--android:id="@+id/frame_carousel"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentLeft="true"></FrameLayout>-->
+    </LinearLayout>
+
+</RelativeLayout>

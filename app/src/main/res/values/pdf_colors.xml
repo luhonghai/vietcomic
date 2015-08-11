@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="canvas">#404040</color>
+	<color name="toolbar">#C0000000</color>
+	<color name="page_indicator">#C0202020</color>
+	<color name="busy_indicator">#C0202020</color>
+	<color name="button_normal">#00000000</color>
+	<color name="button_pressed">#FF2572AC</color>
+	<color name="text_normal">#FFFFFF</color>
+	<color name="text_pressed">#FFFFFF</color>
+	<color name="text_border_normal">#000000</color>
+	<color name="text_border_pressed">#2572AC</color>
+	<color name="text_border_focused">#000000</color>
+	<color name="seek_thumb">#2572AC</color>
+	<color name="seek_progress">#FFFFFF</color>
+
+    <color name="bar">#C0202020</color>
+    <color name="error_message">#ffc00000</color>
+    <color name="thumbnail_selected_background">#bba8a8a8</color>
+    <color name="transparent_gray">#aa000000</color>
+
+    <color name="bp_green_bar">#C09ACD32</color>
+
+    <color name="bp_green">#9ACD32</color>
+</resources>
