@@ -56,6 +56,7 @@ public class BookService {
     }
 
     public ComicBook downloadBook(final ComicBook book) throws Exception {
+        long start =System.currentTimeMillis();
         SimpleAppLog.info("Start download comic book at " + book.getUrl());
         Document doc = Jsoup.connect(book.getUrl()).get();
         Elements images = doc.select(cssSelector);
@@ -109,6 +110,8 @@ public class BookService {
 
             }
         }
+        long end = System.currentTimeMillis();
+        SimpleAppLog.info("Download time: " + (end - start)  +"ms");
         return book;
     }
 }
