@@ -1,0 +1,17 @@
+# built application files
+build/**
+dist/**
+target/**
+bin/**
+src/main/resources/**
+src/main/resources/META-INF/**
+src/test/resources/**
+.idea
+.idea/**
+.settings
+.settings/**
+temp
+temp/**
+**.iml
+.project
+.checkstyle
