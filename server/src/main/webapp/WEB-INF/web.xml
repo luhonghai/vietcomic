@@ -13,6 +13,14 @@
         <url-pattern>/book/list</url-pattern>
     </servlet-mapping>
     <servlet>
+        <servlet-name>bookRecache</servlet-name>
+        <servlet-class>com.halosolutions.vietcomic.server.servlet.BookManagerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>bookRecache</servlet-name>
+        <url-pattern>/book/recache</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>demo</servlet-name>
         <servlet-class>myapp.DemoServlet</servlet-class>
     </servlet>
