@@ -33,6 +33,6 @@ public class BookServlet extends HttpServlet {
             responseData.data =BookManager.getBookDataJson();
         }
         responseData.version = BookManager.DATA_VERSION;
-        resp.getWriter().println(new Gson().toJson(responseData));
+        resp.getWriter().println(BookManager.getBookDataJson());
     }
 }
