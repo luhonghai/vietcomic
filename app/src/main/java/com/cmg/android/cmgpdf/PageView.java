@@ -21,7 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.cmg.android.plmobile.R;
+import com.halosolutions.vietcomic.R;
 
 class PatchInfo {	
 
