@@ -194,4 +194,12 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
     public List<T> findAll() throws Exception {
         return toCollection(getAll());
     }
+
+    public int count() throws Exception {
+        Cursor mCount= db.rawQuery("select count(*) from " + getTableName(), null);
+        mCount.moveToFirst();
+        int count= mCount.getInt(0);
+        mCount.close();
+        return count;
+    }
 }
