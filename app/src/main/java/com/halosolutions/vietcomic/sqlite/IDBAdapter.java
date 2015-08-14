@@ -18,6 +18,8 @@ public interface IDBAdapter<T> {
 
     public Cursor getAll() throws Exception;
 
+    public int count() throws Exception;
+
     public String getTableName();
 
     public String[] getAllColumns();
