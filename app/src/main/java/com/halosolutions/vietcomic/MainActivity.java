@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +22,7 @@ import android.widget.TextView;
 import com.halosolutions.vietcomic.fragment.ComicFragment;
 import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
 import com.halosolutions.vietcomic.fragment.HotComicFragment;
+import com.halosolutions.vietcomic.fragment.NewComicFragment;
 import com.rey.material.app.ToolbarManager;
 import com.rey.material.drawable.ThemeDrawable;
 import com.rey.material.util.ThemeUtil;
@@ -33,7 +33,7 @@ import com.rey.material.widget.TabPageIndicator;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements ToolbarManager.OnToolbarGroupChangedListener {
+public class MainActivity extends BaseActivity implements ToolbarManager.OnToolbarGroupChangedListener {
 
 	private DrawerLayout dl_navigator;
 	private FrameLayout fl_drawer;
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements ToolbarManager.On
     private ToolbarManager mToolbarManager;
     private SnackBar mSnackBar;
 
-	private Tab[] mItems = new Tab[]{Tab.HOT, Tab.ALL, Tab.FAVORITE};
+	private Tab[] mItems = new Tab[]{Tab.HOT,Tab.NEW,Tab.FAVORITE, Tab.ALL };
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -95,22 +95,23 @@ public class MainActivity extends AppCompatActivity implements ToolbarManager.On
 		tpi.setViewPager(vp);
 		tpi.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-            @Override
-            public void onPageSelected(int position) {
-                mDrawerAdapter.setSelected(mItems[position]);
-                mSnackBar.dismiss();
-            }
+			@Override
+			public void onPageSelected(int position) {
+				mToolbar.setTitle(mItems[position].name);
+				mDrawerAdapter.setSelected(mItems[position]);
+				mSnackBar.dismiss();
+			}
 
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-            }
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+			}
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
+			@Override
+			public void onPageScrollStateChanged(int state) {
+			}
 
-        });
-
+		});
+		mToolbar.setTitle(Tab.HOT.name);
         mDrawerAdapter.setSelected(Tab.HOT);
 		vp.setCurrentItem(0);
 
@@ -149,7 +150,8 @@ public class MainActivity extends AppCompatActivity implements ToolbarManager.On
     }
 
     public enum Tab {
-	    HOT("Hot"),
+	    HOT("Truyện HOT"),
+		NEW("Truyện mới"),
         ALL("Toàn bộ"),
         FAVORITE("Yêu thích");
 	    private final String name;       
@@ -271,6 +273,8 @@ public class MainActivity extends AppCompatActivity implements ToolbarManager.On
                             setFragment(Tab.ALL, fragment);
                         else if(fragment instanceof FavoriteComicFragment)
                             setFragment(Tab.FAVORITE, fragment);
+						else if(fragment instanceof NewComicFragment)
+							setFragment(Tab.NEW, fragment);
     				}
     			}
     		}
@@ -298,6 +302,9 @@ public class MainActivity extends AppCompatActivity implements ToolbarManager.On
                     case FAVORITE:
                         mFragments[position] = FavoriteComicFragment.newInstance();
                         break;
+					case NEW:
+						mFragments[position] = NewComicFragment.newInstance();
+						break;
 				}
 			}
 						

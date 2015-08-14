@@ -10,6 +10,7 @@
 		<item name="colorSwitchThumbNormal">@color/colorSwitchThumbNormal</item>
 	</style>
 
+
     <array name="bg_window">
         <item>@drawable/bg_window_light</item>
         <item>@drawable/bg_window_dark</item>

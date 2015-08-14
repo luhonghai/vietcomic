@@ -26,7 +26,6 @@
                 android:id="@+id/main_tpi"
                 android:layout_height="48dp"
                 android:layout_width="match_parent"
-                android:paddingLeft="60dp"
                 android:clipToPadding="false"
                 app:v_styleId="@array/tab_indicator"/>
 
