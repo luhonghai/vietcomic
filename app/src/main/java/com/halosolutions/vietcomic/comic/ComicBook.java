@@ -1,77 +1,104 @@
 package com.halosolutions.vietcomic.comic;
 
+import android.content.ContentValues;
+import android.content.Context;
+
+import com.halosolutions.vietcomic.sqlite.AbstractData;
+import com.halosolutions.vietcomic.util.DateHelper;
+
 import java.util.List;
 
 /**
  * Created by cmg on 12/08/15.
  */
-public class ComicBook {
+public class ComicBook extends AbstractData<ComicBook> {
 
-    public List<Chapter> getChapters() {
-        return chapters;
-    }
+    public static final String TABLE_COMIC_BOOK = "comic_book";
 
-    public void setChapters(List<Chapter> chapters) {
-        this.chapters = chapters;
-    }
+    public static final String KEY_BOOK_ID = "bookId";
 
-    public static class Chapter {
-        private int index;
-        private String url;
-        private String name;
-        private String date;
+    public static final String KEY_NAME = "name";
 
-        public int getIndex() {
-            return index;
-        }
+    public static final String KEY_OTHER_NAME = "name";
 
-        public void setIndex(int index) {
-            this.index = index;
-        }
+    public static final String KEY_STATUS = "status";
 
-        public String getUrl() {
-            return url;
-        }
+    public static final String KEY_URL = "url";
 
-        public void setUrl(String url) {
-            this.url = url;
-        }
+    public static final String KEY_THUMBNAIL = "thumbnail";
 
-        public String getName() {
-            return name;
-        }
+    public static final String KEY_AUTHOR = "author";
 
-        public void setName(String name) {
-            this.name = name;
-        }
+    public static final String KEY_RATE = "rate";
 
-        public String getDate() {
-            return date;
-        }
+    public static final String KEY_DESCRIPTION = "description";
 
-        public void setDate(String date) {
-            this.date = date;
-        }
-    }
+    public static final String KEY_SOURCE = "source";
 
-    private String id;
+    public static final String KEY_DELETED = "is_deleted";
+
+    public static final String KEY_NEW = "is_new";
+
+    public static final String KEY_HOT = "is_hot";
+
+    public static final String KEY_FAVORITE = "is_favorite";
+
+
+    private String bookId;
+
     private String name;
-    private String otherName;
-    private String status;
-    private String url;
-    private String thumbnail;
-    private String author;
-    private float rate;
-    private String description;
-    private List<String> categories;
-    private List<Chapter> chapters;
 
-    public String getId() {
-        return id;
+    private String otherName;
+
+    private String status;
+
+    private String source;
+
+    private String url;
+
+    private String thumbnail;
+
+    private String author;
+
+    private float rate;
+
+    private String description;
+
+    private boolean isDeleted;
+
+    private boolean isNew;
+
+    private boolean isHot;
+
+    private boolean isFavorite;
+
+    private List<String> categories;
+
+    @Override
+    public String toPrettyString(Context context) {
+        return name;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    @Override
+    public ContentValues toContentValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_NAME, getName());
+        cv.put(KEY_AUTHOR, getAuthor());
+        cv.put(KEY_BOOK_ID, getBookId());
+        cv.put(KEY_DESCRIPTION, getDescription());
+        cv.put(KEY_OTHER_NAME, getOtherName());
+        cv.put(KEY_RATE, getRate());
+        cv.put(KEY_STATUS, getStatus());
+        cv.put(KEY_THUMBNAIL, getThumbnail());
+        cv.put(KEY_URL, getUrl());
+        cv.put(KEY_SOURCE, getSource());
+        cv.put(KEY_DELETED, isDeleted() ? 1 : 0);
+        cv.put(KEY_NEW, isNew() ?  1 : 0);
+        cv.put(KEY_HOT, isHot() ? 1 : 0);
+        cv.put(KEY_FAVORITE, isFavorite() ? 1 : 0);
+        if (getCreatedDate() != null)
+            cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
+        return cv;
     }
 
     public String getName() {
@@ -149,8 +176,56 @@ public class ComicBook {
     @Override
     public boolean equals(Object obj) {
         if (obj != null && obj instanceof ComicBook) {
-            return this.getId().equals(((ComicBook) obj).getId());
+            return this.getId() == ((ComicBook) obj).getId();
         }
         return super.equals(obj);
+    }
+
+    public String getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(String bookId) {
+        this.bookId = bookId;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setIsNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
+    public boolean isHot() {
+        return isHot;
+    }
+
+    public void setIsHot(boolean isHot) {
+        this.isHot = isHot;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setIsFavorite(boolean isFavorite) {
+        this.isFavorite = isFavorite;
     }
 }
