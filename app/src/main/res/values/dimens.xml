@@ -1,19 +1,8 @@
-<!--
-  ~ Copyright (c) 2013. CMG Ltd All rights reserved.
-  ~
-  ~ This software is the confidential and proprietary information of CMG
-  ~ ("Confidential Information"). You shall not disclose such Confidential
-  ~ Information and shall use it only in accordance with the terms of the
-  ~ license agreement you entered into with CMG.
-  -->
-
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="frag_rounding_radius">20dp</dimen>
-    <dimen name="progress_action_padding">8dp</dimen>
-    <dimen name="pin_progress_inner_size">32dp</dimen>
-
+    <dimen name="drawer_width">240dp</dimen>
+    <dimen name="drawer_text">20sp</dimen>
+    <dimen name="title_text">16sp</dimen>
+    
+    <dimen name="bt_height">36dp</dimen>
 </resources>

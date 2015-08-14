@@ -1,93 +1,110 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2013. CMG Ltd All rights reserved.
-  ~
-  ~ This software is the confidential and proprietary information of CMG
-  ~ ("Confidential Information"). You shall not disclose such Confidential
-  ~ Information and shall use it only in accordance with the terms of the
-  ~ license agreement you entered into with CMG.
-  -->
+<resources>
 
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <style name="StatusInfoOverlayText">
-        <item name="android:paddingLeft">2px</item>
-        <item name="android:paddingBottom">2px</item>
-        <item name="android:textColor">#ffffffff</item>
-        <item name="android:textSize">17dp</item>
-        <item name="android:shadowColor">#000000</item>
-        <item name="android:shadowDx">2</item>
-        <item name="android:shadowDy">2</item>
-        <item name="android:shadowRadius">2</item>
+    <style name="MenuItemRippleStyle" parent="Material.Drawable.Ripple.Wave">
+        <item name="rd_rippleColor">#902DA0FF</item>
+        <item name="rd_rippleAnimDuration">300</item>
+        <item name="rd_maskType">rectangle</item>
+        <item name="rd_cornerRadius">0dp</item>
     </style>
 
+    <!-- AppBar Style -->
 
-    <style name="PinProgressButton">
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:background">?android:selectableItemBackground</item>
+    <style name="AppBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="selectableItemBackground">@null</item>
     </style>
 
-    <style name="Theme.Fullscreen" parent="Theme.Sherlock.Light">
-        <item name="android:windowFullscreen">true</item>
-    </style>
-    <!-- Variation on the Holo Light theme that styles the Action Bar -->
-    <style name="Theme.Pensionline" parent="Theme.Sherlock.Light">
-        <item name="android:actionBarItemBackground">@drawable/ad_selectable_background</item>
-        <item name="actionBarItemBackground">@drawable/ad_selectable_background</item>
-        <item name="android:popupMenuStyle">@style/MyPopupMenu</item>
-        <item name="popupMenuStyle">@style/MyPopupMenu</item>
-        <item name="android:dropDownListViewStyle">@style/MyDropDownListView</item>
-        <item name="dropDownListViewStyle">@style/MyDropDownListView</item>
-        <item name="android:actionBarTabStyle">@style/MyActionBarTabStyle</item>
-        <item name="actionBarTabTextStyle">@style/MyTabTextStyle</item>
-        <item name="android:actionBarTabTextStyle">@style/MyTabTextStyle</item>
-        <item name="actionBarTabStyle">@style/MyActionBarTabStyle</item>
-        <item name="android:actionDropDownStyle">@style/MyDropDownNav</item>
-        <item name="actionDropDownStyle">@style/MyDropDownNav</item>
-        <item name="android:listChoiceIndicatorMultiple">@drawable/ad_btn_check_holo_light</item>
-        <item name="android:listChoiceIndicatorSingle">@drawable/ad_btn_radio_holo_light</item>
-        <!-- <item name="android:actionOverflowButtonStyle">@style/MyOverflowButton</item> -->
+    <!-- Navigator Drawable -->
+
+    <style name="NavigatorDrawableIcon" parent="Material.Drawable.NavigationDrawerIcon">
+        <item name="lmd_strokeSize">3dp</item>
+        <item name="lmd_padding">18dp</item>
     </style>
 
-    <!-- style the overflow menu -->
-    <style name="MyPopupMenu" parent="Widget.Sherlock.Light.PopupMenu">
-        <item name="android:popupBackground">@drawable/ad_menu_dropdown_panel_holo_light</item>
+    <style name="NavigationDrawerDrawable">
+        <item name="nd_ripple">@style/ToolbarRippleStyle</item>
+        <item name="nd_icon">@style/NavigatorDrawableIcon</item>
     </style>
 
-    <!-- style the items within the overflow menu -->
-    <style name="MyDropDownListView" parent="Widget.Sherlock.ListView.DropDown">
-        <item name="android:listSelector">@drawable/ad_selectable_background</item>
+    <style name="ToolbarRippleStyle" parent="Material.Drawable.Ripple.Touch.MatchView.Light">
+        <item name="rd_backgroundColor">@android:color/transparent</item>
+        <item name="rd_rippleColor">#33FFFFFF</item>
     </style>
 
-    <!-- style for the tabs -->
-    <style name="MyActionBarTabStyle" parent="Widget.Sherlock.Light.ActionBar.TabBar">
-        <item name="android:background">@drawable/actionbar_tab_bg</item>
-        <item name="android:gravity">center</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
+    <!-- SnackBar Style -->
+
+    <style name="SnackBarSingleLine" parent="Material.Widget.SnackBar.Mobile">
+        <item name="sb_text">This is single-line snackbar.</item>
+        <item name="sb_actionText">CLOSE</item>
+        <item name="sb_duration">0</item>
     </style>
 
-    <style name="MyTabTextStyle" parent="Widget.Sherlock.ActionBar.TabText">
-        <item name="android:textAllCaps">false</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-    <!-- style the list navigation -->
-    <style name="MyDropDownNav" parent="Widget.Sherlock.Light.Spinner.DropDown.ActionBar">
-        <item name="android:background">@drawable/ad_spinner_background_holo_light</item>
-        <item name="android:popupBackground">@drawable/ad_menu_dropdown_panel_holo_light</item>
-        <item name="android:dropDownSelector">@drawable/ad_selectable_background</item>
+    <style name="SnackBarMultiLine" parent="Material.Widget.SnackBar.Mobile.MultiLine">
+        <item name="sb_text">This is multi-line snackbar.\nIt will auto-close after 5s.</item>
+        <item name="sb_actionText"></item>
+        <item name="sb_duration">5000</item>
     </style>
 
-    <!--
-         the following can be used to style the overflow menu button only do 
-		this if you have an *extremely* good reason to!!
+    <style name="SimpleDialog" parent="Material.App.Dialog.Simple">
+        <item name="di_inAnimation">@anim/anim_scale_in</item>
+        <item name="di_outAnimation">@anim/anim_scale_out</item>
+    </style>
 
-    -->
-    <!--
-         <style name="MyOverflowButton" parent="Widget.Sherlock.ActionButton.Overflow"> 
-		<item name="android:src">@drawable/ic_menu_view</item> <item name="android:background">@drawable/action_button_background</item> 
-		</style>
+    <style name="SimpleDialogLight" parent="Material.App.Dialog.Simple.Light">
+        <item name="di_inAnimation">@anim/anim_scale_in</item>
+        <item name="di_outAnimation">@anim/anim_scale_out</item>
+    </style>
 
-    -->
+    <!-- ContactView -->
+    <style name="ContactView">
+        <item name="android:minHeight">56dp</item>
+        <item name="cv_buttonSize">0dp</item>
+        <item name="cv_avatarSize">40dp</item>
+        <item name="cv_spacing">8dp</item>
+        <item name="cv_nameTextAppearance">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="cv_nameTextColor">@color/abc_primary_text_material_light</item>
+        <item name="cv_addressTextAppearance">@style/TextAppearance.AppCompat.Body1</item>
+        <item name="cv_addressTextColor">@color/abc_primary_text_material_light</item>
+    </style>
+
+    <style name="ReplacementContactView" parent="Material.Drawable.Ripple.Wave.Light">
+        <item name="rd_cornerRadius">0dp</item>
+        <item name="rd_delayClick">none</item>
+
+        <item name="android:minHeight">56dp</item>
+        <item name="cv_buttonSize">0dp</item>
+        <item name="cv_avatarSize">40dp</item>
+        <item name="cv_spacing">8dp</item>
+        <item name="cv_nameTextAppearance">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="cv_nameTextColor">@color/abc_primary_text_material_light</item>
+        <item name="cv_addressTextAppearance">@style/TextAppearance.AppCompat.Body1</item>
+        <item name="cv_addressTextColor">@color/abc_primary_text_material_light</item>
+    </style>
+
+    <style name="SelectedContactView" parent="Material.Drawable.Ripple.Wave.Light">
+        <item name="android:background">#FF00B8D4</item>
+        <item name="rd_cornerRadius">0dp</item>
+        <item name="rd_delayClick">none</item>
+
+        <item name="android:minHeight">72dp</item>
+        <item name="cv_buttonSrc">@drawable/ic_cancel_white_24dp</item>
+        <item name="cv_buttonSize">48dp</item>
+        <item name="cv_nameTextColor">#FFFFFFFF</item>
+        <item name="cv_addressTextColor">#FFFFFFFF</item>
+        <item name="cv_avatarSize">40dp</item>
+        <item name="cv_spacing">8dp</item>
+        <item name="cv_nameTextAppearance">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="cv_addressTextAppearance">@style/TextAppearance.AppCompat.Body1</item>
+    </style>
+
+    <style name="ContactEditText" parent="Material.Widget.EditText.Light">
+        <item name="cet_spanHeight">32dp</item>
+        <item name="cet_spanMaxWidth">150dp</item>
+        <item name="cet_spanPaddingLeft">8dp</item>
+        <item name="cet_spanPaddingRight">12dp</item>
+        <item name="cet_spanTextSize">14sp</item>
+        <item name="cet_spanTextColor">@color/abc_primary_text_material_light</item>
+        <item name="cet_spanBackgroundColor">#FFE0E0E0</item>
+        <item name="cet_spanSpacing">4dp</item>
+    </style>
 
 </resources>

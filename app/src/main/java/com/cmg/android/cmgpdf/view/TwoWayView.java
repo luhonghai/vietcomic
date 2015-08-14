@@ -69,7 +69,7 @@ import android.widget.Checkable;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
 
-import com.cmg.android.plmobile.R;
+import com.halosolutions.vietcomic.R;
 
 /*
  * Implementation Notes:

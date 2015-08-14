@@ -13,7 +13,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.cmg.android.plmobile.R;
+import com.halosolutions.vietcomic.R;
 
 public class PrintDialogActivity extends Activity {
 	private static final String PRINT_DIALOG_URL = "https://www.google.com/cloudprint/dialog.html";

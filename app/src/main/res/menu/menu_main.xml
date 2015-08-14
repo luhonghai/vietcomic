@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group
+        android:id="@+id/tb_group_main">
+        <item
+            android:id="@+id/action_search"
+            android:actionViewClass="android.widget.SearchView"
+            android:icon="@drawable/search_icon"
+            app:showAsAction="always"
+            android:title="Tìm truyện" />
+    </group>
+</menu>

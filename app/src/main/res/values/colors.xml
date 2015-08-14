@@ -1,25 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2013. CMG Ltd All rights reserved.
-  ~
-  ~ This software is the confidential and proprietary information of CMG
-  ~ ("Confidential Information"). You shall not disclose such Confidential
-  ~ Information and shall use it only in accordance with the terms of the
-  ~ license agreement you entered into with CMG.
-  -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>    
+    
+    <color name="colorPrimary">#FF03A9F4</color>
+	<color name="colorPrimaryDark">#ff0171c9</color>
+	<color name="colorAccent">#FF00E5FF</color>	 
+	<color name="colorControlNormal">#FF78909C</color>  
+	<color name="colorControlActivated">#FF03A9F4</color>
+	<color name="colorSwitchThumbNormal">#FF78909C</color>
 
-<resources>
+    <color name="colorPrimaryQuarter">#3303A9F4</color>
+    <color name="colorPrimaryHalf">#9003A9F4</color>
+    <color name="colorControlNormalHalf">#9078909C</color>
+    <color name="colorControlActivatedHalf">#9003A9F4</color>
+    <color name="colorAccentQuarter">#3300E5FF</color>
+    <color name="colorAccentHalf">#9000E5FF</color>
 
-    <color name="android_green">#FFA4C639</color>
-    <color name="honeycombish_blue">#FF58BAED</color>
-    <color name="soft_grey">#FF777777</color>
-    <color name="background">#FFEFEFEF</color>
-    <color name="bp_newsletter_title">#9ACD32</color>
-    <color name="bp_newsletter_date">#9ACD32</color>
-    <color name="bp_newsletter_description">#000000</color>
+    <array name="progress_colors_light">
+        <item>#FF03A9F4</item>
+        <item>#FFD8433C</item>
+        <item>#FFF2AF3A</item>
+        <item>#FF279B5E</item>
+    </array>
 
-    <color name="pin_progress_default_circle_color">#80ffffff</color>
-    <color name="pin_progress_default_progress_color">#ffffff</color>
-    <color name="pin_progress_default_progress_filled">#99cc33</color>
-    <color name="pin_progress_default_progress_background">#006600</color>
-    <color name="pin_progress_default_progress_inner_backgroud">#9ACD32</color>
+    <array name="progress_colors_dark">
+        <item>#FF00E5FF</item>
+        <item>#ffd81d5a</item>
+        <item>#fff27512</item>
+        <item>#ff63bc34</item>
+    </array>
+    
+    <array name="in_colors_light">
+        <item>#4B03A9F4</item>
+        <item>#3303A9F4</item>
+        <item>#1903A9F4</item>
+    </array>
+
+    <array name="in_colors_dark">
+        <item>#4B00E5FF</item>
+        <item>#3300E5FF</item>
+        <item>#1900E5FF</item>
+    </array>
+
+    <color name="tpi_checked">#FFFFFFFF</color>
+    <color name="tpi_unchecked">#99FFFFFF</color>
+    
+    <color name="et_divider_focused">@color/colorControlActivated</color>
+    <color name="et_divider_not_focused">#FF6D6D6D</color>
+    <color name="et_divider_disable">#FFC1C1C1</color>
+    
 </resources>

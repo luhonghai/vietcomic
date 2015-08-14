@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.cmg.android.plmobile.R;
+import com.halosolutions.vietcomic.R;
 
 public class OutlineAdapter extends BaseAdapter {
 	private final OutlineItem    mItems[];
