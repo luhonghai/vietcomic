@@ -26,33 +26,11 @@ import java.net.URL;
  */
 public class BookService {
 
-    public static class ComicVersion {
-        private int version;
-        private String url;
-
-        public int getVersion() {
-            return version;
-        }
-
-        public void setVersion(int version) {
-            this.version = version;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-    }
-
     public interface DownloadListener {
         public void onError(String message, Throwable e);
 
         public void onComplete(ComicChapter book);
     }
-
     private static final String VECHAI_ROOT_URL = "http://vechai.info/";
 
     public static final String DEFAULT_CSS_SELECTOR = "#contentChapter img";
@@ -69,34 +47,6 @@ public class BookService {
     public BookService(Context context, String cssSelector) {
         this(context);
         this.cssSelector = cssSelector;
-    }
-
-    public ComicVersion getComicVersion() {
-        Gson gson = new Gson();
-        try {
-            File v = new File(AndroidHelper.getApplicationDir(context), "version.json");
-            String raw;
-            if (!v.exists()) {
-                raw = IOUtils.toString(context.getAssets().open("comic/version.json"), "UTF-8");
-                FileUtils.writeStringToFile(v, raw, "UTF-8");
-            } else {
-                raw = FileUtils.readFileToString(v, "UTF-8");
-            }
-            SimpleAppLog.info("Comic data version: " + raw);
-            return gson.fromJson(raw, ComicVersion.class);
-        } catch (Exception e) {
-            SimpleAppLog.error("Could not load version", e);
-        }
-        return null;
-    }
-
-    public void saveComicVersion(ComicVersion v) {
-        Gson gson = new Gson();
-        try {
-
-        } catch (Exception e) {
-            SimpleAppLog.error("Could not save comic version",e);
-        }
     }
 
     public void downloadAsync(final ComicChapter book, final DownloadListener listener) {
