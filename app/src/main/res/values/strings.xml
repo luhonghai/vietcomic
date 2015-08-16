@@ -11,6 +11,8 @@
 <resources>
     <string name="app_name">Vietcomic</string>
 
+  <string name="url_version">http://luhonghai.com/vietcomic/version.json</string>
+
   <string name="rd_repeat">Repeat</string>
   <string name="rd_daily">Daily</string>
   <string name="rd_weekly">Weekly</string>
