@@ -86,7 +86,7 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
         if (s == null || s.length() == 0) return getAll();
         return getDB().query(getTableName(), getAllColumns(),
                 ComicBook.KEY_NAME + " like ? and " + ComicBook.KEY_DELETED + " = 0",
-                new String[] {
+                new String[]{
                         s + "%"
                 },
                 null,
@@ -163,15 +163,19 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 null,
                 null,
                 null);
-        if (cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            long oldId =cursor.getLong(cursor.getColumnIndex(ComicBook.KEY_ROW_ID));
-            boolean isFavorite = cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_FAVORITE)) == 1;
-            obj.setId(oldId);
-            obj.setIsFavorite(isFavorite);
-            obj.setCreatedDate(new Date(System.currentTimeMillis()));
-            update(obj);
-            return oldId;
+        try{
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                long oldId =cursor.getLong(cursor.getColumnIndex(ComicBook.KEY_ROW_ID));
+                boolean isFavorite = cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_FAVORITE)) == 1;
+                obj.setId(oldId);
+                obj.setIsFavorite(isFavorite);
+                obj.setCreatedDate(new Date(System.currentTimeMillis()));
+                update(obj);
+                return oldId;
+            }
+        }finally {
+            cursor.close();
         }
         return super.insert(obj);
     }
