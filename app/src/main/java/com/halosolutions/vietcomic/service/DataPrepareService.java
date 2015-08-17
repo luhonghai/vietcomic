@@ -24,11 +24,9 @@ public class DataPrepareService {
     public void prepare() {
         try {
             comicBookDBAdapter.open();
-
             if (comicBookDBAdapter.count() == 0) {
 
             }
-
         } catch (Exception e) {
             SimpleAppLog.error("Could not prepare comic books", e);
         } finally {
