@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.SearchView;
@@ -136,13 +137,14 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
         ViewUtil.setBackground(getWindow().getDecorView(), new ThemeDrawable(R.array.bg_window));
         ViewUtil.setBackground(mToolbar, new ThemeDrawable(R.array.bg_toolbar));
 		dbAdapter = new ComicBookDBAdapter(this);
+		setSupportActionBar(mToolbar);
     }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
         mToolbarManager.createMenu(R.menu.menu_main);
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+		searchView = (SearchView) MenuItemCompat.getActionView(mToolbar.getMenu().findItem(R.id.action_search));
 		if (null != searchView) {
 			searchView.setFocusable(true);
 			searchView.performClick();
