@@ -176,17 +176,21 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
         return super.insert(obj);
     }
 
-    public void bulkInsert(List<ComicBook> comicBooks) throws Exception {
+    public void bulkInsert(List<ComicBook> comicBooks, boolean useTransaction) throws Exception {
         try {
-            getDB().beginTransaction();
+            if (useTransaction) {
+                getDB().beginTransaction();
+            }
             for (ComicBook book : comicBooks) {
                 //SimpleAppLog.debug("Insert new comic book: " + book.getName() + ". URL: " + book.getUrl());
                 insert(book);
             }
-            getDB().setTransactionSuccessful();
+            if (useTransaction) {
+                getDB().setTransactionSuccessful();
+            }
         } finally {
             try {
-                if (getDB().inTransaction())
+                if (useTransaction && getDB().inTransaction())
                     getDB().endTransaction();
             } catch (Exception e) {
                 SimpleAppLog.error("Could not end transaction", e);

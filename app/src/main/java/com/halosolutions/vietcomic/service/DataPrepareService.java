@@ -40,7 +40,7 @@ public class DataPrepareService {
                 ComicVersion.deleteBookData(context, comicVersion);
             }
             if (books != null && books.size() > 0) {
-                comicBookDBAdapter.bulkInsert(books);
+                comicBookDBAdapter.bulkInsert(books, false);
             }
         } catch (Exception e) {
             SimpleAppLog.error("Could not prepare comic books", e);

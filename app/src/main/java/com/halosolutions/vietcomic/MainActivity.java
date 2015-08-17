@@ -1,13 +1,17 @@
 package com.halosolutions.vietcomic;
 
+import android.app.SearchManager;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,11 +22,17 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.halosolutions.vietcomic.adapter.ComicBookCursorAdapter;
 import com.halosolutions.vietcomic.fragment.AllComicFragment;
 import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
 import com.halosolutions.vietcomic.fragment.HotComicFragment;
 import com.halosolutions.vietcomic.fragment.NewComicFragment;
+import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
+import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.rey.material.app.ToolbarManager;
 import com.rey.material.drawable.ThemeDrawable;
 import com.rey.material.util.ThemeUtil;
@@ -33,7 +43,9 @@ import com.rey.material.widget.TabPageIndicator;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class MainActivity extends BaseActivity implements ToolbarManager.OnToolbarGroupChangedListener {
+public class MainActivity extends BaseActivity implements ToolbarManager.OnToolbarGroupChangedListener,
+		SearchView.OnQueryTextListener,
+		SearchView.OnSuggestionListener{
 
 	private DrawerLayout dl_navigator;
 	private FrameLayout fl_drawer;
@@ -47,6 +59,12 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 	private Toolbar mToolbar;
     private ToolbarManager mToolbarManager;
     private SnackBar mSnackBar;
+
+	private SearchView searchView;
+
+	private ComicBookDBAdapter dbAdapter;
+
+	private ComicBookCursorAdapter adapter;
 
 	private Tab[] mItems = new Tab[]{Tab.HOT,Tab.NEW,Tab.FAVORITE, Tab.ALL };
 	
@@ -117,15 +135,49 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 
         ViewUtil.setBackground(getWindow().getDecorView(), new ThemeDrawable(R.array.bg_window));
         ViewUtil.setBackground(mToolbar, new ThemeDrawable(R.array.bg_toolbar));
+		dbAdapter = new ComicBookDBAdapter(this);
     }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
         mToolbarManager.createMenu(R.menu.menu_main);
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+		if (null != searchView) {
+			searchView.setFocusable(true);
+			searchView.performClick();
+			searchView.requestFocus();
+			searchView.setIconified(true);
+			try {
+				dbAdapter.open();
+			} catch (Exception e) {
+				SimpleAppLog.error("Could not open database", e);
+			}
+			searchView.setQueryHint("Tìm kiếm truyện");
+			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+			//  searchView.setIconifiedByDefault(false);
+			searchView.setOnQueryTextListener(this);
+			searchView.setOnSuggestionListener(this);
+			try {
+				adapter = new ComicBookCursorAdapter(this, dbAdapter.cursorSearch(""));
+				searchView.setSuggestionsAdapter(adapter);
+			} catch (Exception e) {
+				SimpleAppLog.error("Could not set suggestion adapter",e);
+			}
+		}
+
 		return true;
 	}
 
-    @Override
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (dbAdapter != null) {
+			dbAdapter.close();
+		}
+	}
+
+	@Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         mToolbarManager.onPrepareMenu();
         return super.onPrepareOptionsMenu(menu);
@@ -149,7 +201,74 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
         return mSnackBar;
     }
 
-    public enum Tab {
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+		return false;
+	}
+
+	private Runnable updateQueryRunnable = new Runnable() {
+		@Override
+		public void run() {
+			try {
+				updateQuery();
+			} catch (Exception e) {
+				SimpleAppLog.error("could not update suggestion query",e);
+			}
+		}
+	};
+
+	private void updateQuery() throws Exception {
+		try {
+			dbAdapter.close();
+			dbAdapter.open();
+		} catch (Exception e) {
+
+		}
+		final Cursor c = dbAdapter.cursorSearch(searchText);
+		if (c.getCount() > 0) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					searchView.getSuggestionsAdapter().changeCursor(c);
+				}
+			});
+		}
+	}
+
+	private Handler updateQueryHandler = new Handler();
+
+	private String searchText;
+
+	@Override
+	public boolean onQueryTextChange(String s) {
+		if (s.length() > 0) {
+			searchText = s;
+			updateQueryHandler.removeCallbacks(updateQueryRunnable);
+			updateQueryHandler.postDelayed(updateQueryRunnable, 200);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onSuggestionSelect(int position) {
+		Toast.makeText(this, "Select position: " + position, Toast.LENGTH_LONG).show();
+		Object obj = searchView.getSuggestionsAdapter().getItem(position);
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		SimpleAppLog.debug("Select suggestion comic: " + gson.toJson(obj));
+		return true;
+	}
+
+	@Override
+	public boolean onSuggestionClick(int position) {
+		Toast.makeText(this, "Click position: " + position, Toast.LENGTH_LONG).show();
+		Object obj = searchView.getSuggestionsAdapter().getItem(position);
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		SimpleAppLog.debug("Click suggestion comic: " + gson.toJson(obj));
+		return true;
+	}
+
+	public enum Tab {
 	    HOT("Truyện HOT"),
 		NEW("Truyện mới"),
         ALL("Toàn bộ"),
