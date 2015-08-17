@@ -83,11 +83,10 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
     }
 
     public Cursor cursorSearch(String s) throws Exception {
-        if (s == null || s.length() == 0) return getAll();
         return getDB().query(getTableName(), getAllColumns(),
                 ComicBook.KEY_NAME + " like ? and " + ComicBook.KEY_DELETED + " = 0",
                 new String[]{
-                        s + "%"
+                        "%" + s + "%"
                 },
                 null,
                 null,

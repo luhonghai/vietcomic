@@ -235,14 +235,12 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 
 		}
 		final Cursor c = dbAdapter.cursorSearch(searchText);
-		if (c.getCount() > 0) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					searchView.getSuggestionsAdapter().changeCursor(c);
-				}
-			});
-		}
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				searchView.getSuggestionsAdapter().changeCursor(c);
+			}
+		});
 	}
 
 	private Handler updateQueryHandler = new Handler();
@@ -251,13 +249,10 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 
 	@Override
 	public boolean onQueryTextChange(String s) {
-		if (s.length() > 0) {
-			searchText = s;
-			updateQueryHandler.removeCallbacks(updateQueryRunnable);
-			updateQueryHandler.postDelayed(updateQueryRunnable, 200);
-			return true;
-		}
-		return false;
+		searchText = s;
+		updateQueryHandler.removeCallbacks(updateQueryRunnable);
+		updateQueryHandler.postDelayed(updateQueryRunnable, 200);
+		return true;
 	}
 
 	@Override
