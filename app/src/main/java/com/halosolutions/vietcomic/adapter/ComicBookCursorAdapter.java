@@ -15,6 +15,8 @@ import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.text.DecimalFormat;
+
 /**
  * Created by cmg on 17/08/15.
  */
@@ -48,10 +50,20 @@ public class ComicBookCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ComicBook comicBook = comicBookDBAdapter.toObject(cursor);
         ((TextView) view.findViewById(R.id.txtName)).setText(comicBook.getName());
+        float rate = comicBook.getRate();
+        if (rate > 0.0) {
+            String strRate;
+            if (rate == 10.0) {
+                strRate = "10";
+            } else {
+                strRate = new DecimalFormat("#.##").format(rate);
+            }
+            view.findViewById(R.id.rlComicRate).setVisibility(View.VISIBLE);
+            ((TextView) view.findViewById(R.id.txtComicRate)).setText(strRate);
+        }
         String thumbnail = comicBook.getThumbnail();
         ImageLoader.getInstance().displayImage(thumbnail,
                 (ImageView) view.findViewById(R.id.thumbnail),
                 displayImageOptions);
     }
-
 }

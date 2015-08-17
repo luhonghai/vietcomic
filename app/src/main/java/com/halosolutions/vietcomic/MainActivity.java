@@ -165,6 +165,12 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 			} catch (Exception e) {
 				SimpleAppLog.error("Could not set suggestion adapter",e);
 			}
+			SearchView.SearchAutoComplete autoCompleteTextView = (SearchView.SearchAutoComplete)
+					searchView.findViewById(R.id.search_src_text);
+
+			if (autoCompleteTextView != null) {
+				autoCompleteTextView.setDropDownBackgroundResource(R.color.colorPrimary);
+			}
 		} else {
 			SimpleAppLog.error("No search view");
 		}

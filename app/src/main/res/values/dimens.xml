@@ -5,4 +5,8 @@
     <dimen name="title_text">16sp</dimen>
     
     <dimen name="bt_height">36dp</dimen>
+
+    <dimen name="icon_book_status_size">20dp</dimen>
+    <dimen name="icon_book_star_image_size">60dp</dimen>
+    <dimen name="icon_book_star_text_size">20sp</dimen>
 </resources>
