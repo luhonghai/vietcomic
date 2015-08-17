@@ -6,43 +6,13 @@ import android.content.Context;
 import com.halosolutions.vietcomic.sqlite.AbstractData;
 import com.halosolutions.vietcomic.util.DateHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by cmg on 12/08/15.
  */
 public class ComicBook extends AbstractData<ComicBook> {
-
-    public static final String TABLE_COMIC_BOOK = "comic_book";
-
-    public static final String KEY_BOOK_ID = "bookId";
-
-    public static final String KEY_NAME = "name";
-
-    public static final String KEY_OTHER_NAME = "name";
-
-    public static final String KEY_STATUS = "status";
-
-    public static final String KEY_URL = "url";
-
-    public static final String KEY_THUMBNAIL = "thumbnail";
-
-    public static final String KEY_AUTHOR = "author";
-
-    public static final String KEY_RATE = "rate";
-
-    public static final String KEY_DESCRIPTION = "description";
-
-    public static final String KEY_SOURCE = "source";
-
-    public static final String KEY_DELETED = "is_deleted";
-
-    public static final String KEY_NEW = "is_new";
-
-    public static final String KEY_HOT = "is_hot";
-
-    public static final String KEY_FAVORITE = "is_favorite";
-
 
     private String bookId;
 
@@ -74,6 +44,8 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     private List<String> categories;
 
+    private String strCategories;
+
     @Override
     public String toPrettyString(Context context) {
         return name;
@@ -98,6 +70,7 @@ public class ComicBook extends AbstractData<ComicBook> {
         cv.put(KEY_FAVORITE, isFavorite() ? 1 : 0);
         if (getCreatedDate() != null)
             cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
+        cv.put(KEY_CATEGORIES, getStrCategories());
         return cv;
     }
 
@@ -150,6 +123,17 @@ public class ComicBook extends AbstractData<ComicBook> {
     }
 
     public List<String> getCategories() {
+        if (categories == null && strCategories != null && strCategories.length() > 0) {
+            categories = new ArrayList<>();
+            String[] raw = strCategories.split("\\|");
+            if (raw.length > 0) {
+                for (String cat : raw) {
+                    if (cat.trim().length() > 0) {
+                        categories.add(cat);
+                    }
+                }
+            }
+        }
         return categories;
     }
 
@@ -227,5 +211,22 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     public void setIsFavorite(boolean isFavorite) {
         this.isFavorite = isFavorite;
+    }
+
+    public String getStrCategories() {
+        if (strCategories == null || strCategories.length() == 0 ) {
+            String strCat = "|";
+            if (categories != null && categories.size() > 0) {
+                for (String cat : categories) {
+                    strCat += (cat + "|");
+                }
+            }
+            strCategories = strCat;
+        }
+        return strCategories;
+    }
+
+    public void setStrCategories(String strCategories) {
+        this.strCategories = strCategories;
     }
 }

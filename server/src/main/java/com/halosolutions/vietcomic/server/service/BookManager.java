@@ -12,6 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,10 @@ import java.util.Map;
  * Created by cmg on 12/08/15.
  */
 public class BookManager {
+
+    private static List<String> BOOK_HOT;
+
+    private static List<String> BOOK_NEW;
 
     private static Map<String, ComicBook> BOOK_DATA;
 
@@ -59,6 +64,7 @@ public class BookManager {
         }
         if (BOOK_DATA == null || BOOK_DATA.size() == 0) {
             synchronized (lock) {
+                loadHotAndNewComic();
                 BOOK_DATA = new HashMap<String, ComicBook>();
                 Gson gson = new Gson();
                 for (int i = 0; i <= 90; i++) {
@@ -84,7 +90,13 @@ public class BookManager {
                     }
                     if (comicBooks != null && comicBooks.size() > 0) {
                         for (ComicBook b : comicBooks) {
-                            BOOK_DATA.put(b.getId(), b);
+                            if (BOOK_HOT.contains(b.getBookId())) {
+                                b.setIsHot(true);
+                            }
+                            if (BOOK_NEW.contains(b.getBookId())) {
+                                b.setIsNew(true);
+                            }
+                            BOOK_DATA.put(b.getBookId(), b);
                         }
                     }
                 }
@@ -101,6 +113,49 @@ public class BookManager {
             BOOK_DATA_JSON = null;
         }
 
+    }
+
+    private static void loadHotAndNewComic() {
+        BOOK_HOT = new ArrayList<String>();
+        BOOK_NEW = new ArrayList<String>();
+        try {
+            Document doc = Jsoup.connect("http://vechai.info").get();
+            Elements elements = doc.select("#hotStory .NewList li");
+            if (elements != null && elements.size() > 0) {
+                for (int i = 0; i < elements.size() ; i++) {
+                    Element element = elements.get(i);
+                    Element firstA = element.select("a").get(0);
+                    String href = firstA.attr("href");
+                    if (!(href.startsWith("http") || href.startsWith("https"))) {
+                        href = "http://vechai.info/" + href;
+                    }
+                    String bookId = Hash.md5(href);
+                    if (!BOOK_HOT.contains(bookId)) {
+                        System.out.println("Found hot comic: " + href);
+                        BOOK_HOT.add(bookId);
+                    }
+                }
+            }
+            doc = Jsoup.connect("http://vechai.info").get();
+            elements = doc.select("#mainStory ul.NewsList li");
+            if (elements != null && elements.size() > 0) {
+                for (int i = 0; i < elements.size() ; i++) {
+                    Element element = elements.get(i);
+                    Element firstA = element.select("a").get(0);
+                    String href = firstA.attr("href");
+                    if (!(href.startsWith("http") || href.startsWith("https"))) {
+                        href = "http://vechai.info/" + href;
+                    }
+                    String bookId = Hash.md5(href);
+                    if (!BOOK_NEW.contains(bookId)) {
+                        System.out.println("Found new comic: " + href);
+                        BOOK_NEW.add(bookId);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getBookDataJson() {
@@ -136,9 +191,9 @@ public class BookManager {
                             href = "http://vechai.info/" + href;
                         }
                         ComicBook comicBook = new ComicBook();
-                        comicBook.setId(Hash.md5(href));
+                        comicBook.setBookId(Hash.md5(href));
                         comicBook.setUrl(href);
-                        if (!BOOK_DATA.containsKey(comicBook.getId()) && !comicBooks.contains(comicBook)) {
+                        if (!BOOK_DATA.containsKey(comicBook.getBookId()) && !comicBooks.contains(comicBook)) {
                             if (loadComicBookInfo(comicBook)) {
                                 System.out.println("Found comic: " + comicBook.getName() + ". URL: " + comicBook.getUrl());
                                 comicBooks.add(comicBook);
@@ -157,6 +212,7 @@ public class BookManager {
     private static boolean loadComicBookInfo(final ComicBook comicBook) {
         try {
             Document doc = Jsoup.connect(comicBook.getUrl()).get();
+            comicBook.setSource("vechai.info");
             comicBook.setName(getText(doc, ".BoxContent .IntroText .TitleH2",0,""));
             comicBook.setRate(Float.parseFloat(getText(doc, "#mainStory .VoteScore", 0, "")));
             comicBook.setOtherName(getText(doc, ".MoreInfo dl dd", 0, ""));
@@ -175,7 +231,10 @@ public class BookManager {
             }
             comicBook.setAuthor(getText(doc, ".MoreInfo dl dd", 2, ""));
             comicBook.setStatus(getText(doc, ".MoreInfo dl dd", 3, ""));
-            comicBook.setThumbnail(getText(doc, ".BoxContent img.Thumb", 0, "src"));
+            String thumbUrl = getText(doc, ".BoxContent img.Thumb", 0, "src");
+            if (!thumbUrl.equalsIgnoreCase("http://cdn.vechai.info/images/noimage.png")) {
+                comicBook.setThumbnail(thumbUrl);
+            }
             //removeElements(doc, ".BoxContent .IntroText .TitleH2");
             //comicBook.setDescription(getText(doc, ".BoxContent .IntroText", 0, ""));
             return true;

@@ -28,17 +28,23 @@ public class SplashActivity extends BaseActivity {
                 SimpleAppLog.info("Start load data");
                 DataPrepareService prepareService = new DataPrepareService(SplashActivity.this);
                 prepareService.prepare();
-                long executionTime = System.currentTimeMillis() - start;
+                final long executionTime = System.currentTimeMillis() - start;
                 SimpleAppLog.info("Finish load data. Execution time: " + executionTime + "ms");
                 if (executionTime >= MIN_LOAD_TIME) {
                     startActivity(MainActivity.class);
                 } else {
-                    new Handler().postDelayed(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            startActivity(MainActivity.class);
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startActivity(MainActivity.class);
+                                }
+                            }, MIN_LOAD_TIME - executionTime);
                         }
-                    }, MIN_LOAD_TIME - executionTime);
+                    });
+
                 }
                 return null;
             }

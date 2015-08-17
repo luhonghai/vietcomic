@@ -15,6 +15,38 @@ public class ComicBook {
         this.chapters = chapters;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setIsNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
+    public boolean isHot() {
+        return isHot;
+    }
+
+    public void setIsHot(boolean isHot) {
+        this.isHot = isHot;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
     public static class Chapter {
         private int index;
         private String url;
@@ -54,7 +86,7 @@ public class ComicBook {
         }
     }
 
-    private String id;
+    private String bookId;
     private String name;
     private String otherName;
     private String status;
@@ -66,12 +98,17 @@ public class ComicBook {
     private List<String> categories;
     private List<Chapter> chapters;
 
-    public String getId() {
-        return id;
+    private String source;
+    private boolean isDeleted;
+    private boolean isNew;
+    private boolean isHot;
+
+    public String getBookId() {
+        return bookId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setBookId(String id) {
+        this.bookId = id;
     }
 
     public String getName() {
@@ -149,7 +186,7 @@ public class ComicBook {
     @Override
     public boolean equals(Object obj) {
         if (obj != null && obj instanceof ComicBook) {
-            return this.getId().equals(((ComicBook) obj).getId());
+            return this.getBookId().equals(((ComicBook) obj).getBookId());
         }
         return super.equals(obj);
     }

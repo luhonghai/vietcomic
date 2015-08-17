@@ -36,14 +36,14 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
                     + ComicBook.KEY_THUMBNAIL + " text, "
                     + ComicBook.KEY_URL + " text, "
                     + ComicBook.KEY_SOURCE + " text, "
+                    + ComicBook.KEY_CATEGORIES + " text, "
                     + ComicBook.KEY_RATE + " integer, "
                     + ComicBook.KEY_DELETED + " integer, "
                     + ComicBook.KEY_NEW + " integer, "
                     + ComicBook.KEY_HOT + " integer, "
                     + ComicBook.KEY_FAVORITE + " integer, "
                     + AbstractData.KEY_CREATED_DATE + " date not null"
-                    + ");"
-
+                    + ");",
     };
 
     private final Context context;
