@@ -164,8 +164,9 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 			} catch (Exception e) {
 				SimpleAppLog.error("Could not set suggestion adapter",e);
 			}
+		} else {
+			SimpleAppLog.error("No search view");
 		}
-
 		return true;
 	}
 
@@ -180,6 +181,7 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 	@Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         mToolbarManager.onPrepareMenu();
+
         return super.onPrepareOptionsMenu(menu);
     }
 
