@@ -13,8 +13,6 @@ import android.content.Intent;
 import android.os.Process;
 
 
-import com.halosolutions.itranslator.activity.FeedbackActivity;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -49,11 +47,11 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
         StringWriter stackTrace = new StringWriter();
         ex.printStackTrace(new PrintWriter(stackTrace));
         SimpleAppLog.error("Error: " + stackTrace.toString());
-        Intent forceClose = new Intent(context, FeedbackActivity.class);
-        forceClose.putExtra(STACK_TRACE, stackTrace.toString());
-        context.startActivity(forceClose);
-        Process.killProcess(Process.myPid());
-        System.exit(10);
+//        Intent forceClose = new Intent(context, FeedbackActivity.class);
+//        forceClose.putExtra(STACK_TRACE, stackTrace.toString());
+//        context.startActivity(forceClose);
+//        Process.killProcess(Process.myPid());
+//        System.exit(10);
     }
 
 }

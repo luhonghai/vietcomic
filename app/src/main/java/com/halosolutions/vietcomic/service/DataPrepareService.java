@@ -30,7 +30,7 @@ public class DataPrepareService {
             }
 
         } catch (Exception e) {
-            SimpleAppLog.error("Could not prepare comic books",e);
+            SimpleAppLog.error("Could not prepare comic books", e);
         } finally {
             comicBookDBAdapter.close();
         }
