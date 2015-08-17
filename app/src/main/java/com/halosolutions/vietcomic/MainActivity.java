@@ -3,6 +3,7 @@ package com.halosolutions.vietcomic;
 import android.app.SearchManager;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -87,6 +88,7 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
         mToolbarManager.setNavigationManager(new ToolbarManager.ThemableNavigationManager(R.array.navigation_drawer, getSupportFragmentManager(), mToolbar, dl_navigator) {
             @Override
             public void onNavigationClick() {
+				SimpleAppLog.debug("onNavigationClick");
                 if(mToolbarManager.getCurrentGroup() != R.id.tb_group_main)
                     mToolbarManager.setCurrentGroup(R.id.tb_group_main);
                 else
@@ -146,9 +148,6 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 		searchView = (SearchView) MenuItemCompat.getActionView(mToolbar.getMenu().findItem(R.id.action_search));
 		if (null != searchView) {
-			searchView.setFocusable(true);
-			searchView.performClick();
-			searchView.requestFocus();
 			searchView.setIconified(true);
 			try {
 				dbAdapter.open();
@@ -157,7 +156,7 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 			}
 			searchView.setQueryHint("Tìm kiếm truyện");
 			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-			//  searchView.setIconifiedByDefault(false);
+			searchView.setIconifiedByDefault(true);
 			searchView.setOnQueryTextListener(this);
 			searchView.setOnSuggestionListener(this);
 			try {
@@ -189,11 +188,18 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+		SimpleAppLog.debug("onOptionsItemSelected " + item.getItemId());
         switch (item.getItemId()){
+			case android.R.id.home:
+				if (dl_navigator.isDrawerOpen(GravityCompat.START)) {
+					dl_navigator.closeDrawer(fl_drawer);
+				} else {
+					dl_navigator.openDrawer(GravityCompat.START);
+				}
             default:
                 break;
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -257,18 +263,12 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 	@Override
 	public boolean onSuggestionSelect(int position) {
 		Toast.makeText(this, "Select position: " + position, Toast.LENGTH_LONG).show();
-		Object obj = searchView.getSuggestionsAdapter().getItem(position);
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		SimpleAppLog.debug("Select suggestion comic: " + gson.toJson(obj));
 		return true;
 	}
 
 	@Override
 	public boolean onSuggestionClick(int position) {
 		Toast.makeText(this, "Click position: " + position, Toast.LENGTH_LONG).show();
-		Object obj = searchView.getSuggestionsAdapter().getItem(position);
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		SimpleAppLog.debug("Click suggestion comic: " + gson.toJson(obj));
 		return true;
 	}
 

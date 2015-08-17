@@ -5,9 +5,9 @@
         android:id="@+id/tb_group_main">
         <item
             android:id="@+id/action_search"
-            android:actionViewClass="android.support.v7.widget.SearchView"
-            android:icon="@drawable/search_icon"
+            android:icon="@android:drawable/ic_menu_search"
             app:showAsAction="always"
-            android:title="Tìm truyện" />
+            app:actionViewClass="android.support.v7.widget.SearchView"
+            android:title="Tìm kiếm truyện"/>
     </group>
 </menu>
