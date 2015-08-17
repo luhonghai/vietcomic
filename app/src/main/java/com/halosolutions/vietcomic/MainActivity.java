@@ -19,7 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.halosolutions.vietcomic.fragment.ComicFragment;
+import com.halosolutions.vietcomic.fragment.AllComicFragment;
 import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
 import com.halosolutions.vietcomic.fragment.HotComicFragment;
 import com.halosolutions.vietcomic.fragment.NewComicFragment;
@@ -269,7 +269,7 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
     				for(Fragment fragment : mActive){
     					if(fragment instanceof HotComicFragment)
     						setFragment(Tab.HOT, fragment);
-                        else if(fragment instanceof ComicFragment)
+                        else if(fragment instanceof AllComicFragment)
                             setFragment(Tab.ALL, fragment);
                         else if(fragment instanceof FavoriteComicFragment)
                             setFragment(Tab.FAVORITE, fragment);
@@ -294,16 +294,16 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 			if(mFragments[position] == null){
 	        	switch (mTabs[position]) {
 					case HOT:
-						mFragments[position] = HotComicFragment.newInstance();
+						mFragments[position] = new HotComicFragment();
 						break;
                     case ALL:
-                        mFragments[position] = ComicFragment.newInstance();
+                        mFragments[position] = new AllComicFragment();
                         break;
                     case FAVORITE:
-                        mFragments[position] = FavoriteComicFragment.newInstance();
+                        mFragments[position] = new FavoriteComicFragment();
                         break;
 					case NEW:
-						mFragments[position] = NewComicFragment.newInstance();
+						mFragments[position] = new NewComicFragment();
 						break;
 				}
 			}

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.sqlite.DBAdapter;
 import com.halosolutions.vietcomic.util.DateHelper;
+import com.halosolutions.vietcomic.util.SimpleAppLog;
 
 import java.util.Date;
 import java.util.List;
@@ -21,7 +22,13 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     @Override
     public Cursor getAll() throws Exception {
-        return getAll(ComicBook.KEY_NAME + " ASC");
+        return
+                getDB().query(getTableName(), getAllColumns(),
+                        ComicBook.KEY_DELETED + " = 0",
+                        null,
+                        null,
+                        null,
+                        ComicBook.KEY_NAME + " ASC");
     }
 
     @Override
@@ -47,6 +54,7 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 ComicBook.KEY_NEW,
                 ComicBook.KEY_HOT,
                 ComicBook.KEY_FAVORITE,
+                ComicBook.KEY_CATEGORIES,
                 ComicBook.KEY_CREATED_DATE,
         };
     }
@@ -70,20 +78,79 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
         comicBook.setIsHot(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_HOT)) == 1);
         comicBook.setIsFavorite(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_FAVORITE)) == 1);
         comicBook.setCreatedDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_CREATED_DATE))));
+        comicBook.setStrCategories(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_CATEGORIES)));
         return comicBook;
     }
 
-    @Override
-    public List<ComicBook> search(String s) throws Exception {
-        if (s == null || s.length() == 0) return findAll();
-        return toCollection(getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_NAME + " like ?",
+    public Cursor cursorSearch(String s) throws Exception {
+        if (s == null || s.length() == 0) return getAll();
+        return getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_NAME + " like ? and " + ComicBook.KEY_DELETED + " = 0",
                 new String[] {
                         s + "%"
                 },
                 null,
                 null,
+                ComicBook.KEY_NAME + " ASC");
+    }
+
+    @Override
+    public List<ComicBook> search(String s) throws Exception {
+        return toCollection(cursorSearch(s));
+    }
+
+    public List<ComicBook> listAllFavorites() throws Exception {
+        return toCollection(cursorAllFavorites());
+    }
+
+    public Cursor cursorAllFavorites() throws Exception {
+        return getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_FAVORITE + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                null,
+                null,
+                null,
+                ComicBook.KEY_NAME + " ASC");
+    }
+
+    public Cursor cursorAllNew() throws Exception {
+        return getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_NEW + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                null,
+                null,
+                null,
+                ComicBook.KEY_NAME + " ASC");
+    }
+
+    public List<ComicBook> listAllNew() throws Exception {
+        return toCollection(cursorAllNew());
+    }
+
+    public Cursor cursorAllHot() throws Exception {
+        return (getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_HOT + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                null,
+                null,
+                null,
                 ComicBook.KEY_NAME + " ASC"));
+    }
+
+    public List<ComicBook> listAllHot() throws Exception {
+        return toCollection(cursorAllHot());
+    }
+
+    public Cursor cursorByCategory(String category) throws Exception {
+        return getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_CATEGORIES + " like ? and " + ComicBook.KEY_DELETED + " = 0",
+                new String[]{
+                        "%|" + category + "|%"
+                },
+                null,
+                null,
+                ComicBook.KEY_NAME + " ASC");
+    }
+
+    public List<ComicBook> listByCategory(String category) throws Exception {
+        return toCollection(cursorByCategory(category));
     }
 
     @Override
@@ -107,5 +174,23 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
             return oldId;
         }
         return super.insert(obj);
+    }
+
+    public void bulkInsert(List<ComicBook> comicBooks) throws Exception {
+        try {
+            getDB().beginTransaction();
+            for (ComicBook book : comicBooks) {
+                //SimpleAppLog.debug("Insert new comic book: " + book.getName() + ". URL: " + book.getUrl());
+                insert(book);
+            }
+            getDB().setTransactionSuccessful();
+        } finally {
+            try {
+                if (getDB().inTransaction())
+                    getDB().endTransaction();
+            } catch (Exception e) {
+                SimpleAppLog.error("Could not end transaction", e);
+            }
+        }
     }
 }

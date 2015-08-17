@@ -18,6 +18,42 @@ public abstract class AbstractData<T> {
 
     public static final String KEY_CREATED_DATE = "created_date";
 
+    public static final String TABLE_COMIC_BOOK = "comic_book";
+
+    /**
+     *  Common field
+     */
+
+    public static final String KEY_OTHER_NAME = "other_name";
+
+    public static final String KEY_STATUS = "status";
+
+    public static final String KEY_URL = "url";
+
+    public static final String KEY_THUMBNAIL = "thumbnail";
+
+    public static final String KEY_AUTHOR = "author";
+
+    public static final String KEY_RATE = "rate";
+
+    public static final String KEY_DESCRIPTION = "description";
+
+    public static final String KEY_SOURCE = "source";
+
+    public static final String KEY_DELETED = "is_deleted";
+
+    public static final String KEY_NEW = "is_new";
+
+    public static final String KEY_HOT = "is_hot";
+
+    public static final String KEY_FAVORITE = "is_favorite";
+
+    public static final String KEY_BOOK_ID = "book_id";
+
+    public static final String KEY_NAME = "name";
+
+    public static final String KEY_CATEGORIES = "categories";
+
     private long id;
 
     private Date createdDate;

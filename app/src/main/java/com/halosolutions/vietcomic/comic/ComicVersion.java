@@ -63,7 +63,7 @@ public class ComicVersion {
         return null;
     }
 
-    public void saveComicVersion(Context context, ComicVersion version) {
+    public static void saveComicVersion(Context context, ComicVersion version) {
         Gson gson = new Gson();
         try {
             File v = new File(AndroidHelper.getApplicationDir(context), "version.json");
@@ -117,15 +117,15 @@ public class ComicVersion {
         if (!data.exists()) {
             if (!(url.startsWith("http") || url.startsWith("https"))) {
                 try {
-                    FileUtils.copyURLToFile(new URL(url), data);
-                } catch (IOException e) {
-                    SimpleAppLog.error("Could not download comic data from url " + url, e );
-                }
-            } else {
-                try {
                     FileUtils.copyInputStreamToFile(context.getAssets().open(url),data);
                 } catch (IOException e) {
                     SimpleAppLog.error("Could not save comic data from url " + url, e);
+                }
+            } else {
+                try {
+                    FileUtils.copyURLToFile(new URL(url), data);
+                } catch (IOException e) {
+                    SimpleAppLog.error("Could not download comic data from url " + url, e );
                 }
             }
         }
