@@ -18,10 +18,9 @@
             android:layout_width="96dp"
             android:layout_height="132dp" />
         <RelativeLayout
-            android:id="@+id/rlComicRate"
+            android:id="@+id/rlFavorite"
             android:layout_width="@dimen/icon_book_star_image_size"
             android:layout_height="@dimen/icon_book_star_image_size"
-            android:visibility="gone"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true">
@@ -29,16 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/app_icon_star_yellow"/>
-            <TextView
-                android:id="@+id/txtComicRate"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textColor="#FFFFFFFF"
-                android:textSize="@dimen/icon_book_star_text_size"
-                android:text="10"
-                android:textStyle="bold"
-                android:gravity="center"/>
+                android:src="@drawable/app_icon_menu_love_red"/>
         </RelativeLayout>
     </RelativeLayout>
 
@@ -60,29 +50,39 @@
                 android:text="test"
                 android:layout_height="0dp" />
             <LinearLayout
-                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <ImageView
-                    android:id="@+id/imgFavorite"
-                    android:visibility="gone"
+                    android:id="@+id/imgFavorite1"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/app_icon_love_red"/>
+                    android:src="@drawable/app_icon_star_empty_red"/>
                 <ImageView
-                    android:id="@+id/imgDownloaded"
-                    android:visibility="gone"
+                    android:id="@+id/imgFavorite2"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/app_icon_download_red"/>
+                    android:src="@drawable/app_icon_star_empty_red"/>
                 <ImageView
-                    android:id="@+id/imgWatched"
-                    android:visibility="gone"
+                    android:id="@+id/imgFavorite3"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/app_icon_eye_red"/>
+                    android:src="@drawable/app_icon_star_empty_red"/>
+                <ImageView
+                    android:id="@+id/imgFavorite4"
+                    android:layout_width="@dimen/icon_book_status_size"
+                    android:layout_height="@dimen/icon_book_status_size"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/app_icon_star_empty_red"/>
+                <ImageView
+                    android:id="@+id/imgFavorite5"
+                    android:layout_width="@dimen/icon_book_status_size"
+                    android:layout_height="@dimen/icon_book_status_size"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/app_icon_star_empty_red"/>
             </LinearLayout>
         </LinearLayout>
 

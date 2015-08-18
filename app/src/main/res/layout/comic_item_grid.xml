@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="wrap_content"
+    android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="3dp"
-    android:padding="8dp"
     android:background="@android:drawable/dialog_holo_light_frame"
     >
     <LinearLayout
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <RelativeLayout
@@ -14,14 +14,13 @@
             android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/thumbnail"
-                android:background="@drawable/drop_shadow"
                 android:src="@drawable/comic_thumbnail_default"
                 android:scaleType="centerCrop"
                 android:adjustViewBounds="true"
                 android:layout_width="96dp"
                 android:layout_height="132dp" />
             <RelativeLayout
-                android:id="@+id/rlComicRate"
+                android:id="@+id/rlFavorite"
                 android:layout_width="@dimen/icon_book_star_image_size"
                 android:layout_height="@dimen/icon_book_star_image_size"
                 android:visibility="gone"
@@ -32,45 +31,49 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/app_icon_star_yellow"/>
-                <TextView
-                    android:id="@+id/txtComicRate"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:textColor="#FFFFFFFF"
-                    android:textSize="@dimen/icon_book_star_text_size"
-                    android:text="10"
-                    android:textStyle="bold"
-                    android:gravity="center"/>
+                    android:src="@drawable/app_icon_menu_love_red"/>
             </RelativeLayout>
         </RelativeLayout>
         <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_gravity="center_horizontal|center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <ImageView
-                android:id="@+id/imgFavorite"
+                android:id="@+id/imgFavorite1"
                 android:layout_width="@dimen/icon_book_status_size"
                 android:layout_height="@dimen/icon_book_status_size"
                 android:scaleType="centerCrop"
-                android:src="@drawable/app_icon_love_red"/>
+                android:src="@drawable/app_icon_star_empty_red"/>
             <ImageView
-                android:id="@+id/imgDownloaded"
+                android:id="@+id/imgFavorite2"
                 android:layout_width="@dimen/icon_book_status_size"
                 android:layout_height="@dimen/icon_book_status_size"
                 android:scaleType="centerCrop"
-                android:src="@drawable/app_icon_download_red"/>
+                android:src="@drawable/app_icon_star_empty_red"/>
             <ImageView
-                android:id="@+id/imgWatched"
+                android:id="@+id/imgFavorite3"
                 android:layout_width="@dimen/icon_book_status_size"
                 android:layout_height="@dimen/icon_book_status_size"
                 android:scaleType="centerCrop"
-                android:src="@drawable/app_icon_eye_red"/>
+                android:src="@drawable/app_icon_star_empty_red"/>
+            <ImageView
+                android:id="@+id/imgFavorite4"
+                android:layout_width="@dimen/icon_book_status_size"
+                android:layout_height="@dimen/icon_book_status_size"
+                android:scaleType="centerCrop"
+                android:src="@drawable/app_icon_star_empty_red"/>
+            <ImageView
+                android:id="@+id/imgFavorite5"
+                android:layout_width="@dimen/icon_book_status_size"
+                android:layout_height="@dimen/icon_book_status_size"
+                android:scaleType="centerCrop"
+                android:src="@drawable/app_icon_star_empty_red"/>
         </LinearLayout>
     </LinearLayout>
 
     <RelativeLayout
+        android:layout_margin="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
@@ -81,10 +84,8 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:singleLine="true"
+            android:lines="2"
+            android:maxLines="2"
             android:text="test"/>
     </RelativeLayout>
 </LinearLayout>

@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ListView;
 
 import com.google.gson.Gson;
 import com.halosolutions.vietcomic.DetailActivity;
@@ -66,7 +65,7 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 	protected void onUpdateComic(ComicBook comicBook, boolean reload) throws Exception {
 		final View root = getView();
 		if (root != null) {
-			final ListView listView = (ListView) root.findViewById(R.id.listComic);
+			final AbsListView listView = (AbsListView) root.findViewById(R.id.listComic);
 			if (listView != null) {
 				final ComicBookCursorAdapter bookCursorAdapter = (ComicBookCursorAdapter) listView.getAdapter();
 				if (bookCursorAdapter != null) {

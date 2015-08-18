@@ -13,10 +13,9 @@ import android.widget.TextView;
 import com.halosolutions.vietcomic.R;
 import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
+import com.halosolutions.vietcomic.util.AndroidHelper;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-
-import java.text.DecimalFormat;
 
 /**
  * Created by cmg on 17/08/15.
@@ -65,39 +64,34 @@ public class ComicBookCursorAdapter extends CursorAdapter {
 
     public void updateView(final View view, final ComicBook comicBook) {
         ((TextView) view.findViewById(R.id.txtName)).setText(comicBook.getName());
-        RelativeLayout rlComicRate = (RelativeLayout) view.findViewById(R.id.rlComicRate);
-        if (rlComicRate != null) {
-            float rate = comicBook.getRate();
-            if (rate > 0.0) {
-                String strRate;
-                if (rate == 10.0) {
-                    strRate = "10";
-                } else {
-                    strRate = new DecimalFormat("#.##").format(rate);
-                }
-                view.findViewById(R.id.rlComicRate).setVisibility(View.VISIBLE);
-                ((TextView) view.findViewById(R.id.txtComicRate)).setText(strRate);
-            } else {
-                view.findViewById(R.id.rlComicRate).setVisibility(View.GONE);
-            }
-        }
+        RelativeLayout rlFavorite = (RelativeLayout) view.findViewById(R.id.rlFavorite);
         if (comicBook.isFavorite()) {
-            view.findViewById(R.id.imgFavorite).setVisibility(View.VISIBLE);
+            rlFavorite.setVisibility(View.VISIBLE);
         } else {
-            view.findViewById(R.id.imgFavorite).setVisibility(View.INVISIBLE);
+            rlFavorite.setVisibility(View.GONE);
         }
 
-        if (comicBook.isDownloaded()) {
-            view.findViewById(R.id.imgDownloaded).setVisibility(View.VISIBLE);
-        } else {
-            view.findViewById(R.id.imgDownloaded).setVisibility(View.INVISIBLE);
-        }
+        AndroidHelper.updateImageView(mContext,
+                view,
+                R.id.imgFavorite1,
+                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(1));
+        AndroidHelper.updateImageView(mContext,
+                view,
+                R.id.imgFavorite2,
+                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(2));
+        AndroidHelper.updateImageView(mContext,
+                view,
+                R.id.imgFavorite3,
+                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(3));
+        AndroidHelper.updateImageView(mContext,
+                view,
+                R.id.imgFavorite4,
+                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(4));
+        AndroidHelper.updateImageView(mContext,
+                view,
+                R.id.imgFavorite5,
+                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(5));
 
-        if (comicBook.isWatched()) {
-            view.findViewById(R.id.imgWatched).setVisibility(View.VISIBLE);
-        } else {
-            view.findViewById(R.id.imgWatched).setVisibility(View.INVISIBLE);
-        }
         final ImageView imgThumbnail = (ImageView) view.findViewById(R.id.thumbnail);
         String thumbnail = comicBook.getThumbnail();
         ImageLoader.getInstance().displayImage(thumbnail,
@@ -105,4 +99,5 @@ public class ComicBookCursorAdapter extends CursorAdapter {
                 displayImageOptions);
         view.setTag(comicBook);
     }
+
 }
