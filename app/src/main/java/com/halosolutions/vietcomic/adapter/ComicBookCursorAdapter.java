@@ -65,10 +65,12 @@ public class ComicBookCursorAdapter extends CursorAdapter {
     public void updateView(final View view, final ComicBook comicBook) {
         ((TextView) view.findViewById(R.id.txtName)).setText(comicBook.getName());
         RelativeLayout rlFavorite = (RelativeLayout) view.findViewById(R.id.rlFavorite);
-        if (comicBook.isFavorite()) {
-            rlFavorite.setVisibility(View.VISIBLE);
-        } else {
-            rlFavorite.setVisibility(View.GONE);
+        if (rlFavorite != null) {
+            if (comicBook.isFavorite()) {
+                rlFavorite.setVisibility(View.VISIBLE);
+            } else {
+                rlFavorite.setVisibility(View.GONE);
+            }
         }
 
         AndroidHelper.updateImageView(mContext,
