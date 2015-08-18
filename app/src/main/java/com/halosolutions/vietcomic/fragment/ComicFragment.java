@@ -9,7 +9,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -32,16 +34,25 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.fragment_comic_list, container, false);
-		ListView listView = (ListView) v.findViewById(R.id.listComic);
+		View v = inflater.inflate(getViewLayout(), container, false);
+		final View view = v.findViewById(R.id.listComic);
 		try {
-			ComicBookCursorAdapter bookCursorAdapter = new ComicBookCursorAdapter(getActivity(), getCursor());
-			listView.setAdapter(bookCursorAdapter);
-			listView.setOnItemClickListener(this);
+			if (view == null) return v;
+			int itemLayout = R.layout.comic_item;
+			if (view instanceof GridView) {
+				itemLayout = R.layout.comic_item_grid;
+			}
+			ComicBookCursorAdapter bookCursorAdapter = new ComicBookCursorAdapter(getActivity(), getCursor(), itemLayout);
+			((AbsListView) view).setAdapter(bookCursorAdapter);
+			((AbsListView) view).setOnItemClickListener(this);
 		} catch (Exception e) {
 			SimpleAppLog.error("Could not list comic", e);
 		}
 		return v;
+	}
+
+	protected int getViewLayout() {
+		return R.layout.fragment_comic_list;
 	}
 
 	@Override

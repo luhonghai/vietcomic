@@ -84,19 +84,19 @@ public class ComicBookCursorAdapter extends CursorAdapter {
         if (comicBook.isFavorite()) {
             view.findViewById(R.id.imgFavorite).setVisibility(View.VISIBLE);
         } else {
-            view.findViewById(R.id.imgFavorite).setVisibility(View.GONE);
+            view.findViewById(R.id.imgFavorite).setVisibility(View.INVISIBLE);
         }
 
         if (comicBook.isDownloaded()) {
             view.findViewById(R.id.imgDownloaded).setVisibility(View.VISIBLE);
         } else {
-            view.findViewById(R.id.imgDownloaded).setVisibility(View.GONE);
+            view.findViewById(R.id.imgDownloaded).setVisibility(View.INVISIBLE);
         }
 
         if (comicBook.isWatched()) {
             view.findViewById(R.id.imgWatched).setVisibility(View.VISIBLE);
         } else {
-            view.findViewById(R.id.imgWatched).setVisibility(View.GONE);
+            view.findViewById(R.id.imgWatched).setVisibility(View.INVISIBLE);
         }
         final ImageView imgThumbnail = (ImageView) view.findViewById(R.id.thumbnail);
         String thumbnail = comicBook.getThumbnail();
