@@ -31,7 +31,7 @@ public class SplashActivity extends BaseActivity {
                 final long executionTime = System.currentTimeMillis() - start;
                 SimpleAppLog.info("Finish load data. Execution time: " + executionTime + "ms");
                 if (executionTime >= MIN_LOAD_TIME) {
-                    startActivity(MainActivity.class);
+                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 } else {
                     runOnUiThread(new Runnable() {
                         @Override
@@ -39,26 +39,14 @@ public class SplashActivity extends BaseActivity {
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    startActivity(MainActivity.class);
+                                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
                                 }
                             }, MIN_LOAD_TIME - executionTime);
                         }
                     });
-
                 }
                 return null;
             }
         }.execute();
-    }
-
-    private void startActivity(final Class clazz) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                startActivity(new Intent(SplashActivity.this, clazz));
-                SplashActivity.this.finish();
-            }
-        });
-
     }
 }

@@ -42,6 +42,8 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
                     + ComicBook.KEY_NEW + " integer, "
                     + ComicBook.KEY_HOT + " integer, "
                     + ComicBook.KEY_FAVORITE + " integer, "
+                    + ComicBook.KEY_DOWNLOADED + " integer, "
+                    + ComicBook.KEY_WATCHED + " integer, "
                     + AbstractData.KEY_CREATED_DATE + " date not null"
                     + ");",
     };
