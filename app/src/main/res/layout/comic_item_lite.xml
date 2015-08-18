@@ -2,46 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="3dp"
-    android:padding="8dp"
+    android:padding="4dp"
     android:background="@android:drawable/dialog_holo_light_frame"
     >
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:id="@+id/thumbnail"
-            android:background="@drawable/drop_shadow"
-            android:src="@drawable/comic_thumbnail_default"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
-            android:layout_width="96dp"
-            android:layout_height="132dp" />
-        <RelativeLayout
-            android:id="@+id/rlComicRate"
-            android:layout_width="@dimen/icon_book_star_image_size"
-            android:layout_height="@dimen/icon_book_star_image_size"
-            android:visibility="gone"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/app_icon_star_yellow"/>
-            <TextView
-                android:id="@+id/txtComicRate"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textColor="#FFFFFFFF"
-                android:textSize="@dimen/icon_book_star_text_size"
-                android:text="10"
-                android:textStyle="bold"
-                android:gravity="center"/>
-        </RelativeLayout>
-    </RelativeLayout>
-
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:background="@drawable/drop_shadow_64_88"
+        android:src="@drawable/comic_thumbnail_default"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        android:layout_width="64dp"
+        android:layout_height="88dp" />
     <RelativeLayout
         android:layout_weight="1"
         android:layout_width="0dp"
@@ -54,7 +25,7 @@
             <TextView
                 android:id="@+id/txtName"
                 android:textColor="#FF000000"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
                 android:layout_width="match_parent"
                 android:layout_weight="1"
                 android:text="test"
@@ -64,27 +35,23 @@
                 android:layout_height="wrap_content">
                 <ImageView
                     android:id="@+id/imgFavorite"
-                    android:visibility="gone"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
                     android:src="@drawable/app_icon_love_red"/>
                 <ImageView
                     android:id="@+id/imgDownloaded"
-                    android:visibility="gone"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
                     android:src="@drawable/app_icon_download_red"/>
                 <ImageView
                     android:id="@+id/imgWatched"
-                    android:visibility="gone"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
                     android:src="@drawable/app_icon_eye_red"/>
             </LinearLayout>
         </LinearLayout>
-
     </RelativeLayout>
 </LinearLayout>

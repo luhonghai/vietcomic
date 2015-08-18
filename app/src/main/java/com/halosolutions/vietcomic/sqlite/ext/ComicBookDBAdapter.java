@@ -54,6 +54,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 ComicBook.KEY_NEW,
                 ComicBook.KEY_HOT,
                 ComicBook.KEY_FAVORITE,
+                ComicBook.KEY_DOWNLOADED,
+                ComicBook.KEY_WATCHED,
                 ComicBook.KEY_CATEGORIES,
                 ComicBook.KEY_CREATED_DATE,
         };
@@ -77,6 +79,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
         comicBook.setIsNew(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_NEW)) == 1);
         comicBook.setIsHot(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_HOT)) == 1);
         comicBook.setIsFavorite(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_FAVORITE)) == 1);
+        comicBook.setIsDownloaded(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_DOWNLOADED)) == 1);
+        comicBook.setIsWatched(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_WATCHED)) == 1);
         comicBook.setCreatedDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_CREATED_DATE))));
         comicBook.setStrCategories(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_CATEGORIES)));
         return comicBook;
@@ -166,9 +170,10 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 long oldId =cursor.getLong(cursor.getColumnIndex(ComicBook.KEY_ROW_ID));
-                boolean isFavorite = cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_FAVORITE)) == 1;
                 obj.setId(oldId);
-                obj.setIsFavorite(isFavorite);
+                obj.setIsFavorite(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_FAVORITE)) == 1);
+                obj.setIsDownloaded(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_DOWNLOADED)) == 1);
+                obj.setIsWatched(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_WATCHED)) == 1);
                 obj.setCreatedDate(new Date(System.currentTimeMillis()));
                 update(obj);
                 return oldId;

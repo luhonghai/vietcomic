@@ -42,6 +42,10 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     private boolean isFavorite;
 
+    private boolean isDownloaded;
+
+    private boolean isWatched;
+
     private List<String> categories;
 
     private String strCategories;
@@ -68,6 +72,8 @@ public class ComicBook extends AbstractData<ComicBook> {
         cv.put(KEY_NEW, isNew() ?  1 : 0);
         cv.put(KEY_HOT, isHot() ? 1 : 0);
         cv.put(KEY_FAVORITE, isFavorite() ? 1 : 0);
+        cv.put(KEY_DOWNLOADED, isDownloaded() ? 1 : 0);
+        cv.put(KEY_WATCHED, isWatched() ? 1 : 0);
         if (getCreatedDate() != null)
             cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
         cv.put(KEY_CATEGORIES, getStrCategories());
@@ -228,5 +234,21 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     public void setStrCategories(String strCategories) {
         this.strCategories = strCategories;
+    }
+
+    public boolean isDownloaded() {
+        return isDownloaded;
+    }
+
+    public void setIsDownloaded(boolean isDownloaded) {
+        this.isDownloaded = isDownloaded;
+    }
+
+    public boolean isWatched() {
+        return isWatched;
+    }
+
+    public void setIsWatched(boolean isWatched) {
+        this.isWatched = isWatched;
     }
 }

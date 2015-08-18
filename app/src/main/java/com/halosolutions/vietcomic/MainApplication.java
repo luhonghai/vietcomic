@@ -9,8 +9,10 @@ import com.rey.material.app.ThemeManager;
  */
 public class MainApplication extends Application {
 
+    public static final int DEFAULT_THEME = 0;
+
     @Override public void onCreate() {
         super.onCreate();
-        ThemeManager.init(this, 2, 0, null);
+        ThemeManager.init(this, 2, DEFAULT_THEME, null);
     }
 }

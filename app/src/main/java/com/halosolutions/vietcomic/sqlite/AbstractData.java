@@ -48,6 +48,10 @@ public abstract class AbstractData<T> {
 
     public static final String KEY_FAVORITE = "is_favorite";
 
+    public static final String KEY_DOWNLOADED = "is_downloaded";
+
+    public static final String KEY_WATCHED = "is_watched";
+
     public static final String KEY_BOOK_ID = "book_id";
 
     public static final String KEY_NAME = "name";

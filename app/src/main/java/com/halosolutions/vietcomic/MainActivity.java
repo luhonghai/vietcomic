@@ -2,8 +2,8 @@ package com.halosolutions.vietcomic;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -24,11 +24,10 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.halosolutions.vietcomic.adapter.ComicBookCursorAdapter;
+import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.fragment.AllComicFragment;
 import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
 import com.halosolutions.vietcomic.fragment.HotComicFragment;
@@ -54,7 +53,7 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 	private ListView lv_drawer;
 	private CustomViewPager vp;
 	private TabPageIndicator tpi;
-	
+
 	private DrawerAdapter mDrawerAdapter;
 	private PagerAdapter mPagerAdapter;
 	
@@ -160,7 +159,7 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 			searchView.setOnQueryTextListener(this);
 			searchView.setOnSuggestionListener(this);
 			try {
-				adapter = new ComicBookCursorAdapter(this, dbAdapter.cursorSearch(""));
+				adapter = new ComicBookCursorAdapter(this, dbAdapter.cursorSearch(""), R.layout.comic_item_lite);
 				searchView.setSuggestionsAdapter(adapter);
 			} catch (Exception e) {
 				SimpleAppLog.error("Could not set suggestion adapter",e);
@@ -263,13 +262,21 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 
 	@Override
 	public boolean onSuggestionSelect(int position) {
-		Toast.makeText(this, "Select position: " + position, Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, "Select position: " + position, Toast.LENGTH_LONG).show();
+		//startActivity(new Intent(this, DetailActivity.class));
 		return true;
 	}
 
 	@Override
 	public boolean onSuggestionClick(int position) {
-		Toast.makeText(this, "Click position: " + position, Toast.LENGTH_LONG).show();
+		if (searchView != null) {
+			ComicBook comicBook = dbAdapter.toObject(
+					(Cursor) searchView.getSuggestionsAdapter().getItem(position));
+			Gson gson = new Gson();
+			Intent intent = new Intent(this, DetailActivity.class);
+			intent.putExtra(ComicBook.class.getName(), gson.toJson(comicBook));
+			startActivity(intent);
+		}
 		return true;
 	}
 

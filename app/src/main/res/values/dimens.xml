@@ -7,6 +7,10 @@
     <dimen name="bt_height">36dp</dimen>
 
     <dimen name="icon_book_status_size">20dp</dimen>
-    <dimen name="icon_book_star_image_size">60dp</dimen>
-    <dimen name="icon_book_star_text_size">20sp</dimen>
+    <dimen name="icon_book_star_image_size">35dp</dimen>
+    <dimen name="icon_book_star_text_size">12sp</dimen>
+    <dimen name="icon_book_detail_star_image_size">50dp</dimen>
+    <dimen name="icon_book_detail_star_text_size">16sp</dimen>
+
+    <dimen name="comic_book_detail_text_margin">3dp</dimen>
 </resources>
