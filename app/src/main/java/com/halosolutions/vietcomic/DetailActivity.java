@@ -149,22 +149,6 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
     private void loadComicInfo() {
         if (selectedBook != null) {
             ((TextView) findViewById(R.id.toolbar_title)).setText(selectedBook.getName());
-            RelativeLayout rlComicRate = (RelativeLayout) findViewById(R.id.rlComicRate);
-            if (rlComicRate != null) {
-                float rate = selectedBook.getRate();
-                if (rate > 0.0) {
-                    String strRate;
-                    if (rate == 10.0) {
-                        strRate = "10";
-                    } else {
-                        strRate = new DecimalFormat("#.##").format(rate);
-                    }
-                    findViewById(R.id.rlComicRate).setVisibility(View.VISIBLE);
-                    ((TextView) findViewById(R.id.txtComicRate)).setText(strRate);
-                } else {
-                    findViewById(R.id.rlComicRate).setVisibility(View.GONE);
-                }
-            }
             final ImageView imgThumbnail = (ImageView) findViewById(R.id.thumbnail);
             String thumbnail = selectedBook.getThumbnail();
             ImageLoader.getInstance().displayImage(thumbnail,
@@ -178,7 +162,6 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                     selectedBook.getStatus()));
             ((TextView) findViewById(R.id.txtComicCategories)).setText(getString(R.string.comic_categories,
                     StringUtils.join(selectedBook.getCategories(), ", ")));
-            ((ProgressView) findViewById(R.id.progressDescription)).start();
         }
     }
 

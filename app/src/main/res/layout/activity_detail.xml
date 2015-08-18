@@ -48,28 +48,6 @@
                             android:layout_width="132dp"
                             android:layout_height="198dp"
                             android:layout_margin="5dp"/>
-                        <RelativeLayout
-                            android:id="@+id/rlComicRate"
-                            android:layout_width="@dimen/icon_book_detail_star_image_size"
-                            android:layout_height="@dimen/icon_book_detail_star_image_size"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentLeft="true"
-                            android:layout_alignParentStart="true">
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="centerCrop"
-                                android:src="@drawable/app_icon_star_yellow"/>
-                            <TextView
-                                android:id="@+id/txtComicRate"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:textColor="#FFFFFFFF"
-                                android:textSize="@dimen/icon_book_detail_star_text_size"
-                                android:text="10"
-                                android:textStyle="bold"
-                                android:gravity="center"/>
-                        </RelativeLayout>
                     </RelativeLayout>
                     <RelativeLayout
                         android:layout_weight="1"
@@ -113,7 +91,8 @@
                                     android:text="@string/comic_source"/>
                                 <RelativeLayout
                                     android:layout_width="match_parent"
-                                    android:layout_height="wrap_content">
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/comic_book_detail_text_margin">
                                     <TextView
                                         android:id="@+id/txtComicDescription"
                                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
@@ -121,12 +100,6 @@
                                         android:layout_height="wrap_content"
                                         android:layout_margin="@dimen/comic_book_detail_text_margin"
                                         android:text=""/>
-                                    <com.rey.material.widget.ProgressView
-                                        android:id="@+id/progressDescription"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="4dp"
-                                        android:layout_gravity="center"
-                                        app:v_styleId="@array/pv_linear_color"/>
                                 </RelativeLayout>
                             </LinearLayout>
                         </ScrollView>

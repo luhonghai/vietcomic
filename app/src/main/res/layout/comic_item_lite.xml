@@ -31,26 +31,39 @@
                 android:text="test"
                 android:layout_height="0dp" />
             <LinearLayout
-                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <ImageView
-                    android:id="@+id/imgFavorite"
+                    android:id="@+id/imgFavorite1"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/app_icon_love_red"/>
+                    android:src="@drawable/app_icon_star_empty_red"/>
                 <ImageView
-                    android:id="@+id/imgDownloaded"
+                    android:id="@+id/imgFavorite2"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/app_icon_download_red"/>
+                    android:src="@drawable/app_icon_star_empty_red"/>
                 <ImageView
-                    android:id="@+id/imgWatched"
+                    android:id="@+id/imgFavorite3"
                     android:layout_width="@dimen/icon_book_status_size"
                     android:layout_height="@dimen/icon_book_status_size"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/app_icon_eye_red"/>
+                    android:src="@drawable/app_icon_star_empty_red"/>
+                <ImageView
+                    android:id="@+id/imgFavorite4"
+                    android:layout_width="@dimen/icon_book_status_size"
+                    android:layout_height="@dimen/icon_book_status_size"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/app_icon_star_empty_red"/>
+                <ImageView
+                    android:id="@+id/imgFavorite5"
+                    android:layout_width="@dimen/icon_book_status_size"
+                    android:layout_height="@dimen/icon_book_status_size"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/app_icon_star_empty_red"/>
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
