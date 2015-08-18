@@ -1,17 +1,15 @@
-package com.halosolutions.vietcomic.comic;
+package com.halosolutions.vietcomic.comic.ext;
 
 import android.content.Context;
 
-import com.cmg.android.cmgpdf.AsyncTask;
-import com.google.gson.Gson;
-import com.halosolutions.vietcomic.util.AndroidHelper;
+import com.halosolutions.vietcomic.comic.ComicChapter;
+import com.halosolutions.vietcomic.comic.ComicService;
 import com.halosolutions.vietcomic.util.Hash;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,52 +20,24 @@ import java.io.FileOutputStream;
 import java.net.URL;
 
 /**
- * Created by cmg on 11/08/15.
+ * Created by cmg on 18/08/15.
  */
-public class BookService {
+public class VechaiComicService extends ComicService {
 
-    public interface DownloadListener {
-        public void onError(String message, Throwable e);
-
-        public void onComplete(ComicChapter book);
-    }
     private static final String VECHAI_ROOT_URL = "http://vechai.info/";
 
     public static final String DEFAULT_CSS_SELECTOR = "#contentChapter img";
 
-    private String cssSelector;
-
-    private final Context context;
-
-    public BookService(Context context) {
-        this.context = context;
-        cssSelector = DEFAULT_CSS_SELECTOR;
+    public VechaiComicService(Context context) {
+        super(context);
     }
 
-    public BookService(Context context, String cssSelector) {
-        this(context);
-        this.cssSelector = cssSelector;
-    }
-
-    public void downloadAsync(final ComicChapter book, final DownloadListener listener) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    listener.onComplete(downloadBook(book));
-                } catch (Exception e) {
-                    listener.onError("Could not download comic", e);
-                }
-                return null;
-            }
-        }.execute();
-    }
-
+    @Override
     public ComicChapter downloadBook(final ComicChapter book) throws Exception {
         long start =System.currentTimeMillis();
         SimpleAppLog.info("Start download comic book at " + book.getUrl());
         Document doc = Jsoup.connect(book.getUrl()).get();
-        Elements images = doc.select(cssSelector);
+        Elements images = doc.select(DEFAULT_CSS_SELECTOR);
         if (images != null) {
             SimpleAppLog.info("Found images");
             com.itextpdf.text.Document pdfDoc = new com.itextpdf.text.Document();
