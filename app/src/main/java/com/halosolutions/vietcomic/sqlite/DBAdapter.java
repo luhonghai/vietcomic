@@ -129,6 +129,9 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
     public SQLiteDatabase open() throws SQLException
     {
         db = DBHelper.getWritableDatabase();
+        while(db.isDbLockedByCurrentThread() || db.isDbLockedByOtherThreads()) {
+            //db is locked, keep looping
+        }
         return db;
     }
 

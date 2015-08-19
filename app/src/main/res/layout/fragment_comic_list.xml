@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -11,5 +12,23 @@
         android:fastScrollEnabled="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-</LinearLayout>
+    <TextView
+        android:id="@+id/txtEmpty"
+        android:textColor="#555555"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+        android:visibility="gone"
+        android:text="@string/empty_comic"
+        android:layout_centerInParent="true" />
+
+    <com.rey.material.widget.ProgressView
+        android:id="@+id/progressEmpty"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="3dp"
+        android:layout_margin="20dp"
+        android:layout_centerInParent="true"
+        app:v_styleId="@array/pv_linear_color"/>
+</RelativeLayout>
     

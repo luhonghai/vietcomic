@@ -38,4 +38,6 @@
   <string name="comic_categories"><![CDATA[<b><font color="#03A9F4">Thể loại:</font></b>]]> %1$s</string>
   <string name="comic_status"><![CDATA[<b><font color="#03A9F4">Trình trạng:</font></b>]]> %1$s</string>
   <string name="comic_source"><![CDATA[<b><font color="#03A9F4">Nguồn:</font></b>]]> %1$s</string>
+
+  <string name="empty_comic">Không có truyện</string>
 </resources>

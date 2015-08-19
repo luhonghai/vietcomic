@@ -14,8 +14,8 @@ import com.halosolutions.vietcomic.util.SimpleAppLog;
  */
 public class BroadcastHelper {
 
-    public static interface OnComicBookUpdated {
-        public void onUpdated(ComicBook comicBook);
+    public interface OnComicBookUpdated {
+        void onUpdated(ComicBook comicBook);
     }
 
     public static final String ON_COMIC_BOOK_UPDATED = "ON_COMIC_BOOK_UPDATED";
@@ -38,7 +38,7 @@ public class BroadcastHelper {
                 public void onReceive(Context context, Intent intent) {
                     if (onComicBookUpdated != null) {
                         String raw = intent.getExtras().getString(ComicBook.class.getName());
-                        SimpleAppLog.debug("On comic book updated: " + raw);
+                        //SimpleAppLog.debug("On comic book updated: " + raw);
                         onComicBookUpdated.onUpdated(
                                 gson.fromJson(raw,
                                         ComicBook.class));

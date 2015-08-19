@@ -2,6 +2,10 @@ package com.halosolutions.vietcomic.comic;
 
 import android.content.Context;
 
+import com.cmg.android.cmgpdf.AsyncTask;
+import com.halosolutions.vietcomic.service.BroadcastHelper;
+import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
+import com.halosolutions.vietcomic.sqlite.ext.ComicChapterDBAdapter;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -21,6 +25,8 @@ import java.util.List;
  * Created by cmg on 11/08/15.
  */
 public abstract class ComicService {
+
+    protected static final int REQUEST_TIMEOUT = 30000;
 
     private static final String SOURCE_VECHAI = "vechai.info";
 
