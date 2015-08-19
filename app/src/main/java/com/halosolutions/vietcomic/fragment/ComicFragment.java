@@ -37,9 +37,12 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 		final View view = v.findViewById(R.id.listComic);
 		try {
 			if (view == null) return v;
-			int itemLayout = R.layout.comic_item;
-			if (view instanceof GridView) {
-				itemLayout = R.layout.comic_item_grid;
+			int itemLayout = getItemLayout();
+			if (itemLayout == -1) {
+				itemLayout = R.layout.comic_item;
+				if (view instanceof GridView) {
+					itemLayout = R.layout.comic_item_grid;
+				}
 			}
 			ComicBookCursorAdapter bookCursorAdapter = new ComicBookCursorAdapter(getActivity(), getCursor(), itemLayout);
 			((AbsListView) view).setAdapter(bookCursorAdapter);
@@ -48,6 +51,10 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 			SimpleAppLog.error("Could not list comic", e);
 		}
 		return v;
+	}
+
+	protected int getItemLayout() {
+		return -1;
 	}
 
 	protected int getViewLayout() {

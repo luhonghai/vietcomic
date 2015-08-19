@@ -28,6 +28,9 @@ import com.halosolutions.vietcomic.fragment.AllComicFragment;
 import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
 import com.halosolutions.vietcomic.fragment.HotComicFragment;
 import com.halosolutions.vietcomic.fragment.NewComicFragment;
+import com.halosolutions.vietcomic.fragment.detail.AllChapterComicFragment;
+import com.halosolutions.vietcomic.fragment.detail.SameAuthorComicFragment;
+import com.halosolutions.vietcomic.fragment.detail.SameCategoriesComicFragment;
 import com.halosolutions.vietcomic.service.BroadcastHelper;
 import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.vietcomic.util.AndroidHelper;
@@ -65,7 +68,7 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
 
     private ComicBookDBAdapter dbAdapter;
 
-    private Tab[] mItems = new Tab[]{Tab.HOT,Tab.NEW,Tab.FAVORITE, Tab.ALL };
+    private Tab[] mItems = new Tab[]{Tab.ALL_CHAPTER,Tab.SAME_CATEGORIES,Tab.SAME_AUTHOR};
 
     private ComicBook selectedBook;
 
@@ -78,7 +81,13 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_detail);
-
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            Gson gson = new Gson();
+            selectedBook = gson.fromJson(bundle.getString(ComicBook.class.getName()), ComicBook.class);
+        } else {
+            selectedBook = new ComicBook();
+        }
         mToolbar = (Toolbar)findViewById(R.id.main_toolbar);
 
         vp = (CustomViewPager)findViewById(R.id.main_vp);
@@ -88,7 +97,7 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         mToolbarManager.registerOnToolbarGroupChangedListener(this);
 
         if (vp != null) {
-            mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), mItems);
+            mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), mItems, selectedBook);
             vp.setAdapter(mPagerAdapter);
             tpi.setViewPager(vp);
             tpi.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -118,13 +127,7 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                         .build();
         mToolbar.setNavigationIcon(drawable);
         drawable.switchIconState(NavigationDrawerDrawable.STATE_ARROW, false);
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            Gson gson = new Gson();
-            selectedBook = gson.fromJson(bundle.getString(ComicBook.class.getName()), ComicBook.class);
-        } else {
-            selectedBook = new ComicBook();
-        }
+
         try {
             dbAdapter.open();
         } catch (Exception e) {
@@ -133,7 +136,6 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         broadcastHelper = new BroadcastHelper(this);
 
         displayImageOptions = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.drawable.comic_thumbnail_default) // resource or drawable
                 .showImageForEmptyUri(R.drawable.comic_thumbnail_default) // resource or drawable
                 .showImageOnFail(R.drawable.comic_thumbnail_error) // resource or drawable
                 .cacheInMemory(true)
@@ -344,10 +346,9 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
     }
 
     public enum Tab {
-        HOT("Truyện HOT"),
-        NEW("Truyện mới"),
-        ALL("Toàn bộ"),
-        FAVORITE("Yêu thích");
+        ALL_CHAPTER("Toàn bộ tập"),
+        SAME_CATEGORIES("Cùng thể loại"),
+        SAME_AUTHOR("Cùng tác giả");
         private final String name;
 
         private Tab(String s) {
@@ -368,6 +369,8 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
 
         Fragment[] mFragments;
         Tab[] mTabs;
+        Gson gson;
+        ComicBook comicBook;
 
         private static final Field sActiveField;
 
@@ -382,10 +385,12 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
             sActiveField = f;
         }
 
-        public PagerAdapter(FragmentManager fm, Tab[] tabs) {
+        public PagerAdapter(FragmentManager fm, Tab[] tabs, ComicBook comicBook) {
             super(fm);
+            gson = new Gson();
             mTabs = tabs;
             mFragments = new Fragment[mTabs.length];
+            this.comicBook = comicBook;
 
 
             //dirty way to get reference of cached fragment
@@ -393,14 +398,12 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                 ArrayList<Fragment> mActive = (ArrayList<Fragment>)sActiveField.get(fm);
                 if(mActive != null){
                     for(Fragment fragment : mActive){
-                        if(fragment instanceof HotComicFragment)
-                            setFragment(Tab.HOT, fragment);
-                        else if(fragment instanceof AllComicFragment)
-                            setFragment(Tab.ALL, fragment);
-                        else if(fragment instanceof FavoriteComicFragment)
-                            setFragment(Tab.FAVORITE, fragment);
-                        else if(fragment instanceof NewComicFragment)
-                            setFragment(Tab.NEW, fragment);
+                        if(fragment instanceof SameAuthorComicFragment)
+                            setFragment(Tab.SAME_AUTHOR, fragment);
+                        else if(fragment instanceof SameCategoriesComicFragment)
+                            setFragment(Tab.SAME_CATEGORIES, fragment);
+                        else if(fragment instanceof AllChapterComicFragment)
+                            setFragment(Tab.ALL_CHAPTER, fragment);
                     }
                 }
             }
@@ -418,20 +421,22 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         @Override
         public Fragment getItem(int position) {
             if(mFragments[position] == null){
+                Fragment fragment = null;
                 switch (mTabs[position]) {
-                    case HOT:
-                        mFragments[position] = new HotComicFragment();
+                    case SAME_AUTHOR:
+                        fragment = new SameAuthorComicFragment();
                         break;
-                    case ALL:
-                        mFragments[position] = new AllComicFragment();
+                    case SAME_CATEGORIES:
+                        fragment = new SameCategoriesComicFragment();
                         break;
-                    case FAVORITE:
-                        mFragments[position] = new FavoriteComicFragment();
-                        break;
-                    case NEW:
-                        mFragments[position] = new NewComicFragment();
+                    case ALL_CHAPTER:
+                        fragment = new AllChapterComicFragment();
                         break;
                 }
+                Bundle bundle = new Bundle();
+                bundle.putString(ComicBook.class.getName(), gson.toJson(comicBook));
+                fragment.setArguments(bundle);
+                mFragments[position] = fragment;
             }
 
             return mFragments[position];
