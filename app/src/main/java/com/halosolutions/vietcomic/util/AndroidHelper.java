@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.halosolutions.vietcomic.R;
 
@@ -31,64 +32,29 @@ public class AndroidHelper {
         }
     }
 
-    public static Map<Integer, Integer> getDrawableRateStar(float fRate) {
-        Map<Integer, Integer> map = new Hashtable<Integer, Integer>();
+    public static void showRateStar(final Context context, final LinearLayout parent, float fRate) {
+        int size = parent.getChildCount();
         int rate = Math.round(fRate);
-        int d1, d2, d3, d4, d5;
-        switch (rate) {
-            case 10:
-                d1 = d2 = d3 = d4 = d5 = R.drawable.app_icon_star_full_red;
-                break;
-            case 9:
-                d5 = R.drawable.app_icon_star_half_red;
-                d1 = d2 = d3 = d4 = R.drawable.app_icon_star_full_red;
-                break;
-            case 8:
-                d5 = R.drawable.app_icon_star_empty_red;
-                d1 = d2 = d3 = d4 = R.drawable.app_icon_star_full_red;
-                break;
-            case 7:
-                d5 = R.drawable.app_icon_star_empty_red;
-                d4 = R.drawable.app_icon_star_half_red;
-                d1 = d2 = d3 = R.drawable.app_icon_star_full_red;
-                break;
-            case 6:
-                d4 = d5 = R.drawable.app_icon_star_empty_red;
-                d1 = d2 = d3 = R.drawable.app_icon_star_full_red;
-                break;
-            case 5:
-                d4 = d5 = R.drawable.app_icon_star_empty_red;
-                d3 = R.drawable.app_icon_star_half_red;
-                d1 = d2 = R.drawable.app_icon_star_full_red;
-                break;
-            case 4:
-                d3 = d4 = d5 = R.drawable.app_icon_star_empty_red;
-                d1 = d2 = R.drawable.app_icon_star_full_red;
-                break;
-            case 3:
-                d3 = d4 = d5 = R.drawable.app_icon_star_empty_red;
-                d2 = R.drawable.app_icon_star_half_red;
-                d1 = R.drawable.app_icon_star_full_red;
-                break;
-            case 2:
-                d2 = d3 = d4 = d5 = R.drawable.app_icon_star_empty_red;
-                d1 = R.drawable.app_icon_star_full_red;
-                break;
-            case 1:
-                d2 = d3 = d4 = d5 = R.drawable.app_icon_star_empty_red;
-                d1 = R.drawable.app_icon_star_half_red;
-                break;
-            case 0:
-            default:
-                d1 = d2 = d3 = d4 = d5 = R.drawable.app_icon_star_empty_red;
-                break;
+        if (size != 5) {
+            SimpleAppLog.error("Not enough imageview child");
+            return;
         }
-        map.put(1, d1);
-        map.put(2, d2);
-        map.put(3, d3);
-        map.put(4, d4);
-        map.put(5, d5);
-        return map;
+        for (int i = 0; i < size; i++) {
+            final ImageView img = (ImageView) parent.getChildAt(i);
+            if (rate > (i * 2) + 1) {
+                img.setImageDrawable(
+                        context.getResources()
+                                .getDrawable(R.drawable.app_icon_star_full_red));
+            } else if (rate == (i * 2) + 1) {
+                img.setImageDrawable(
+                        context.getResources()
+                                .getDrawable(R.drawable.app_icon_star_half_red));
+            } else {
+                img.setImageDrawable(
+                        context.getResources()
+                                .getDrawable(R.drawable.app_icon_star_empty_red));
+            }
+        }
     }
 
     public static void updateImageView(final Context context, final View view, int imgId, int drawableId) {

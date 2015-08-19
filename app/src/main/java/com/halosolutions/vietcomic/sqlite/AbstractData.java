@@ -58,6 +58,8 @@ public abstract class AbstractData<T> {
 
     public static final String KEY_CATEGORIES = "categories";
 
+    public static final String KEY_SEARCH = "search";
+
     private long id;
 
     private Date createdDate;

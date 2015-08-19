@@ -1,27 +1,36 @@
 package com.halosolutions.vietcomic;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cmg.android.cmgpdf.AsyncTask;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.google.gson.Gson;
 import com.halosolutions.vietcomic.comic.ComicBook;
+import com.halosolutions.vietcomic.comic.ComicChapter;
+import com.halosolutions.vietcomic.comic.ComicService;
 import com.halosolutions.vietcomic.fragment.AllComicFragment;
 import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
 import com.halosolutions.vietcomic.fragment.HotComicFragment;
 import com.halosolutions.vietcomic.fragment.NewComicFragment;
 import com.halosolutions.vietcomic.service.BroadcastHelper;
 import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
+import com.halosolutions.vietcomic.util.AndroidHelper;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -34,15 +43,18 @@ import com.rey.material.widget.ProgressView;
 import com.rey.material.widget.TabPageIndicator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sufficientlysecure.htmltextview.HtmlTextView;
 
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cmg on 18/08/15.
  */
-public class DetailActivity extends BaseActivity implements ToolbarManager.OnToolbarGroupChangedListener{
+public class DetailActivity extends BaseActivity implements ToolbarManager.OnToolbarGroupChangedListener,
+        View.OnClickListener {
 
     private CustomViewPager vp;
     private TabPageIndicator tpi;
@@ -71,7 +83,7 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
 
         vp = (CustomViewPager)findViewById(R.id.main_vp);
         tpi = (TabPageIndicator)findViewById(R.id.main_tpi);
-
+        findViewById(R.id.imgExpandView).setOnClickListener(this);
         mToolbarManager = new ToolbarManager(getDelegate(), mToolbar, R.id.tb_group_main, R.style.ToolbarRippleStyle, R.anim.abc_fade_in, R.anim.abc_fade_out);
         mToolbarManager.registerOnToolbarGroupChangedListener(this);
 
@@ -144,6 +156,28 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                 }
             }
         });
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                ComicService comicService = ComicService.getService(DetailActivity.this, selectedBook);
+                try {
+                    if (comicService != null) {
+                        List<ComicChapter> chapterList = comicService.fetchChapter(selectedBook);
+                        SimpleAppLog.info("Found new description: " + selectedBook.getDescription());
+                        if (chapterList != null && chapterList.size() > 0) {
+                            updateSelectedBook();
+                            SimpleAppLog.info("Found " + chapterList.size() + " chapters of book " + selectedBook.getName());
+                        }
+                    } else {
+                        SimpleAppLog.error("No comic service found for source: " + selectedBook.getSource());
+                    }
+                } catch (Exception e) {
+                    SimpleAppLog.error("Could not fetch chapter list",e);
+                }
+                return null;
+            }
+        }.execute();
     }
 
     private void loadComicInfo() {
@@ -154,14 +188,27 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
             ImageLoader.getInstance().displayImage(thumbnail,
                     imgThumbnail,
                     displayImageOptions);
-            ((TextView) findViewById(R.id.txtComicAuthor)).setText(getString(R.string.comic_author,
-                    selectedBook.getAuthor()));
-            ((TextView) findViewById(R.id.txtComicSource)).setText(getString(R.string.comic_source,
-                    selectedBook.getSource()));
-            ((TextView) findViewById(R.id.txtComicStatus)).setText(getString(R.string.comic_status,
-                    selectedBook.getStatus()));
-            ((TextView) findViewById(R.id.txtComicCategories)).setText(getString(R.string.comic_categories,
-                    StringUtils.join(selectedBook.getCategories(), ", ")));
+            ((HtmlTextView) findViewById(R.id.txtComicOtherName)).setHtmlFromString(getString(R.string.comic_other_name,
+                    selectedBook.getOtherName()), new HtmlTextView.RemoteImageGetter());
+            ((HtmlTextView) findViewById(R.id.txtComicAuthor)).setHtmlFromString(getString(R.string.comic_author,
+                    selectedBook.getAuthor()), new HtmlTextView.RemoteImageGetter());
+            ((HtmlTextView) findViewById(R.id.txtComicSource)).setHtmlFromString(getString(R.string.comic_source,
+                    selectedBook.getSource()), new HtmlTextView.RemoteImageGetter());
+            ((HtmlTextView) findViewById(R.id.txtComicStatus)).setHtmlFromString(getString(R.string.comic_status,
+                    selectedBook.getStatus()), new HtmlTextView.RemoteImageGetter());
+            ((HtmlTextView) findViewById(R.id.txtComicCategories)).setHtmlFromString(getString(R.string.comic_categories,
+                    StringUtils.join(selectedBook.getCategories(), ", "))
+                    , new HtmlTextView.RemoteImageGetter());
+            if (selectedBook.getDescription() != null && selectedBook.getDescription().length() > 0) {
+                ((HtmlTextView) findViewById(R.id.txtComicDescription))
+                        .setHtmlFromString(selectedBook.getDescription()
+                                , new HtmlTextView.RemoteImageGetter());
+                YoYo.with(Techniques.Tada).delay(300).duration(1500).playOn(findViewById(R.id.imgExpandView));
+            }
+            LinearLayout llRateStar = (LinearLayout) findViewById(R.id.llRateStar);
+            if (llRateStar != null) {
+                AndroidHelper.showRateStar(this, llRateStar, selectedBook.getRate());
+            }
         }
     }
 
@@ -217,14 +264,7 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                     new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... params) {
-                            try {
-                                if (selectedBook != null && dbAdapter != null)
-                                    if (dbAdapter.update(selectedBook)) {
-                                        broadcastHelper.sendComicUpdate(selectedBook);
-                                    }
-                            } catch (Exception e) {
-                                SimpleAppLog.error("Could not update comic book", e);
-                            }
+                            updateSelectedBook();
                             return null;
                         }
                     }.execute();
@@ -237,9 +277,70 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         return super.onOptionsItemSelected(item);
     }
 
+    private void updateSelectedBook() {
+        try {
+            if (selectedBook != null && dbAdapter != null)
+                if (dbAdapter.update(selectedBook)) {
+                    broadcastHelper.sendComicUpdate(selectedBook);
+                }
+        } catch (Exception e) {
+            SimpleAppLog.error("Could not update comic book", e);
+        }
+    }
+
     @Override
     public void onToolbarGroupChanged(int oldGroupId, int groupId) {
         mToolbarManager.notifyNavigationStateChanged();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.imgExpandView:
+                final ImageView img = (ImageView) findViewById(R.id.imgExpandView);
+                img.setVisibility(View.INVISIBLE);
+                img.setEnabled(false);
+                final View rlBookInfo = findViewById(R.id.rlBookInfo);
+                int visibility = rlBookInfo.getVisibility();
+                if (visibility == View.VISIBLE) {
+                    rlBookInfo.setTag(rlBookInfo.getHeight());
+                    rlBookInfo.animate()
+                            .translationY(rlBookInfo.getHeight())
+                            .alpha(0.0f)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    rlBookInfo.setVisibility(View.GONE);
+                                    img.setImageDrawable(getResources().getDrawable(R.drawable.app_icon_up_grey));
+                                    img.setEnabled(true);
+                                    img.setVisibility(View.VISIBLE);
+                                }
+                            });
+
+                } else if (visibility == View.GONE) {
+                    rlBookInfo.animate()
+                            .translationY(0)
+                            .alpha(1.0f)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    rlBookInfo.setVisibility(View.VISIBLE);
+                                    rlBookInfo.setAlpha(0.0f);
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    img.setImageDrawable(getResources().getDrawable(R.drawable.app_icon_down_grey));
+                                    img.setVisibility(View.VISIBLE);
+                                    img.setEnabled(true);
+                                }
+                            });
+                }
+                break;
+        }
     }
 
     public enum Tab {

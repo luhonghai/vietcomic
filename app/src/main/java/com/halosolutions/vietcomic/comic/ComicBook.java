@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.halosolutions.vietcomic.sqlite.AbstractData;
 import com.halosolutions.vietcomic.util.DateHelper;
+import com.halosolutions.vietcomic.util.StringHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,7 @@ public class ComicBook extends AbstractData<ComicBook> {
     @Override
     public ContentValues toContentValues() {
         ContentValues cv = new ContentValues();
+        cv.put(KEY_SEARCH, StringHelper.removeAccent(getName()).toLowerCase());
         cv.put(KEY_NAME, getName());
         cv.put(KEY_AUTHOR, getAuthor());
         cv.put(KEY_BOOK_ID, getBookId());
@@ -148,6 +150,7 @@ public class ComicBook extends AbstractData<ComicBook> {
     }
 
     public String getOtherName() {
+        if (otherName == null) return "";
         return otherName;
     }
 

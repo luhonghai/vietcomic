@@ -21,8 +21,8 @@
                 android:layout_height="132dp" />
             <RelativeLayout
                 android:id="@+id/rlFavorite"
-                android:layout_width="@dimen/icon_book_star_image_size"
-                android:layout_height="@dimen/icon_book_star_image_size"
+                android:layout_width="@dimen/icon_book_status_size"
+                android:layout_height="@dimen/icon_book_status_size"
                 android:visibility="gone"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
@@ -35,38 +35,34 @@
             </RelativeLayout>
         </RelativeLayout>
         <LinearLayout
+            android:id="@+id/llRateStar"
             android:orientation="horizontal"
             android:layout_gravity="center_horizontal|center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <ImageView
-                android:id="@+id/imgFavorite1"
-                android:layout_width="@dimen/icon_book_status_size"
-                android:layout_height="@dimen/icon_book_status_size"
+                android:layout_width="@dimen/icon_book_star_image_size"
+                android:layout_height="@dimen/icon_book_star_image_size"
                 android:scaleType="centerCrop"
                 android:src="@drawable/app_icon_star_empty_red"/>
             <ImageView
-                android:id="@+id/imgFavorite2"
-                android:layout_width="@dimen/icon_book_status_size"
-                android:layout_height="@dimen/icon_book_status_size"
+                android:layout_width="@dimen/icon_book_star_image_size"
+                android:layout_height="@dimen/icon_book_star_image_size"
                 android:scaleType="centerCrop"
                 android:src="@drawable/app_icon_star_empty_red"/>
             <ImageView
-                android:id="@+id/imgFavorite3"
-                android:layout_width="@dimen/icon_book_status_size"
-                android:layout_height="@dimen/icon_book_status_size"
+                android:layout_width="@dimen/icon_book_star_image_size"
+                android:layout_height="@dimen/icon_book_star_image_size"
                 android:scaleType="centerCrop"
                 android:src="@drawable/app_icon_star_empty_red"/>
             <ImageView
-                android:id="@+id/imgFavorite4"
-                android:layout_width="@dimen/icon_book_status_size"
-                android:layout_height="@dimen/icon_book_status_size"
+                android:layout_width="@dimen/icon_book_star_image_size"
+                android:layout_height="@dimen/icon_book_star_image_size"
                 android:scaleType="centerCrop"
                 android:src="@drawable/app_icon_star_empty_red"/>
             <ImageView
-                android:id="@+id/imgFavorite5"
-                android:layout_width="@dimen/icon_book_status_size"
-                android:layout_height="@dimen/icon_book_status_size"
+                android:layout_width="@dimen/icon_book_star_image_size"
+                android:layout_height="@dimen/icon_book_star_image_size"
                 android:scaleType="centerCrop"
                 android:src="@drawable/app_icon_star_empty_red"/>
         </LinearLayout>
@@ -76,14 +72,12 @@
         android:layout_margin="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <TextView
+        <com.halosolutions.vietcomic.view.EllipsizingTextView
             android:id="@+id/txtName"
             android:textColor="#FF000000"
             android:textAppearance="@style/Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
             android:lines="2"
             android:maxLines="2"
             android:text="test"/>
