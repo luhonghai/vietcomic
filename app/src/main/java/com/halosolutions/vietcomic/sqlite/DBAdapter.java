@@ -27,6 +27,7 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
             "create table " + ComicBook.TABLE_COMIC_BOOK
                     + " ("
                     + AbstractData.KEY_ROW_ID +" integer primary key autoincrement, "
+                    + AbstractData.KEY_SEARCH + " text, "
                     + ComicBook.KEY_AUTHOR + " text, "
                     + ComicBook.KEY_BOOK_ID + " text, "
                     + ComicBook.KEY_DESCRIPTION + " text, "

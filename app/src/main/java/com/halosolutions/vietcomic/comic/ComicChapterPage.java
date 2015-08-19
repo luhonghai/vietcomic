@@ -5,28 +5,20 @@ import android.content.Context;
 
 import com.halosolutions.vietcomic.sqlite.AbstractData;
 
-import java.util.Date;
-
 /**
  * Created by cmg on 11/08/15.
  */
-public class ComicChapter extends AbstractData<ComicChapter> {
+public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
     private String chapterId;
 
     private String bookId;
 
-    private String name;
-
     private String url;
 
     private String filePath;
 
-    private Date publishDate;
-
     private int index;
-
-    private int imageCount;
 
     public String getUrl() {
         return url;
@@ -36,16 +28,7 @@ public class ComicChapter extends AbstractData<ComicChapter> {
         this.url = url;
     }
 
-    public int getImageCount() {
-        return imageCount;
-    }
-
-    public void setImageCount(int imageCount) {
-        this.imageCount = imageCount;
-    }
-
     public String getChapterId() {
-        if (chapterId == null) return chapterId;
         return chapterId;
     }
 
@@ -55,20 +38,12 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     @Override
     public String toPrettyString(Context context) {
-        return name;
+        return url;
     }
 
     @Override
     public ContentValues toContentValues() {
         return null;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getIndex() {
@@ -93,21 +68,5 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
-    }
-
-    public Date getPublishDate() {
-        return publishDate;
-    }
-
-    public void setPublishDate(Date publishDate) {
-        this.publishDate = publishDate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o != null && o instanceof ComicChapter) {
-            return this.getChapterId().equalsIgnoreCase(((ComicChapter) o).getChapterId());
-        }
-        return super.equals(o);
     }
 }

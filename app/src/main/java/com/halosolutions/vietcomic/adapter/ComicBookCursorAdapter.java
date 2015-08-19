@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -73,26 +74,10 @@ public class ComicBookCursorAdapter extends CursorAdapter {
             }
         }
 
-        AndroidHelper.updateImageView(mContext,
-                view,
-                R.id.imgFavorite1,
-                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(1));
-        AndroidHelper.updateImageView(mContext,
-                view,
-                R.id.imgFavorite2,
-                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(2));
-        AndroidHelper.updateImageView(mContext,
-                view,
-                R.id.imgFavorite3,
-                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(3));
-        AndroidHelper.updateImageView(mContext,
-                view,
-                R.id.imgFavorite4,
-                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(4));
-        AndroidHelper.updateImageView(mContext,
-                view,
-                R.id.imgFavorite5,
-                AndroidHelper.getDrawableRateStar(comicBook.getRate()).get(5));
+        LinearLayout llRateStar = (LinearLayout) view.findViewById(R.id.llRateStar);
+        if (llRateStar != null) {
+            AndroidHelper.showRateStar(mContext, llRateStar, comicBook.getRate());
+        }
 
         final ImageView imgThumbnail = (ImageView) view.findViewById(R.id.thumbnail);
         String thumbnail = comicBook.getThumbnail();

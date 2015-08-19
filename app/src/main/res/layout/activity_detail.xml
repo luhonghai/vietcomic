@@ -53,61 +53,119 @@
                         android:layout_weight="1"
                         android:layout_width="0dp"
                         android:layout_height="match_parent">
-                        <ScrollView
+                        <LinearLayout
+                            android:orientation="vertical"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:padding="8dp">
+                            android:paddingTop="8dp">
                             <LinearLayout
+                                android:id="@+id/llRateStar"
+                                android:orientation="horizontal"
+                                android:layout_gravity="center_horizontal|center_vertical"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <ImageView
+                                    android:layout_width="@dimen/icon_book_detail_star_image_size"
+                                    android:layout_height="@dimen/icon_book_detail_star_image_size"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/app_icon_star_empty_red"/>
+                                <ImageView
+                                    android:layout_width="@dimen/icon_book_detail_star_image_size"
+                                    android:layout_height="@dimen/icon_book_detail_star_image_size"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/app_icon_star_empty_red"/>
+                                <ImageView
+                                    android:layout_width="@dimen/icon_book_detail_star_image_size"
+                                    android:layout_height="@dimen/icon_book_detail_star_image_size"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/app_icon_star_empty_red"/>
+                                <ImageView
+                                    android:layout_width="@dimen/icon_book_detail_star_image_size"
+                                    android:layout_height="@dimen/icon_book_detail_star_image_size"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/app_icon_star_empty_red"/>
+                                <ImageView
+                                    android:layout_width="@dimen/icon_book_detail_star_image_size"
+                                    android:layout_height="@dimen/icon_book_detail_star_image_size"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/app_icon_star_empty_red"/>
+                            </LinearLayout>
+                            <ScrollView
+                                android:layout_weight="1"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:id="@+id/txtComicAuthor"
-                                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                android:layout_height="0dp"
+                                android:padding="8dp">
+                                <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_margin="@dimen/comic_book_detail_text_margin"
-                                    android:text="@string/comic_author"/>
-                                <TextView
-                                    android:id="@+id/txtComicCategories"
-                                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="@dimen/comic_book_detail_text_margin"
-                                    android:text="@string/comic_categories"/>
-                                <TextView
-                                    android:id="@+id/txtComicStatus"
-                                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="@dimen/comic_book_detail_text_margin"
-                                    android:text="@string/comic_status"/>
-                                <TextView
-                                    android:id="@+id/txtComicSource"
-                                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="@dimen/comic_book_detail_text_margin"
-                                    android:text="@string/comic_source"/>
-                                <RelativeLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/comic_book_detail_text_margin">
-                                    <TextView
-                                        android:id="@+id/txtComicDescription"
+                                    android:orientation="vertical">
+                                    <org.sufficientlysecure.htmltextview.HtmlTextView
+                                        android:id="@+id/txtComicOtherName"
                                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="@dimen/comic_book_detail_text_margin"
-                                        android:text=""/>
-                                </RelativeLayout>
-                            </LinearLayout>
-                        </ScrollView>
+                                        android:text="@string/comic_other_name"/>
+                                    <org.sufficientlysecure.htmltextview.HtmlTextView
+                                        android:id="@+id/txtComicAuthor"
+                                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="@dimen/comic_book_detail_text_margin"
+                                        android:text="@string/comic_author"/>
+                                    <org.sufficientlysecure.htmltextview.HtmlTextView
+                                        android:id="@+id/txtComicCategories"
+                                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="@dimen/comic_book_detail_text_margin"
+                                        android:text="@string/comic_categories"/>
+                                    <org.sufficientlysecure.htmltextview.HtmlTextView
+                                        android:id="@+id/txtComicStatus"
+                                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="@dimen/comic_book_detail_text_margin"
+                                        android:text="@string/comic_status"/>
+                                    <org.sufficientlysecure.htmltextview.HtmlTextView
+                                        android:id="@+id/txtComicSource"
+                                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="@dimen/comic_book_detail_text_margin"
+                                        android:text="@string/comic_source"/>
+                                    <RelativeLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/comic_book_detail_text_margin">
+                                        <org.sufficientlysecure.htmltextview.HtmlTextView
+                                            android:id="@+id/txtComicDescription"
+                                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:layout_margin="@dimen/comic_book_detail_text_margin"/>
+                                    </RelativeLayout>
+                                </LinearLayout>
+                            </ScrollView>
+                        </LinearLayout>
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
             <RelativeLayout
-                android:layout_weight="1.6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+                <ImageView
+                    android:id="@+id/imgExpandView"
+                    android:layout_width="@dimen/icon_book_detail_expand_image_size"
+                    android:layout_height="@dimen/icon_book_detail_expand_image_size"
+                    android:scaleType="centerCrop"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/app_icon_down_grey"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rlBookInfo"
+                android:layout_weight="1.8"
                 android:layout_width="match_parent"
                 android:layout_height="0dp">
                 <LinearLayout

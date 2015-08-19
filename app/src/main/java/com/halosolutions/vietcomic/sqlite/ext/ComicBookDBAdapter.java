@@ -7,6 +7,7 @@ import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.sqlite.DBAdapter;
 import com.halosolutions.vietcomic.util.DateHelper;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
+import com.halosolutions.vietcomic.util.StringHelper;
 
 import java.util.Date;
 import java.util.List;
@@ -87,8 +88,9 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
     }
 
     public Cursor cursorSearch(String s) throws Exception {
+        if (s != null) s = StringHelper.removeAccent(s).toLowerCase();
         return getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_NAME + " like ? and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_SEARCH + " like ? and " + ComicBook.KEY_DELETED + " = 0",
                 new String[]{
                         "%" + s + "%"
                 },
