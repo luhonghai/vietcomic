@@ -3,6 +3,7 @@ package com.halosolutions.vietcomic.sqlite.ext;
 import android.content.Context;
 import android.database.Cursor;
 
+import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.comic.ComicChapter;
 import com.halosolutions.vietcomic.sqlite.AbstractData;
 import com.halosolutions.vietcomic.sqlite.DBAdapter;
@@ -76,5 +77,39 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
                 AbstractData.KEY_INDEX + " ASC",
                 null
                 ));
+    }
+
+    public Cursor listByComic(ComicBook book) {
+        return getDB().query(getTableName(),
+                getAllColumns(),
+                AbstractData.KEY_BOOK_ID + " = ? ",
+                new String[]{
+                        book.getBookId()
+                },
+                null,
+                null,
+                AbstractData.KEY_INDEX + " ASC",
+                null
+        );
+    }
+
+    public ComicChapter getByChapterId(String chapterId) {
+        Cursor cursor =  getDB().query(getTableName(),
+                getAllColumns(),
+                AbstractData.KEY_CHAPTER_ID + " = ? ",
+                new String[] {
+                        chapterId
+                },
+                null,
+                null,
+                null,
+                null
+        );
+        if (cursor != null && cursor.moveToFirst()) {
+            ComicChapter chapter = toObject(cursor);
+            cursor.close();
+            return chapter;
+        }
+        return null;
     }
 }

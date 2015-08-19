@@ -44,7 +44,7 @@ public class VechaiComicService extends ComicService {
     public List<ComicChapterPage> fetchChapterPage(ComicChapter chapter) throws Exception {
         long start =System.currentTimeMillis();
         SimpleAppLog.info("Start fetch comic book chapter pages at " + chapter.getUrl());
-        Document doc = Jsoup.connect(chapter.getUrl()).get();
+        Document doc = Jsoup.connect(chapter.getUrl()).timeout(REQUEST_TIMEOUT).get();
         Elements images = doc.select(SELECTOR_BOOK_CHAPTER_PAGE_IMAGE);
         List<ComicChapterPage> pages = new ArrayList<ComicChapterPage>();
         if (images != null) {
@@ -80,7 +80,7 @@ public class VechaiComicService extends ComicService {
     public List<ComicChapter> fetchChapter(final ComicBook comicBook) throws Exception {
         long start =System.currentTimeMillis();
         SimpleAppLog.info("Start fetch comic book chapter at " + comicBook.getUrl());
-        Document doc = Jsoup.connect(comicBook.getUrl()).get();
+        Document doc = Jsoup.connect(comicBook.getUrl()).timeout(REQUEST_TIMEOUT).get();
         removeElements(doc, SELECTOR_BOOK_TITLE);
         comicBook.setDescription(getText(doc, SELECTOR_BOOK_INFO_TEXT, 0, ""));
         SimpleAppLog.info("Found description: " + comicBook.getDescription());
@@ -124,6 +124,10 @@ public class VechaiComicService extends ComicService {
                             .startsWith(StringHelper.removeAccent(comicBook.getOtherName().trim().toLowerCase()))
                             || StringHelper.removeAccent(name.toLowerCase())
                             .startsWith(StringHelper.removeAccent(comicBook.getName().trim().toLowerCase())));
+                    if (name.toLowerCase().contains("chap")) {
+                        name = name.substring(name.toLowerCase().lastIndexOf("chap"), name.length()).trim();
+                    }
+
                     String date = getText(element, "span.Date", 0, "");
                     Date pDate = null;
                     try {

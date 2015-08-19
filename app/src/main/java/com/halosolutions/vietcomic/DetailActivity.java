@@ -2,6 +2,7 @@ package com.halosolutions.vietcomic;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -32,6 +33,7 @@ import com.halosolutions.vietcomic.fragment.detail.AllChapterComicFragment;
 import com.halosolutions.vietcomic.fragment.detail.SameAuthorComicFragment;
 import com.halosolutions.vietcomic.fragment.detail.SameCategoriesComicFragment;
 import com.halosolutions.vietcomic.service.BroadcastHelper;
+import com.halosolutions.vietcomic.service.ComicUpdateService;
 import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.vietcomic.util.AndroidHelper;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
@@ -159,37 +161,29 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
             }
         });
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                ComicService comicService = ComicService.getService(DetailActivity.this, selectedBook);
-                try {
-                    if (comicService != null) {
-                        List<ComicChapter> chapterList = comicService.fetchChapter(selectedBook);
-                        SimpleAppLog.info("Found new description: " + selectedBook.getDescription());
-                        if (chapterList != null && chapterList.size() > 0) {
-                            updateSelectedBook();
-                            SimpleAppLog.info("Found " + chapterList.size() + " chapters of book " + selectedBook.getName());
-                        }
-                    } else {
-                        SimpleAppLog.error("No comic service found for source: " + selectedBook.getSource());
-                    }
-                } catch (Exception e) {
-                    SimpleAppLog.error("Could not fetch chapter list",e);
-                }
-                return null;
-            }
-        }.execute();
+        if (selectedBook != null) {
+            Gson gson = new Gson();
+            Intent updateBook = new Intent(this, ComicUpdateService.class);
+            updateBook.putExtra(ComicBook.class.getName(), gson.toJson(selectedBook));
+            startService(updateBook);
+        }
     }
 
     private void loadComicInfo() {
         if (selectedBook != null) {
-            ((TextView) findViewById(R.id.toolbar_title)).setText(selectedBook.getName());
+            TextView txtTitle = (TextView) findViewById(R.id.toolbar_title);
+            if (txtTitle != null && txtTitle.getTag() == null) {
+                txtTitle.setText(selectedBook.getName());
+                txtTitle.setTag(new Object());
+            }
             final ImageView imgThumbnail = (ImageView) findViewById(R.id.thumbnail);
-            String thumbnail = selectedBook.getThumbnail();
-            ImageLoader.getInstance().displayImage(thumbnail,
-                    imgThumbnail,
-                    displayImageOptions);
+            if (imgThumbnail != null && imgThumbnail.getTag() == null) {
+                String thumbnail = selectedBook.getThumbnail();
+                ImageLoader.getInstance().displayImage(thumbnail,
+                        imgThumbnail,
+                        displayImageOptions);
+                imgThumbnail.setTag(new Object());
+            }
             ((HtmlTextView) findViewById(R.id.txtComicOtherName)).setHtmlFromString(getString(R.string.comic_other_name,
                     selectedBook.getOtherName()), new HtmlTextView.RemoteImageGetter());
             ((HtmlTextView) findViewById(R.id.txtComicAuthor)).setHtmlFromString(getString(R.string.comic_author,
@@ -202,14 +196,18 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                     StringUtils.join(selectedBook.getCategories(), ", "))
                     , new HtmlTextView.RemoteImageGetter());
             if (selectedBook.getDescription() != null && selectedBook.getDescription().length() > 0) {
-                ((HtmlTextView) findViewById(R.id.txtComicDescription))
-                        .setHtmlFromString(selectedBook.getDescription()
+                HtmlTextView txtDescription = ((HtmlTextView) findViewById(R.id.txtComicDescription));
+                if (txtDescription.getText().toString().length() > 0) {
+                    YoYo.with(Techniques.Tada).delay(300).duration(1500).playOn(findViewById(R.id.imgExpandView));
+                }
+                txtDescription.setHtmlFromString(selectedBook.getDescription()
                                 , new HtmlTextView.RemoteImageGetter());
-                YoYo.with(Techniques.Tada).delay(300).duration(1500).playOn(findViewById(R.id.imgExpandView));
+
             }
             LinearLayout llRateStar = (LinearLayout) findViewById(R.id.llRateStar);
-            if (llRateStar != null) {
+            if (llRateStar != null && llRateStar.getTag() == null) {
                 AndroidHelper.showRateStar(this, llRateStar, selectedBook.getRate());
+                llRateStar.setTag(new Object());
             }
         }
     }

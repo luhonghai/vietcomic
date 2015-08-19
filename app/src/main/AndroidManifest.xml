@@ -50,6 +50,10 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent" />
 
+        <service
+            android:name=".service.ComicUpdateService"
+            android:exported="false"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f91d00ada9662ee8c98f921db08791e554cec5af" />

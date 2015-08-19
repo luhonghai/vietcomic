@@ -6,12 +6,12 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
 import android.widget.GridView;
 
 import com.google.gson.Gson;
@@ -48,6 +48,7 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 			ComicBookCursorAdapter bookCursorAdapter = new ComicBookCursorAdapter(getActivity(), getCursor(), itemLayout);
 			((AbsListView) view).setAdapter(bookCursorAdapter);
 			((AbsListView) view).setOnItemClickListener(this);
+			((AbsListView) view).setEmptyView(v.findViewById(R.id.txtEmpty));
 		} catch (Exception e) {
 			SimpleAppLog.error("Could not list comic", e);
 		}
