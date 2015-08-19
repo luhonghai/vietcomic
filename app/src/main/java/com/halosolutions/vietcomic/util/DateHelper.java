@@ -9,6 +9,8 @@ import java.util.Locale;
  * Created by luhonghai on 25/02/2015.
  */
 public class DateHelper {
+    public static final String DISPLAY_DATE_FORMAT = "dd-MM-yyyy";
+
     public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_HOUR_MINUTE_FORMAT = "HH:mm";
 

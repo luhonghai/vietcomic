@@ -31,8 +31,6 @@ public class ComicBookCursorAdapter extends CursorAdapter {
 
     private int itemLayout;
 
-
-
     public ComicBookCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
         itemLayout = R.layout.comic_item;

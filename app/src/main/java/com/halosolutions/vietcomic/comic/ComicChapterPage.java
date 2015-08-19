@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import com.halosolutions.vietcomic.sqlite.AbstractData;
+import com.halosolutions.vietcomic.util.DateHelper;
 
 /**
  * Created by cmg on 11/08/15.
@@ -19,6 +20,8 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
     private String filePath;
 
     private int index;
+
+    private int status;
 
     public String getUrl() {
         return url;
@@ -43,7 +46,16 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
     @Override
     public ContentValues toContentValues() {
-        return null;
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_BOOK_ID, getBookId());
+        cv.put(KEY_STATUS, getStatus());
+        cv.put(KEY_URL, getUrl());
+        cv.put(KEY_CHAPTER_ID, getChapterId());
+        cv.put(KEY_INDEX, getIndex());
+        cv.put(KEY_FILE_PATH, getFilePath());
+        if (getCreatedDate() != null)
+            cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
+        return cv;
     }
 
     public int getIndex() {
@@ -68,5 +80,13 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

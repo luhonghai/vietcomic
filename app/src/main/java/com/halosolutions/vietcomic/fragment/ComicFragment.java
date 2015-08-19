@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.GridView;
 
 import com.google.gson.Gson;
@@ -74,23 +75,24 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 		if (root != null) {
 			final AbsListView listView = (AbsListView) root.findViewById(R.id.listComic);
 			if (listView != null) {
-				final ComicBookCursorAdapter bookCursorAdapter = (ComicBookCursorAdapter) listView.getAdapter();
-				if (bookCursorAdapter != null) {
+				final CursorAdapter cursorAdapter = (CursorAdapter) listView.getAdapter();
+				if (cursorAdapter != null) {
 					if (reload) {
-						bookCursorAdapter.changeCursor(getCursor());
+						cursorAdapter.changeCursor(getCursor());
 					} else {
-						int count = listView.getChildCount();
-						SimpleAppLog.debug("Listview child count: " + count);
-						if (count > 0) {
-							for (int i = 0; i < count; i++) {
-								final View v = listView.getChildAt(i);
-								ComicBook oldObj = (ComicBook) v.getTag();
-								if (oldObj.getBookId().equals(comicBook.getBookId())) {
-									SimpleAppLog.debug("Found matched view");
-									bookCursorAdapter.updateView(v, comicBook);
+							int count = listView.getChildCount();
+							SimpleAppLog.debug("Listview child count: " + count);
+							if (count > 0) {
+								for (int i = 0; i < count; i++) {
+									final View v = listView.getChildAt(i);
+									ComicBook oldObj = (ComicBook) v.getTag();
+									if (oldObj.getBookId().equals(comicBook.getBookId())) {
+										SimpleAppLog.debug("Found matched view");
+										//cursorAdapter.updateView(v, comicBook);
+									}
 								}
 							}
-						}
+
 					}
 				}
 			}

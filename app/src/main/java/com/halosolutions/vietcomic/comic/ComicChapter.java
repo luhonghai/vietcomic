@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import com.halosolutions.vietcomic.sqlite.AbstractData;
+import com.halosolutions.vietcomic.util.DateHelper;
 
 import java.util.Date;
 
@@ -27,6 +28,8 @@ public class ComicChapter extends AbstractData<ComicChapter> {
     private int index;
 
     private int imageCount;
+
+    private int status;
 
     public String getUrl() {
         return url;
@@ -60,7 +63,20 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     @Override
     public ContentValues toContentValues() {
-        return null;
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_NAME, getName());
+        cv.put(KEY_BOOK_ID, getBookId());
+        cv.put(KEY_STATUS, getStatus());
+        cv.put(KEY_URL, getUrl());
+        cv.put(KEY_CHAPTER_ID, getChapterId());
+        cv.put(KEY_INDEX, getIndex());
+        cv.put(KEY_IMAGE_COUNT, getImageCount());
+        cv.put(KEY_FILE_PATH, getFilePath());
+        if (getPublishDate() != null)
+            cv.put(KEY_PUBLISH_DATE, DateHelper.convertDateToString(getPublishDate()));
+        if (getCreatedDate() != null)
+            cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
+        return cv;
     }
 
     public String getName() {
@@ -109,5 +125,13 @@ public class ComicChapter extends AbstractData<ComicChapter> {
             return this.getChapterId().equalsIgnoreCase(((ComicChapter) o).getChapterId());
         }
         return super.equals(o);
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
