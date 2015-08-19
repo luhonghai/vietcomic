@@ -197,7 +197,7 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                     , new HtmlTextView.RemoteImageGetter());
             if (selectedBook.getDescription() != null && selectedBook.getDescription().length() > 0) {
                 HtmlTextView txtDescription = ((HtmlTextView) findViewById(R.id.txtComicDescription));
-                if (txtDescription.getText().toString().length() > 0) {
+                if (txtDescription.getText().toString().length() == 0) {
                     YoYo.with(Techniques.Tada).delay(300).duration(1500).playOn(findViewById(R.id.imgExpandView));
                 }
                 txtDescription.setHtmlFromString(selectedBook.getDescription()
