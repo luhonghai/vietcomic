@@ -154,6 +154,38 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 ComicBook.KEY_NAME + " ASC");
     }
 
+    public Cursor cursorByAuthor(String author) throws Exception {
+        return getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_AUTHOR + " = ? and " + ComicBook.KEY_DELETED + " = 0",
+                new String[] {
+                        author
+                },
+                null,
+                null,
+                ComicBook.KEY_NAME + " ASC");
+    }
+
+    public Cursor cursorByCategories(List<String> categories) throws Exception {
+        if (categories == null || categories.size() == 0) return null;
+        String selection = "(";
+        String[] args = new String[categories.size()];
+        for (int i = 0; i < categories.size(); i++) {
+            selection += ComicBook.KEY_CATEGORIES + " like ?";
+            args[i] =  "%|" + categories.get(i) + "|%";
+            if (i != categories.size() - 1) {
+                selection += " or ";
+            }
+        }
+        selection += ")";
+        selection +=  " and " + ComicBook.KEY_DELETED + " = 0";
+        return getDB().query(getTableName(), getAllColumns(),
+                selection,
+                args,
+                null,
+                null,
+                ComicBook.KEY_NAME + " ASC");
+    }
+
     public List<ComicBook> listByCategory(String category) throws Exception {
         return toCollection(cursorByCategory(category));
     }
