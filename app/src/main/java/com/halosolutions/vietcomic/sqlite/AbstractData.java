@@ -20,6 +20,10 @@ public abstract class AbstractData<T> {
 
     public static final String TABLE_COMIC_BOOK = "comic_book";
 
+    public static final String TABLE_COMIC_CHAPTER = "comic_chapter";
+
+    public static final String TABLE_COMIC_CHAPTER_PAGE = "comic_chapter_page";
+
     /**
      *  Common field
      */
@@ -59,6 +63,16 @@ public abstract class AbstractData<T> {
     public static final String KEY_CATEGORIES = "categories";
 
     public static final String KEY_SEARCH = "search";
+
+    public static final String KEY_CHAPTER_ID = "chapter_id";
+
+    public static final String KEY_FILE_PATH = "file_path";
+
+    public static final String KEY_INDEX = "c_index";
+
+    public static final String KEY_PUBLISH_DATE = "publish_date";
+
+    public static final String KEY_IMAGE_COUNT = "image_count";
 
     private long id;
 
