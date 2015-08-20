@@ -400,10 +400,6 @@ public class PDFActivity extends Activity implements
             return;
         }
 
-            // Set up action bar.
-            final ActionBar actionBar = getActionBar();
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
         createUI(savedInstanceState);
     }
 

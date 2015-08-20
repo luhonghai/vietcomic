@@ -19,6 +19,10 @@ import java.util.Map;
  */
 public class AndroidHelper {
 
+    public static final String DOWNLOADED_BOOK_DIR = "comics";
+
+    public static final String DOWNLOAD_TEMP_CACHE_DIR = "download_tmp_cache";
+
     private static final String VIET_COMIC_DIR = "Vietcomic";
 
     public static File getApplicationDir(Context context) {
@@ -30,6 +34,14 @@ public class AndroidHelper {
         } catch (PackageManager.NameNotFoundException e) {
             return new File(Environment.getExternalStorageDirectory().getPath() + File.separator + VIET_COMIC_DIR);
         }
+    }
+
+    public static File getFolder(Context context, String folderName) {
+        File rootApp = getApplicationDir(context);
+        File folder = new File(rootApp, folderName);
+        if (!folder.exists() || !folder.isDirectory())
+            folder.mkdirs();
+        return folder;
     }
 
     public static void showRateStar(final Context context, final LinearLayout parent, float fRate) {

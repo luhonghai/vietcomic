@@ -74,6 +74,12 @@ public abstract class AbstractData<T> {
 
     public static final String KEY_IMAGE_COUNT = "image_count";
 
+    public static final String KEY_TASK_ID = "task_id";
+
+    public static final String KEY_PAGE_ID = "page_id";
+
+    public static final String KEY_COMPLETED_COUNT = "completed_count";
+
     private long id;
 
     private Date createdDate;

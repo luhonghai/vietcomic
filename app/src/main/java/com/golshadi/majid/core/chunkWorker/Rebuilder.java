@@ -27,7 +27,8 @@ public class Rebuilder extends Thread{
     @Override
     public void run() {
         // notify to developer------------------------------------------------------------
-        observer.downloadManagerListener.OnDownloadRebuildStart(task.id);
+        if (observer.downloadManagerListener != null)
+            observer.downloadManagerListener.OnDownloadRebuildStart(task.id);
 
         File file = FileUtils.create(task.save_address, task.name + "." + task.extension);
 

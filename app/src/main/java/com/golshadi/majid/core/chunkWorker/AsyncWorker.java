@@ -18,6 +18,8 @@ import java.net.URL;
  */
 public class AsyncWorker extends Thread{
 
+    private static final int CONNECT_TIMEOUT = 15000;
+
     private final int BUFFER_SIZE = 1024;
 
     private final Task task;
@@ -44,8 +46,8 @@ public class AsyncWorker extends Thread{
         	
             URL url = new URL(task.url);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(1000);
-            connection.setReadTimeout(1000);
+            connection.setConnectTimeout(CONNECT_TIMEOUT);
+            connection.setReadTimeout(CONNECT_TIMEOUT);
             if (chunk.end != 0) // support unresumable links
                 connection.setRequestProperty("Range", "bytes=" + chunk.begin + "-" + chunk.end);
             

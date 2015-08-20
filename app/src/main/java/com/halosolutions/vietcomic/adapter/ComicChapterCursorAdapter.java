@@ -2,12 +2,14 @@ package com.halosolutions.vietcomic.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.halosolutions.vietcomic.R;
 import com.halosolutions.vietcomic.comic.ComicChapter;
 import com.halosolutions.vietcomic.sqlite.ext.ComicChapterDBAdapter;
@@ -43,8 +45,37 @@ public class ComicChapterCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ComicChapter comicChapter = dbAdapter.toObject(cursor);
+        view.setTag(comicChapter);
         ((EllipsizingTextView) view.findViewById(R.id.txtName)).setText(comicChapter.getName());
         if (comicChapter.getPublishDate() != null)
             ((TextView) view.findViewById(R.id.txtPublishDate)).setText(sdf.format(comicChapter.getPublishDate()));
+
+        NumberProgressBar progressBar = (NumberProgressBar) view.findViewById(R.id.progressDownload);
+        if (progressBar != null) {
+            progressBar.setMax(100);
+            if (comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADING
+                    || comicChapter.getStatus() == ComicChapter.STATUS_INIT_DOWNLOADING
+                    || comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOAD_JOINING) {
+                progressBar.setVisibility(View.VISIBLE);
+                if (comicChapter.getImageCount() == 0) {
+                    progressBar.setProgress(0);
+                } else {
+                    progressBar.setProgress(Math.round(100 * (float)comicChapter.getCompletedCount() / comicChapter.getImageCount()));
+                }
+            } else {
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+        if (comicChapter.getStatus() == ComicChapter.STATUS_NEW) {
+            ((EllipsizingTextView) view.findViewById(R.id.txtName)).setTypeface(null, Typeface.BOLD);
+        } else {
+            ((EllipsizingTextView) view.findViewById(R.id.txtName)).setTypeface(null, Typeface.NORMAL);
+        }
+        view.findViewById(R.id.imgStatusDownloaded).setVisibility(
+                comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADED ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.imgStatusEye).setVisibility(
+                comicChapter.getStatus() == ComicChapter.STATUS_READED ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.imgStatusDownloadFailed).setVisibility(
+                comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOAD_FAILED ? View.VISIBLE : View.GONE);
     }
 }

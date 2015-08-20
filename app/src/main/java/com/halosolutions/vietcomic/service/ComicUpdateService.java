@@ -12,12 +12,15 @@ import com.halosolutions.vietcomic.sqlite.ext.ComicChapterDBAdapter;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Created by luhonghai on 8/19/15.
  */
 public class ComicUpdateService extends IntentService {
+
+    private class ChapterCount {
+        int count = 0;
+    }
 
     private BroadcastHelper broadcastHelper;
 
@@ -53,35 +56,50 @@ public class ComicUpdateService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Gson gson = new Gson();
         long start =System.currentTimeMillis();
-        ComicBook comicBook = gson.fromJson(intent.getStringExtra(ComicBook.class.getName()), ComicBook.class);
+        final ComicBook comicBook = gson.fromJson(intent.getStringExtra(ComicBook.class.getName()), ComicBook.class);
         SimpleAppLog.info("Receive update comic book request: " + comicBook.getName()
                         + ". URL: " + comicBook.getUrl());
         ComicService comicService = ComicService.getService(getApplicationContext(), comicBook);
         try {
             if (comicService != null) {
-                List<ComicChapter> chapterList = comicService.fetchChapter(comicBook);
-                if (chapterList != null && chapterList.size() > 0) {
-                    SimpleAppLog.info("Found " + chapterList.size() + " chapters of book " + comicBook.getName());
-                    for (ComicChapter chapter : chapterList) {
-                        ComicChapter oldChapter = comicChapterDBAdapter.getByChapterId(chapter.getChapterId());
-                        if (oldChapter != null) {
-                            chapter.setId(oldChapter.getId());
-                            chapter.setStatus(oldChapter.getStatus());
-                            chapter.setFilePath(oldChapter.getFilePath());
-                            chapter.setImageCount(oldChapter.getImageCount());
-                            comicChapterDBAdapter.update(chapter);
-                        } else {
-                            comicChapterDBAdapter.insert(chapter);
+                final ChapterCount count = new ChapterCount();
+                comicService.fetchChapter(comicBook, new ComicService.FetchChapterListener() {
+                    @Override
+                    public void onChapterFound(ComicChapter chapter) {
+                        try {
+                            count.count++;
+                            ComicChapter oldChapter = comicChapterDBAdapter.getByChapterId(chapter.getChapterId());
+                            if (oldChapter != null) {
+                                chapter.setId(oldChapter.getId());
+                                chapter.setStatus(oldChapter.getStatus());
+                                chapter.setFilePath(oldChapter.getFilePath());
+                                chapter.setImageCount(oldChapter.getImageCount());
+                                chapter.setCompletedCount(oldChapter.getCompletedCount());
+                                comicChapterDBAdapter.update(chapter);
+                            } else {
+                                comicChapterDBAdapter.insert(chapter);
+                            }
+                            if (count.count % 20 == 0) {
+                                broadcastHelper.sendComicChaptersUpdate(chapter);
+                            }
+                        } catch (Exception e) {
+                            SimpleAppLog.error("Could not put chapter to database. " + chapter.getName(),e);
                         }
                     }
-                    try {
-                        if (comicBookDBAdapter.update(comicBook)) {
-                           broadcastHelper.sendComicUpdate(comicBook);
+
+                    @Override
+                    public void onDescriptionFound(String description) {
+                        comicBook.setDescription(description);
+                        try {
+                            if (comicBookDBAdapter.update(comicBook)) {
+                                broadcastHelper.sendComicUpdate(comicBook);
+                            }
+                        } catch (Exception e) {
+                            SimpleAppLog.error("Could not update comic book", e);
                         }
-                    } catch (Exception e) {
-                        SimpleAppLog.error("Could not update comic book", e);
                     }
-                }
+                });
+                broadcastHelper.sendComicChaptersUpdate(new ComicChapter(comicBook.getBookId()));
             } else {
                 SimpleAppLog.error("No comic service found for source: " + comicBook.getSource());
             }

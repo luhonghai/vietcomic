@@ -58,6 +58,7 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
                     + AbstractData.KEY_FILE_PATH + " text, "
                     + AbstractData.KEY_PUBLISH_DATE + " date, "
                     + AbstractData.KEY_IMAGE_COUNT + " integer, "
+                    + AbstractData.KEY_COMPLETED_COUNT + " integer, "
                     + AbstractData.KEY_INDEX + " integer, "
                     + AbstractData.KEY_CREATED_DATE + " date not null"
                     + ");",
@@ -70,6 +71,8 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
                     + AbstractData.KEY_CHAPTER_ID + " text, "
                     + AbstractData.KEY_FILE_PATH + " text, "
                     + AbstractData.KEY_INDEX + " integer, "
+                    + AbstractData.KEY_TASK_ID + " integer, "
+                    + AbstractData.KEY_PAGE_ID + " text, "
                     + AbstractData.KEY_CREATED_DATE + " date not null"
                     + ");",
     };

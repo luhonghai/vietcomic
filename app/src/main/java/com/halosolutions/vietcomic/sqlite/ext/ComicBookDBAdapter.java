@@ -2,6 +2,7 @@ package com.halosolutions.vietcomic.sqlite.ext;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.widget.CursorAdapter;
 
 import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.sqlite.DBAdapter;
@@ -163,6 +164,23 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 null,
                 null,
                 ComicBook.KEY_NAME + " ASC");
+    }
+
+    public ComicBook getComicByBookId(String bookId) throws Exception {
+        Cursor cursor = getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_BOOK_ID+ " = ? and " + ComicBook.KEY_DELETED + " = 0",
+                new String[] {
+                        bookId
+                },
+                null,
+                null,
+                null);
+        if (cursor.moveToFirst()) {
+            ComicBook comicBook = toObject(cursor);
+            cursor.close();
+            return comicBook;
+        }
+        return null;
     }
 
     public Cursor cursorByCategories(List<String> categories) throws Exception {

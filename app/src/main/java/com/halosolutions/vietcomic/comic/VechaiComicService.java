@@ -2,10 +2,6 @@ package com.halosolutions.vietcomic.comic;
 
 import android.content.Context;
 
-import com.halosolutions.vietcomic.comic.ComicBook;
-import com.halosolutions.vietcomic.comic.ComicChapter;
-import com.halosolutions.vietcomic.comic.ComicChapterPage;
-import com.halosolutions.vietcomic.comic.ComicService;
 import com.halosolutions.vietcomic.util.Hash;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.halosolutions.vietcomic.util.StringHelper;
@@ -41,14 +37,14 @@ public class VechaiComicService extends ComicService {
     }
 
     @Override
-    public List<ComicChapterPage> fetchChapterPage(ComicChapter chapter) throws Exception {
+    public void fetchChapterPage(ComicChapter chapter, FetchChapterPageListener listener) throws Exception {
         long start =System.currentTimeMillis();
-        SimpleAppLog.info("Start fetch comic book chapter pages at " + chapter.getUrl());
+        SimpleAppLog.debug("Start fetch comic book chapter pages at " + chapter.getUrl());
         Document doc = Jsoup.connect(chapter.getUrl()).timeout(REQUEST_TIMEOUT).get();
+        removeElements(doc, "#advInPage");
         Elements images = doc.select(SELECTOR_BOOK_CHAPTER_PAGE_IMAGE);
-        List<ComicChapterPage> pages = new ArrayList<ComicChapterPage>();
         if (images != null) {
-            SimpleAppLog.info("Found images");
+            SimpleAppLog.debug("Found images");
             try {
                 int count = 0;
                 for (int i = 0; i < images.size(); i++) {
@@ -61,9 +57,11 @@ public class VechaiComicService extends ComicService {
                         ComicChapterPage page = new ComicChapterPage();
                         page.setBookId(chapter.getBookId());
                         page.setChapterId(chapter.getChapterId());
+                        page.setPageId(Hash.md5(url));
                         page.setUrl(url);
                         page.setIndex(count);
-                        pages.add(page);
+                        if (listener != null)
+                            listener.onChapterPageFound(page);
                         count ++;
                     }
                 }
@@ -72,20 +70,21 @@ public class VechaiComicService extends ComicService {
             }
         }
         long end = System.currentTimeMillis();
-        SimpleAppLog.info("Fetch time: " + (end - start) + "ms");
-        return pages;
+        SimpleAppLog.debug("Fetch time: " + (end - start) + "ms");
     }
 
     @Override
-    public List<ComicChapter> fetchChapter(final ComicBook comicBook) throws Exception {
+    public void fetchChapter(final ComicBook comicBook, FetchChapterListener listener) throws Exception {
         long start =System.currentTimeMillis();
         SimpleAppLog.info("Start fetch comic book chapter at " + comicBook.getUrl());
         Document doc = Jsoup.connect(comicBook.getUrl()).timeout(REQUEST_TIMEOUT).get();
         removeElements(doc, SELECTOR_BOOK_TITLE);
-        comicBook.setDescription(getText(doc, SELECTOR_BOOK_INFO_TEXT, 0, ""));
+        //comicBook.setDescription(getText(doc, SELECTOR_BOOK_INFO_TEXT, 0, ""));
+        if (listener != null)
+            listener.onDescriptionFound(getText(doc, SELECTOR_BOOK_INFO_TEXT, 0, ""));
         SimpleAppLog.info("Found description: " + comicBook.getDescription());
         Elements elements = doc.select("#chapterList ul.accordion > li ul > li");
-        List<ComicChapter> chapters = new ArrayList<ComicChapter>();
+        List<String> keys = new ArrayList<String>();
         if (elements != null) {
             try {
                 int count = 0;
@@ -142,8 +141,10 @@ public class VechaiComicService extends ComicService {
                     chapter.setChapterId(Hash.md5(url));
                     chapter.setPublishDate(pDate);
                     chapter.setName(name);
-                    if (!chapters.contains(chapter)) {
-                        chapters.add(chapter);
+                    if (!keys.contains(chapter.getChapterId())) {
+                        keys.add(chapter.getChapterId());
+                        if (listener != null)
+                            listener.onChapterFound(chapter);
                         SimpleAppLog.debug("Found chapter: " + chapter.getName() + ". URL: " + chapter.getUrl() + ". Index: " + count);
                         count++;
                     }
@@ -154,6 +155,5 @@ public class VechaiComicService extends ComicService {
         }
         long end = System.currentTimeMillis();
         SimpleAppLog.info("Fetch time: " + (end - start) + "ms");
-        return chapters;
     }
 }
