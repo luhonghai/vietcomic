@@ -13,6 +13,22 @@ import java.util.Date;
  */
 public class ComicChapter extends AbstractData<ComicChapter> {
 
+    public static final int STATUS_NEW = 0;
+
+    public static final int STATUS_SELECTED = 1;
+
+    public static final int STATUS_INIT_DOWNLOADING = 2;
+
+    public static final int STATUS_DOWNLOADING = 3;
+
+    public static final int STATUS_DOWNLOAD_FAILED = 4;
+
+    public static final int STATUS_DOWNLOAD_JOINING = 5;
+
+    public static final int STATUS_DOWNLOADED = 6;
+
+    public static final int STATUS_READED = 7;
+
     private String chapterId;
 
     private String bookId;
@@ -29,7 +45,17 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     private int imageCount;
 
+    private int completedCount;
+
     private int status;
+
+    public ComicChapter() {
+
+    }
+
+    public ComicChapter(String bookId) {
+        this.bookId = bookId;
+    }
 
     public String getUrl() {
         return url;
@@ -72,6 +98,7 @@ public class ComicChapter extends AbstractData<ComicChapter> {
         cv.put(KEY_INDEX, getIndex());
         cv.put(KEY_IMAGE_COUNT, getImageCount());
         cv.put(KEY_FILE_PATH, getFilePath());
+        cv.put(KEY_COMPLETED_COUNT, getCompletedCount());
         if (getPublishDate() != null)
             cv.put(KEY_PUBLISH_DATE, DateHelper.convertDateToString(getPublishDate()));
         if (getCreatedDate() != null)
@@ -133,5 +160,13 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public int getCompletedCount() {
+        return completedCount;
+    }
+
+    public void setCompletedCount(int completedCount) {
+        this.completedCount = completedCount;
     }
 }

@@ -40,6 +40,8 @@ public class ComicChapterPageDBAdapter extends DBAdapter<ComicChapterPage> {
                 AbstractData.KEY_FILE_PATH,
                 AbstractData.KEY_STATUS,
                 AbstractData.KEY_INDEX,
+                AbstractData.KEY_TASK_ID,
+                AbstractData.KEY_PAGE_ID,
                 AbstractData.KEY_CREATED_DATE
         };
     }
@@ -50,8 +52,10 @@ public class ComicChapterPageDBAdapter extends DBAdapter<ComicChapterPage> {
         page.setId(cursor.getLong(cursor.getColumnIndex(AbstractData.KEY_ROW_ID)));
         page.setBookId(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_BOOK_ID)));
         page.setChapterId(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_CHAPTER_ID)));
+        page.setPageId(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_PAGE_ID)));
         page.setStatus(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_STATUS)));
         page.setIndex(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_INDEX)));
+        page.setTaskId(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_TASK_ID)));
         page.setFilePath(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_FILE_PATH)));
         page.setUrl(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_URL)));
         page.setCreatedDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_CREATED_DATE))));
@@ -71,5 +75,81 @@ public class ComicChapterPageDBAdapter extends DBAdapter<ComicChapterPage> {
                 AbstractData.KEY_INDEX + " ASC",
                 null
         ));
+    }
+
+    public void deleteByComicChapter(String chapterId) throws Exception {
+        getDB().delete(getTableName(),
+                AbstractData.KEY_CHAPTER_ID + "=?",
+                new String[] {
+                        chapterId
+                });
+    }
+
+    public List<ComicChapterPage> listByComicChapter(String chapterId) throws Exception {
+        Cursor c = cursorByComicChapter(chapterId);
+        List<ComicChapterPage> pages = toCollection(c);
+        c.close();
+        return pages;
+    }
+
+    public Cursor cursorByComicChapter(String chapterId) throws Exception {
+        return getDB().query(getTableName(),
+                getAllColumns(),
+                AbstractData.KEY_CHAPTER_ID + " = ? ",
+                new String[]{
+                        chapterId
+                },
+                null,
+                null,
+                AbstractData.KEY_INDEX + " ASC",
+                null
+        );
+    }
+
+    @Override
+    public long insert(ComicChapterPage obj) throws Exception {
+        Cursor cursor = getDB().query(getTableName(),
+                getAllColumns(),
+                AbstractData.KEY_PAGE_ID + " = ?",
+                new String[]{
+                        obj.getPageId()
+                },
+                null,
+                null,
+                null,
+                null
+        );
+        if (cursor.moveToFirst()) {
+            ComicChapterPage oldPage = toObject(cursor);
+            cursor.close();
+            obj.setId(oldPage.getId());
+            obj.setTaskId(oldPage.getTaskId());
+            obj.setStatus(oldPage.getStatus());
+            obj.setFilePath(oldPage.getFilePath());
+            super.update(obj);
+            return oldPage.getId();
+        } else {
+            return super.insert(obj);
+        }
+    }
+
+    public ComicChapterPage getByTaskId(long taskId) {
+        Cursor cursor =  getDB().query(getTableName(),
+                getAllColumns(),
+                AbstractData.KEY_TASK_ID + " = ? ",
+                new String[] {
+                        Long.toString(taskId)
+                },
+                null,
+                null,
+                null,
+                null
+        );
+        if (cursor != null && cursor.moveToFirst()) {
+            ComicChapterPage page = toObject(cursor);
+            cursor.close();
+            return page;
+        }
+        return null;
     }
 }

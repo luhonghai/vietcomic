@@ -26,7 +26,7 @@ public class QueueModerator
 
     private HashMap<Integer, Thread> downloaderList;
     private boolean pauseFlag = false;
-
+    private static final Object lock = new Object();
 
     public QueueModerator(TasksDataSource tasksDataSource, ChunksDataSource chunksDataSource,
                        Moderator localModerator, DownloadManagerListenerModerator downloadManagerListener,
@@ -46,27 +46,27 @@ public class QueueModerator
 
 
     public void startQueue() {
+        synchronized (lock) {
+            if (uncompletedTasks != null) {
 
-    	if (uncompletedTasks != null) {
-	
-    		int location = 0;
-    		while (uncompletedTasks.size() > 0 && 
-    				!pauseFlag &&
-    				downloadTaskPerTime >= downloaderList.size()) {
-    			Task task = uncompletedTasks.get(location);
-    			Thread downloader =
-	                    new AsyncStartDownload(tasksDataSource, chunksDataSource, moderator, listener, task);
-	            
-	            downloaderList.put(task.id, downloader);
-	            uncompletedTasks.remove(location);
-	            
-	            downloader.start();
-	            
-	            
-				location++;
-			}
-    			        
-    	}
+                int location = 0;
+                while (uncompletedTasks.size() > 0 &&
+                        !pauseFlag &&
+                        downloadTaskPerTime >= downloaderList.size()
+                        && location < uncompletedTasks.size()) {
+                    Task task = uncompletedTasks.get(location);
+                    Thread downloader =
+                            new AsyncStartDownload(tasksDataSource, chunksDataSource, moderator, listener, task);
+
+                    downloaderList.put(task.id, downloader);
+                    uncompletedTasks.remove(location);
+
+                    downloader.start();
+                    location++;
+                }
+
+            }
+        }
     }
 
     public void wakeUp(int taskID){
@@ -76,12 +76,12 @@ public class QueueModerator
 
     public void pause(){
         pauseFlag = true;
-        
-        for (Map.Entry entry : downloaderList.entrySet()) {
-            Integer id = (Integer) entry.getKey();
-            moderator.pause(id);
+        synchronized (lock) {
+            for (Map.Entry entry : downloaderList.entrySet()) {
+                Integer id = (Integer) entry.getKey();
+                moderator.pause(id);
+            }
         }
-        
         pauseFlag = false;
     }
 }

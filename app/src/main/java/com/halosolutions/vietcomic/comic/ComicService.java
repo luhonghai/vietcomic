@@ -2,10 +2,6 @@ package com.halosolutions.vietcomic.comic;
 
 import android.content.Context;
 
-import com.cmg.android.cmgpdf.AsyncTask;
-import com.halosolutions.vietcomic.service.BroadcastHelper;
-import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
-import com.halosolutions.vietcomic.sqlite.ext.ComicChapterDBAdapter;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -26,11 +22,22 @@ import java.util.List;
  */
 public abstract class ComicService {
 
+    public interface FetchChapterListener {
+        void onChapterFound(ComicChapter chapter);
+        void onDescriptionFound(String description);
+    }
+
+    public interface FetchChapterPageListener {
+        void onChapterPageFound(ComicChapterPage page);
+    }
+
     protected static final int REQUEST_TIMEOUT = 30000;
 
     private static final String SOURCE_VECHAI = "vechai.info";
 
     private final Context context;
+
+    private static Object joinLock = new Object();
 
     protected ComicService(Context context) {
         this.context = context;
@@ -47,67 +54,106 @@ public abstract class ComicService {
         return null;
     }
 
-    public abstract List<ComicChapterPage> fetchChapterPage(final ComicChapter chapter) throws Exception;
+    public abstract void fetchChapterPage(final ComicChapter chapter, FetchChapterPageListener listener) throws Exception;
 
-    public abstract List<ComicChapter> fetchChapter(final ComicBook comicBook) throws Exception;
+    public abstract void fetchChapter(final ComicBook comicBook, FetchChapterListener listener) throws Exception;
 
-    public ComicChapter joinComicBook(ComicChapter chapter, List<ComicChapterPage> pages) throws Exception {
-        if (pages == null) return null;
-        Collections.sort(pages, new Comparator<ComicChapterPage>() {
-            @Override
-            public int compare(ComicChapterPage page1, ComicChapterPage page2) {
-                return page1.getIndex() < page2.getIndex() ? -1 : (page1.getIndex() == page2.getIndex() ? 0 : 1);
-            }
-        });
-
-        long start =System.currentTimeMillis();
-        com.itextpdf.text.Document pdfDoc = new com.itextpdf.text.Document();
-        pdfDoc.setMargins(0, 0, 0, 0);
-        float documentWidth = pdfDoc.getPageSize().getWidth() - pdfDoc.leftMargin() - pdfDoc.rightMargin();
-        float documentHeight = pdfDoc.getPageSize().getHeight() - pdfDoc.topMargin() - pdfDoc.bottomMargin();
-        FileOutputStream fos = new FileOutputStream(chapter.getFilePath());
-        PdfWriter.getInstance(pdfDoc, fos);
-        boolean isComplete = true;
-        try {
-            SimpleAppLog.info("Open PDF document");
-            pdfDoc.open();
-            for (int i = 0; i < pages.size(); i++) {
-                ComicChapterPage page = pages.get(i);
-                if (page.getFilePath() == null || page.getFilePath().length() == 0) {
-                    isComplete = false;
-                    break;
-                }
-                File tmpImg = new File(page.getFilePath());
-                if (!tmpImg.exists()) {
-                    isComplete = false;
-                    break;
-                }
-                Image pdfImg = Image.getInstance(tmpImg.getAbsolutePath());
-                pdfImg.scaleToFit(documentWidth, documentHeight);
-                pdfImg.setAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
-                SimpleAppLog.info("Add img to PDF doc. " + tmpImg);
-                pdfDoc.add(pdfImg);
-                if (i != pages.size() - 1) {
-                    pdfDoc.newPage();
-                }
-            }
-        } finally {
+    public static boolean joinComicBook(final ComicChapter chapter, final List<ComicChapterPage> pages) {
+        if (pages == null) return false;
+        synchronized (joinLock) {
             try {
-                pdfDoc.close();
-                fos.close();
-            } catch (Exception e) {}
-            if (!isComplete) {
+                SimpleAppLog.debug("Try to sort by index");
+                Collections.sort(pages, new Comparator<ComicChapterPage>() {
+                    @Override
+                    public int compare(ComicChapterPage page1, ComicChapterPage page2) {
+                        return page1.getIndex() < page2.getIndex() ? -1 : (page1.getIndex() == page2.getIndex() ? 0 : 1);
+                    }
+                });
+                long start = System.currentTimeMillis();
+                com.itextpdf.text.Document pdfDoc = new com.itextpdf.text.Document();
+                pdfDoc.setMargins(0, 0, 0, 0);
+                float documentWidth = pdfDoc.getPageSize().getWidth() - pdfDoc.leftMargin() - pdfDoc.rightMargin();
+                float documentHeight = pdfDoc.getPageSize().getHeight() - pdfDoc.topMargin() - pdfDoc.bottomMargin();
                 File pdf = new File(chapter.getFilePath());
                 if (pdf.exists()) {
                     try {
                         FileUtils.forceDelete(pdf);
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
                 }
+                FileOutputStream fos = new FileOutputStream(pdf);
+                PdfWriter.getInstance(pdfDoc, fos);
+                boolean isComplete = true;
+                try {
+                    SimpleAppLog.info("Open PDF document");
+                    pdfDoc.open();
+                    int errorCount = 0;
+                    for (int i = 0; i < pages.size(); i++) {
+                        ComicChapterPage page = pages.get(i);
+                        if (page.getFilePath() == null || page.getFilePath().length() == 0) {
+                            SimpleAppLog.error("No file path found");
+                            isComplete = false;
+                            break;
+                        }
+                        SimpleAppLog.debug("Found image file path: " + page.getFilePath());
+                        File tmpImg = new File(page.getFilePath());
+                        File outTmp = new File(tmpImg.getParentFile(), page.getBookId() + "-" + page.getChapterId() + "-" + page.getPageId() + "xxx");
+                        if (!tmpImg.exists()) {
+                            SimpleAppLog.debug("Image file is not exists " + tmpImg);
+                            isComplete = false;
+                            break;
+                        } else {
+                            FileUtils.copyFile(tmpImg, outTmp);
+                        }
+                        try {
+                            Image pdfImg = Image.getInstance(outTmp.getAbsolutePath());
+                            pdfImg.scaleToFit(documentWidth, documentHeight);
+                            pdfImg.setAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
+                            SimpleAppLog.info("Add img to PDF doc. " + outTmp);
+                            pdfDoc.add(pdfImg);
+                            if (i != pages.size() - 1) {
+                                pdfDoc.newPage();
+                            }
+                            if (outTmp.exists()) {
+                                try {
+                                    FileUtils.forceDelete(outTmp);
+                                } catch (Exception e) {
+                                }
+                            }
+                        } catch (Exception e) {
+                            errorCount++;
+                            SimpleAppLog.error("Decode error count " + errorCount,e);
+                            if (errorCount > 2) {
+                                SimpleAppLog.error("Can not allow comic which have more than 2 page is missing!");
+                                isComplete = false;
+                                break;
+                            }
+                        }
+                    }
+                } finally {
+                    try {
+                        pdfDoc.close();
+                        fos.close();
+                    } catch (Exception e) {
+                    }
+                    if (!isComplete) {
+                        if (pdf.exists()) {
+                            try {
+                                FileUtils.forceDelete(pdf);
+                            } catch (Exception e) {
+                            }
+                        }
+                    }
+                }
+                long end = System.currentTimeMillis();
+                SimpleAppLog.info("Save comic PDF: " + pdf);
+                SimpleAppLog.info("Join time: " + (end - start) + "ms");
+                return (isComplete && pdf.exists());
+            } catch (Exception e) {
+                SimpleAppLog.error("Could not join pdf",e);
+                return false;
             }
         }
-        long end = System.currentTimeMillis();
-        SimpleAppLog.info("Join time: " + (end - start) + "ms");
-        return chapter;
     }
 
     protected String getText(final Document doc, final String selector, final int index, final String attr) {

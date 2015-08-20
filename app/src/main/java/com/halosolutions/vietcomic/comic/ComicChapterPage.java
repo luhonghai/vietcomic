@@ -11,15 +11,25 @@ import com.halosolutions.vietcomic.util.DateHelper;
  */
 public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
+    public static final int STATUS_DEFAULT = 0;
+
+    public static final int STATUS_DOWNLOADING = 1;
+
+    public static final int STATUS_DOWNLOADED = 2;
+
     private String chapterId;
 
     private String bookId;
+
+    private String pageId;
 
     private String url;
 
     private String filePath;
 
     private int index;
+
+    private int taskId = -1;
 
     private int status;
 
@@ -53,6 +63,8 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
         cv.put(KEY_CHAPTER_ID, getChapterId());
         cv.put(KEY_INDEX, getIndex());
         cv.put(KEY_FILE_PATH, getFilePath());
+        cv.put(KEY_TASK_ID, getTaskId());
+        cv.put(KEY_PAGE_ID, getPageId());
         if (getCreatedDate() != null)
             cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
         return cv;
@@ -88,5 +100,21 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public int getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(int taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getPageId() {
+        return pageId;
+    }
+
+    public void setPageId(String pageId) {
+        this.pageId = pageId;
     }
 }

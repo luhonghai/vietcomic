@@ -29,7 +29,7 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 
 	protected ComicBookDBAdapter comicBookDBAdapter;
 
-	private BroadcastHelper broadcastHelper;
+	protected BroadcastHelper broadcastHelper;
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
@@ -72,29 +72,18 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 	}
 
 	protected void onUpdateComic(ComicBook comicBook, boolean reload) throws Exception {
+		if (reload)
+			reloadListView();
+	}
+
+	protected void reloadListView() throws Exception {
 		final View root = getView();
 		if (root != null) {
 			final AbsListView listView = (AbsListView) root.findViewById(R.id.listComic);
 			if (listView != null) {
 				final CursorAdapter cursorAdapter = (CursorAdapter) listView.getAdapter();
 				if (cursorAdapter != null) {
-					if (reload) {
-						cursorAdapter.changeCursor(getCursor());
-					} else {
-							int count = listView.getChildCount();
-							SimpleAppLog.debug("Listview child count: " + count);
-							if (count > 0) {
-								for (int i = 0; i < count; i++) {
-									final View v = listView.getChildAt(i);
-									ComicBook oldObj = (ComicBook) v.getTag();
-									if (oldObj.getBookId().equals(comicBook.getBookId())) {
-										SimpleAppLog.debug("Found matched view");
-										//cursorAdapter.updateView(v, comicBook);
-									}
-								}
-							}
-
-					}
+					cursorAdapter.changeCursor(getCursor());
 				}
 			}
 		}

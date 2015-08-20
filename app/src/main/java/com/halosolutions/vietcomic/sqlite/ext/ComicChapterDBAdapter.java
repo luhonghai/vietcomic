@@ -43,6 +43,7 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
                 AbstractData.KEY_STATUS,
                 AbstractData.KEY_INDEX,
                 AbstractData.KEY_IMAGE_COUNT,
+                AbstractData.KEY_COMPLETED_COUNT,
                 AbstractData.KEY_CREATED_DATE
         };
     }
@@ -59,6 +60,7 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
         chapter.setFilePath(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_FILE_PATH)));
         chapter.setUrl(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_URL)));
         chapter.setImageCount(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_IMAGE_COUNT)));
+        chapter.setCompletedCount(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_COMPLETED_COUNT)));
         chapter.setPublishDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_PUBLISH_DATE))));
         chapter.setCreatedDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_CREATED_DATE))));
         return chapter;

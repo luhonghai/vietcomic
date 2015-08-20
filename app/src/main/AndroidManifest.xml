@@ -44,6 +44,20 @@
         <activity android:name="com.cmg.android.cmgpdf.PDFActivity"
             android:label=""
             android:windowSoftInputMode="adjustPan">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/pdf"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="file"/>
+                <data android:mimeType="*/*"/>
+                <data android:pathPattern="/*\\.pdf"/>
+                <data android:host="*"/>
+            </intent-filter>
         </activity>
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
@@ -52,6 +66,10 @@
 
         <service
             android:name=".service.ComicUpdateService"
+            android:exported="false"/>
+
+        <service
+            android:name=".service.ComicDownloaderService"
             android:exported="false"/>
 
         <meta-data
