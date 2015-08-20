@@ -37,7 +37,9 @@ import java.util.List;
  */
 public class ComicDownloaderService extends Service {
 
-    private static final int DOWNLOAD_CHUNK = 5;
+    private static final int DOWNLOAD_CHUNK = 1;
+
+    private static final int DOWNLOAD_QUEUE_SIZE = 10;
 
     private static final int ONGOING_NOTIFICATION_ID = 17031989;
 
@@ -65,11 +67,15 @@ public class ComicDownloaderService extends Service {
                     SimpleAppLog.error("No chapter found for download");
                     return;
                 }
-                comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
-                sendUpdateChapter(comicChapter);
-                SimpleAppLog.debug("Start download chapter: " + comicChapter.getName() + ". URL: " + comicChapter.getUrl());
-                fetchChapterPage(comicChapter);
-                downloadChapterPage(comicChapter);
+                if (comicChapter.getStatus() != ComicChapter.STATUS_DOWNLOADING) {
+                    comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
+                    sendUpdateChapter(comicChapter);
+                    SimpleAppLog.debug("Start download chapter: " + comicChapter.getName() + ". URL: " + comicChapter.getUrl());
+                    fetchChapterPage(comicChapter);
+                    downloadChapterPage(comicChapter);
+                } else {
+                    SimpleAppLog.debug("Chapter is download. Skip by default");
+                }
             } catch (Exception e) {
                 SimpleAppLog.error("Could not download chapter: "
                         + (comicChapter == null ? "null" : (comicChapter.getName() + " " + comicChapter.getUrl())),
@@ -171,13 +177,13 @@ public class ComicDownloaderService extends Service {
                 SimpleAppLog.debug("Try to start queue download");
                 //downloadManagerPro.notifiedTaskChecked();
                 //downloadManagerPro.pauseQueueDownload();
-                downloadManagerPro.startQueueDownload(5, QueueSort.oldestFirst);
+                downloadManagerPro.startQueueDownload(DOWNLOAD_QUEUE_SIZE, QueueSort.oldestFirst);
                 SimpleAppLog.debug("Done");
             } catch (QueueDownloadInProgressException e) {
                 SimpleAppLog.debug("Download is in process. Try to restart");
                 try {
                     downloadManagerPro.pauseQueueDownload();
-                    downloadManagerPro.startQueueDownload(5, QueueSort.oldestFirst);
+                    downloadManagerPro.startQueueDownload(DOWNLOAD_QUEUE_SIZE, QueueSort.oldestFirst);
                 } catch (QueueDownloadInProgressException ex) {
                     SimpleAppLog.error("Could not restart queue", ex);
                 }
@@ -389,19 +395,39 @@ public class ComicDownloaderService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         SimpleAppLog.debug("Receiver new download request");
-        Notification notification = new Notification(R.drawable.app_icon, getText(R.string.app_name),
-                System.currentTimeMillis());
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-        notification.setLatestEventInfo(this, "Đang tải truyện",
-                "Vui lòng chờ trong giây lát", pendingIntent);
-        startForeground(ONGOING_NOTIFICATION_ID, notification);
-        Message msg = mServiceHandler.obtainMessage();
-        msg.arg1 = startId;
-        if (intent != null) {
-            msg.setData(intent.getExtras());
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
+            try {
+                final ComicChapter comicChapter = gson.fromJson(bundle.getString(ComicChapter.class.getName()), ComicChapter.class);
+                if (comicChapter != null) {
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            if (comicChapter.getStatus() != ComicChapter.STATUS_DOWNLOADING) {
+                                comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
+                                sendUpdateChapter(comicChapter);
+                            }
+                            return null;
+                        }
+                    }.execute();
+                    Notification notification = new Notification(R.drawable.app_icon, getText(R.string.app_name),
+                            System.currentTimeMillis());
+                    Intent notificationIntent = new Intent(this, MainActivity.class);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+                    notification.setLatestEventInfo(this, "Đang tải truyện",
+                            "Vui lòng chờ trong giây lát", pendingIntent);
+                    startForeground(ONGOING_NOTIFICATION_ID, notification);
+                    Message msg = mServiceHandler.obtainMessage();
+                    msg.arg1 = startId;
+                    msg.setData(bundle);
+                    mServiceHandler.sendMessage(msg);
+                } else {
+                    SimpleAppLog.error("No chapter found");
+                }
+            } catch (Exception e) {
+                SimpleAppLog.error("Could not start download",e);
+            }
         }
-        mServiceHandler.sendMessage(msg);
         return START_STICKY;
     }
 
