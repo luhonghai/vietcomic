@@ -18,7 +18,7 @@ import java.net.URL;
  */
 public class AsyncWorker extends Thread{
 
-    private static final int CONNECT_TIMEOUT = 15000;
+    private static final int CONNECT_TIMEOUT = 30000;
 
     private final int BUFFER_SIZE = 1024;
 
@@ -88,8 +88,11 @@ public class AsyncWorker extends Thread{
         	
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            observer.onDownloadError(task.id, e);
+
         } catch (IOException e) {
             e.printStackTrace();
+            observer.onDownloadError(task.id, e);
         }
 
         return;

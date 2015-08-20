@@ -70,18 +70,20 @@ public class QueueModerator
     }
 
     public void wakeUp(int taskID){
-        downloaderList.remove(taskID);
-        startQueue();
+        synchronized (lock) {
+            downloaderList.remove(taskID);
+            startQueue();
+        }
     }
 
     public void pause(){
-        pauseFlag = true;
         synchronized (lock) {
+            pauseFlag = true;
             for (Map.Entry entry : downloaderList.entrySet()) {
                 Integer id = (Integer) entry.getKey();
                 moderator.pause(id);
             }
+            pauseFlag = false;
         }
-        pauseFlag = false;
     }
 }

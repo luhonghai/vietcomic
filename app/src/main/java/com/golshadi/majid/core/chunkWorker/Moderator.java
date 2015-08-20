@@ -135,8 +135,15 @@ public class Moderator {
     }
 
     public void connectionLost(int taskId) {
-    	downloadManagerListener.ConnectionLost(taskId);
+        if (downloadManagerListener != null)
+    	    downloadManagerListener.ConnectionLost(taskId);
     }
+
+    public void onDownloadError(int taskId, Throwable e) {
+        if (downloadManagerListener != null)
+            downloadManagerListener.OnError(taskId, e);
+    }
+
 
     /*
     to calculate download percentage
