@@ -378,6 +378,41 @@ public class ComicDownloaderService extends Service {
                             SimpleAppLog.error("Could not found page with task id " + taskId);
                         }
                     }
+
+                    @Override
+                    public void onError(long taskId, Throwable e) {
+                        SimpleAppLog.debug("Service download error taskId: " + taskId);
+                        ComicChapterPage page = chapterPageDBAdapter.getByTaskId(taskId);
+                        if (page != null) {
+                            try {
+                                downloadManagerPro.delete((int)taskId, true);
+                            } catch (Exception ex) {
+                                SimpleAppLog.error("Could not delete task id " + taskId,e);
+                            }
+                            page.setStatus(ComicChapterPage.STATUS_DEFAULT);
+                            page.setTaskId(-1);
+                            updateChapterPage(page);
+                            ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
+                            if (chapter != null) {
+                                if (chapter.getStatus() == ComicChapter.STATUS_DOWNLOADING) {
+                                    SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
+                                            ". Chapter URL: " + chapter.getUrl()
+                                            +". Page URL: " + page.getUrl());
+                                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+                                    sendUpdateChapter(chapter);
+                                } else {
+                                    SimpleAppLog.debug("Status: " + chapter.getStatus() +". Skip by default. "
+                                            +". Chapter URL: " + chapter.getUrl()
+                                            +". Page URL: " + page.getUrl());
+                                }
+                            } else {
+                                SimpleAppLog.error("Could not found chapter with task id " + taskId
+                                        +". Page URL: " + page.getUrl());
+                            }
+                        } else {
+                            SimpleAppLog.error("Could not found page with task id " + taskId);
+                        }
+                    }
                 });
     }
 
@@ -395,6 +430,7 @@ public class ComicDownloaderService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         SimpleAppLog.debug("Receiver new download request");
+        if (intent == null) return START_STICKY;
         Bundle bundle = intent.getExtras();
         if (bundle != null) {
             try {
