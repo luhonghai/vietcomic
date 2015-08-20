@@ -29,44 +29,48 @@ public class Rebuilder extends Thread{
         // notify to developer------------------------------------------------------------
         if (observer.downloadManagerListener != null)
             observer.downloadManagerListener.OnDownloadRebuildStart(task.id);
-
-        File file = FileUtils.create(task.save_address, task.name + "." + task.extension);
-
-        FileOutputStream finalFile = null;
         try {
-            finalFile = new FileOutputStream(file, true);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+            File file = FileUtils.create(task.save_address, task.name + "." + task.extension);
 
-        byte[] readBuffer = new byte[1024];
-        int read = 0;
-        for (Chunk chunk : taskChunks) {
-            FileInputStream chFileIn =
-                    FileUtils.getInputStream(task.save_address, String.valueOf(chunk.id));
-
+            FileOutputStream finalFile = null;
             try {
-                while ((read = chFileIn.read(readBuffer)) > 0) {
-                    finalFile.write(readBuffer, 0, read);
-                }
-            } catch (IOException e) {
+                finalFile = new FileOutputStream(file, true);
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
 
+            byte[] readBuffer = new byte[1024];
+            int read = 0;
+            for (Chunk chunk : taskChunks) {
+                FileInputStream chFileIn =
+                        FileUtils.getInputStream(task.save_address, String.valueOf(chunk.id));
 
-            if (finalFile != null) {
                 try {
-                    finalFile.flush();
+                    while ((read = chFileIn.read(readBuffer)) > 0) {
+                        finalFile.write(readBuffer, 0, read);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
 
-        }
+
+                if (finalFile != null) {
+                    try {
+                        finalFile.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
 
 //            finalFile.flush();
 //            finalFile.close();
 
-        observer.reBuildIsDone(task, taskChunks);
+            observer.reBuildIsDone(task, taskChunks);
+        } catch (Exception e) {
+            if (observer.downloadManagerListener != null)
+                observer.downloadManagerListener.OnError(task.id, e);
+        }
     }
 }

@@ -59,4 +59,10 @@ public class DownloadManagerListenerModerator {
 			downloadManagerListener.connectionLost(taskId);
 		}
     }
+
+    public void OnError(long taskId, Throwable e){
+        if (downloadManagerListener != null) {
+            downloadManagerListener.onError(taskId, e);
+        }
+    }
 }

@@ -21,4 +21,5 @@ public interface DownloadManagerListener {
     
     void connectionLost(long taskId);
 
+    void onError(long taskId, Throwable e);
 }
