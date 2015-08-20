@@ -46,7 +46,8 @@ public class ComicChapterCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ComicChapter comicChapter = dbAdapter.toObject(cursor);
         view.setTag(comicChapter);
-        ((EllipsizingTextView) view.findViewById(R.id.txtName)).setText(comicChapter.getName());
+        EllipsizingTextView textName = (EllipsizingTextView) view.findViewById(R.id.txtName);
+        textName.setText(comicChapter.getName());
         if (comicChapter.getPublishDate() != null)
             ((TextView) view.findViewById(R.id.txtPublishDate)).setText(sdf.format(comicChapter.getPublishDate()));
 
@@ -66,10 +67,16 @@ public class ComicChapterCursorAdapter extends CursorAdapter {
                 progressBar.setVisibility(View.GONE);
             }
         }
-        if (comicChapter.getStatus() == ComicChapter.STATUS_NEW) {
-            ((EllipsizingTextView) view.findViewById(R.id.txtName)).setTypeface(null, Typeface.BOLD);
+        if (ComicChapter.STATUS_DOWNLOAD_FAILED == comicChapter.getStatus()) {
+            textName.setTextColor(context.getResources().getColor(R.color.colorError));
         } else {
-            ((EllipsizingTextView) view.findViewById(R.id.txtName)).setTypeface(null, Typeface.NORMAL);
+            textName.setTextColor(context.getResources().getColor(R.color.colorBlack));
+        }
+
+        if (comicChapter.getStatus() == ComicChapter.STATUS_NEW) {
+            textName.setTypeface(null, Typeface.BOLD);
+        } else {
+            textName.setTypeface(null, Typeface.NORMAL);
         }
         view.findViewById(R.id.imgStatusDownloaded).setVisibility(
                 comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADED ? View.VISIBLE : View.GONE);

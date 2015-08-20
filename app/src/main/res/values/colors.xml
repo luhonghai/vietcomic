@@ -7,6 +7,8 @@
 	<color name="colorControlNormal">#FF78909C</color>  
 	<color name="colorControlActivated">#FF03A9F4</color>
 	<color name="colorSwitchThumbNormal">#FF78909C</color>
+    <color name="colorError">#ffff3333</color>
+    <color name="colorBlack">#ff000000</color>
 
     <color name="colorPrimaryQuarter">#3303A9F4</color>
     <color name="colorPrimaryHalf">#9003A9F4</color>

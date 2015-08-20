@@ -19,7 +19,7 @@
             android:layout_height="wrap_content">
             <com.halosolutions.vietcomic.view.EllipsizingTextView
                 android:id="@+id/txtName"
-                android:textColor="#FF000000"
+                android:textColor="@color/colorBlack"
                 android:textAppearance="@style/Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
