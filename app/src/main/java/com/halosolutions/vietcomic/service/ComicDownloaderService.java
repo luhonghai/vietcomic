@@ -4,14 +4,15 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.os.*;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.Nullable;
 
-import com.golshadi.majid.core.DownloadManagerPro;
-import com.golshadi.majid.core.enums.QueueSort;
-import com.golshadi.majid.report.ReportStructure;
-import com.golshadi.majid.report.exceptions.QueueDownloadInProgressException;
-import com.golshadi.majid.report.listener.DownloadManagerListener;
 import com.google.gson.Gson;
 import com.halosolutions.vietcomic.MainActivity;
 import com.halosolutions.vietcomic.R;
@@ -26,7 +27,6 @@ import com.halosolutions.vietcomic.util.AndroidHelper;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 
 import org.apache.commons.io.FileUtils;
-import org.json.JSONException;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -49,7 +49,7 @@ public class ComicDownloaderService extends Service {
     private ComicBookDBAdapter bookDBAdapter;
     private ComicChapterDBAdapter chapterDBAdapter;
     private ComicChapterPageDBAdapter chapterPageDBAdapter;
-    private DownloadManagerPro downloadManagerPro;
+    private ChapterDownloadManager downloadManager;
     private BroadcastHelper broadcastHelper;
 
     private final class ServiceHandler extends Handler {
@@ -148,45 +148,21 @@ public class ComicDownloaderService extends Service {
                 SimpleAppLog.debug("Current status: " + page.getStatus()
                         + ". TaskId: " + taskId
                         + ". URL: " + page.getUrl());
-                if (taskId == -1 && page.getStatus() == ComicChapterPage.STATUS_DEFAULT) {
+                if (page.getStatus() == ComicChapterPage.STATUS_DEFAULT) {
                     SimpleAppLog.debug("Add to download queue: " + page.getUrl());
-                    taskId = downloadManagerPro.addTask(
-                            fileName,
-                            page.getUrl(),
-                            true,
-                            true
-                    );
-                    try {
-                        page.setFilePath(downloadManagerPro.singleDownloadStatus(taskId).toJsonObject().getString("saveAddress"));
-                    } catch (Exception e) {
-                        SimpleAppLog.error("Could not parse file path from json object. ", e);
-                    }
+                    page.setFilePath(new File(AndroidHelper.getFolder(
+                            getApplicationContext(),
+                            AndroidHelper.DOWNLOAD_TEMP_CACHE_DIR),
+                            fileName).getAbsolutePath());
                     page.setStatus(ComicChapterPage.STATUS_DOWNLOADING);
                     page.setTaskId(taskId);
+                    downloadManager.startDownload(page);
                     SimpleAppLog.debug("Update status to database: " + page.getUrl());
                     chapterPageDBAdapter.update(page);
-                } else {
-                    ReportStructure report = downloadManagerPro.singleDownloadStatus(taskId);
-                    SimpleAppLog.debug("Report: " + report.toJsonObject());
                 }
                 SimpleAppLog.debug("Next status: " + page.getStatus()
                         + ". TaskId: " + taskId
                         + ". URL: " + page.getUrl());
-            }
-            try {
-                SimpleAppLog.debug("Try to start queue download");
-                //downloadManagerPro.notifiedTaskChecked();
-                //downloadManagerPro.pauseQueueDownload();
-                downloadManagerPro.startQueueDownload(DOWNLOAD_QUEUE_SIZE, QueueSort.oldestFirst);
-                SimpleAppLog.debug("Done");
-            } catch (QueueDownloadInProgressException e) {
-                SimpleAppLog.debug("Download is in process. Try to restart");
-                try {
-                    downloadManagerPro.pauseQueueDownload();
-                    downloadManagerPro.startQueueDownload(DOWNLOAD_QUEUE_SIZE, QueueSort.oldestFirst);
-                } catch (QueueDownloadInProgressException ex) {
-                    SimpleAppLog.error("Could not restart queue", ex);
-                }
             }
             chapter.setImageCount(pages.size());
             chapter.setStatus(ComicChapter.STATUS_DOWNLOADING);
@@ -222,8 +198,6 @@ public class ComicDownloaderService extends Service {
                         chapter.setStatus(ComicChapter.STATUS_DOWNLOADED);
                         sendUpdateChapter(chapter);
                         for (ComicChapterPage page : pages) {
-                            downloadManagerPro.delete(page.getTaskId(), true);
-                            chapterPageDBAdapter.delete(page);
                             File f = new File(page.getFilePath());
                             if (f.exists()) {
                                 try {
@@ -231,6 +205,7 @@ public class ComicDownloaderService extends Service {
                                 } catch (Exception e) {
                                 }
                             }
+                            chapterPageDBAdapter.delete(page);
                         }
                     } else {
                         SimpleAppLog.error("Could not join comic chapter: " + chapter.getName() + ". URL: " + chapter.getUrl());
@@ -288,132 +263,47 @@ public class ComicDownloaderService extends Service {
         } catch (SQLException e) {
             SimpleAppLog.error("Could not open comic chapter page database",e);
         }
+        downloadManager = new ChapterDownloadManager(new ChapterDownloadManager.DownloadListener() {
+            @Override
+            public void onDownloadStart(ComicChapterPage page) {
 
-        downloadManagerPro = new DownloadManagerPro(getApplicationContext());
-        downloadManagerPro.init(
-                AndroidHelper.getFolder(getApplicationContext(), AndroidHelper.DOWNLOAD_TEMP_CACHE_DIR).getAbsolutePath(),
-                DOWNLOAD_CHUNK,
-                new DownloadManagerListener() {
-                    @Override
-                    public void OnDownloadStarted(long taskId) {
-                        SimpleAppLog.debug("Service download start taskId: " + taskId);
+            }
+
+            @Override
+            public void onDownloadCompleted(ComicChapterPage page) {
+                    page.setStatus(ComicChapterPage.STATUS_DOWNLOADED);
+                    updateChapterPage(page);
+                    ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
+                    if (chapter != null) {
+                        verifyDownloadedPages(chapter);
+                    } else {
+                        SimpleAppLog.error("Could not found chapter with page URL: " + page.getUrl());
                     }
+            }
 
-                    @Override
-                    public void OnDownloadPaused(long taskId) {
-                        SimpleAppLog.debug("Service download pause taskId: " + taskId);
+            @Override
+            public void onError(ComicChapterPage page, Throwable e) {
+                page.setStatus(ComicChapterPage.STATUS_DEFAULT);
+                page.setTaskId(-1);
+                updateChapterPage(page);
+                ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
+                if (chapter != null) {
+                    if (chapter.getStatus() == ComicChapter.STATUS_DOWNLOADING) {
+                        SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
+                                ". Chapter URL: " + chapter.getUrl()
+                                +". Page URL: " + page.getUrl());
+                        chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+                        sendUpdateChapter(chapter);
+                    } else {
+                        SimpleAppLog.debug("Status: " + chapter.getStatus() +". Skip by default. "
+                                +". Chapter URL: " + chapter.getUrl()
+                                +". Page URL: " + page.getUrl());
                     }
-
-                    @Override
-                    public void onDownloadProcess(long taskId, double percent, long downloadedLength) {
-
-                    }
-
-                    @Override
-                    public void OnDownloadFinished(long taskId) {
-                        SimpleAppLog.debug("Service download finished taskId: " + taskId);
-                    }
-
-                    @Override
-                    public void OnDownloadRebuildStart(long taskId) {
-                        SimpleAppLog.debug("Service download rebuild start taskId: " + taskId);
-                    }
-
-                    @Override
-                    public void OnDownloadRebuildFinished(long taskId) {
-                        SimpleAppLog.debug("Service download rebuild finished taskId: " + taskId);
-                    }
-
-                    @Override
-                    public void OnDownloadCompleted(long taskId) {
-                        SimpleAppLog.debug("Service download completed taskId: " + taskId);
-                        ReportStructure report = downloadManagerPro.singleDownloadStatus((int)taskId);
-                        SimpleAppLog.debug("Report: " + report.toJsonObject());
-                        ComicChapterPage page = chapterPageDBAdapter.getByTaskId(taskId);
-                        if (page != null) {
-                            try {
-                                page.setFilePath(report.toJsonObject().getString("saveAddress"));
-                            } catch (JSONException e) {
-                                SimpleAppLog.error("Could not parse file path from json object. ", e);
-                            }
-                            page.setStatus(ComicChapterPage.STATUS_DOWNLOADED);
-                            updateChapterPage(page);
-                            ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
-                            if (chapter != null) {
-                                verifyDownloadedPages(chapter);
-                            } else {
-                                SimpleAppLog.error("Could not found chapter with task id " + taskId
-                                        +". Page URL: " + page.getUrl());
-                            }
-                        } else {
-                            SimpleAppLog.error("Could not found page with task id " + taskId);
-                        }
-                    }
-
-                    @Override
-                    public void connectionLost(long taskId) {
-                        SimpleAppLog.debug("Service download connection lost taskId: " + taskId);
-                        ComicChapterPage page = chapterPageDBAdapter.getByTaskId(taskId);
-                        if (page != null) {
-                            page.setStatus(ComicChapterPage.STATUS_DEFAULT);
-                            updateChapterPage(page);
-                            ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
-                            if (chapter != null) {
-                                if (chapter.getStatus() == ComicChapter.STATUS_DOWNLOADING) {
-                                    SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
-                                            ". Chapter URL: " + chapter.getUrl()
-                                            +". Page URL: " + page.getUrl());
-                                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-                                    sendUpdateChapter(chapter);
-                                } else {
-                                    SimpleAppLog.debug("Status: " + chapter.getStatus() +". Skip by default. "
-                                            +". Chapter URL: " + chapter.getUrl()
-                                            +". Page URL: " + page.getUrl());
-                                }
-                            } else {
-                                SimpleAppLog.error("Could not found chapter with task id " + taskId
-                                                +". Page URL: " + page.getUrl());
-                            }
-                        } else {
-                            SimpleAppLog.error("Could not found page with task id " + taskId);
-                        }
-                    }
-
-                    @Override
-                    public void onError(long taskId, Throwable e) {
-                        SimpleAppLog.debug("Service download error taskId: " + taskId);
-                        ComicChapterPage page = chapterPageDBAdapter.getByTaskId(taskId);
-                        if (page != null) {
-                            try {
-                                downloadManagerPro.delete((int)taskId, true);
-                            } catch (Exception ex) {
-                                SimpleAppLog.error("Could not delete task id " + taskId,e);
-                            }
-                            page.setStatus(ComicChapterPage.STATUS_DEFAULT);
-                            page.setTaskId(-1);
-                            updateChapterPage(page);
-                            ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
-                            if (chapter != null) {
-                                if (chapter.getStatus() == ComicChapter.STATUS_DOWNLOADING) {
-                                    SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
-                                            ". Chapter URL: " + chapter.getUrl()
-                                            +". Page URL: " + page.getUrl());
-                                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-                                    sendUpdateChapter(chapter);
-                                } else {
-                                    SimpleAppLog.debug("Status: " + chapter.getStatus() +". Skip by default. "
-                                            +". Chapter URL: " + chapter.getUrl()
-                                            +". Page URL: " + page.getUrl());
-                                }
-                            } else {
-                                SimpleAppLog.error("Could not found chapter with task id " + taskId
-                                        +". Page URL: " + page.getUrl());
-                            }
-                        } else {
-                            SimpleAppLog.error("Could not found page with task id " + taskId);
-                        }
-                    }
-                });
+                } else {
+                    SimpleAppLog.error("Could not found chapter with Page URL: " + page.getUrl());
+                }
+            }
+        });
     }
 
     @Override
@@ -423,8 +313,8 @@ public class ComicDownloaderService extends Service {
         bookDBAdapter.close();
         chapterDBAdapter.close();
         chapterPageDBAdapter.close();
-        downloadManagerPro.dispose();
         broadcastHelper.unregister();
+        downloadManager.destroy();
     }
 
     @Override
