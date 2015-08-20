@@ -1,19 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="5dp">
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <com.daimajia.numberprogressbar.NumberProgressBar
-            android:id="@+id/progressDownload"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -22,13 +11,22 @@
                 android:textColor="@color/colorBlack"
                 android:textAppearance="@style/Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:lines="1"
+                android:layout_gravity="center_vertical"
                 android:maxLines="1"
                 android:layout_weight="1"
                 android:layout_marginRight="5dp"
                 android:layout_marginEnd="5dp"
                 android:text="test"/>
+            <com.daimajia.numberprogressbar.NumberProgressBar
+                android:id="@+id/progressDownload"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                />
             <ImageView
                 android:id="@+id/imgStatusEye"
                 android:layout_width="@dimen/icon_chapter_status_image_size"
@@ -57,11 +55,11 @@
                 android:id="@+id/txtPublishDate"
                 android:textColor="#FF555555"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:layout_marginStart="5dp"
                 android:text="17/03/1989"/>
         </LinearLayout>
-    </LinearLayout>
 
 </RelativeLayout>
