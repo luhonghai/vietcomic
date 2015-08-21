@@ -9,9 +9,13 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -38,7 +42,7 @@ public class ChapterDownloadManager {
 
     private final DownloadListener listener;
 
-    private final List<String> downloadingChapters = new ArrayList<String>();
+    private final Map<String, Future> downloadingChapters = new WeakHashMap<String, Future>();
 
     public ChapterDownloadManager(DownloadListener listener) {
         this.listener = listener;
@@ -46,62 +50,67 @@ public class ChapterDownloadManager {
 
     public void startDownload(final ComicChapterPage page) {
         synchronized (downloadingChapters) {
-            if (!downloadingChapters.contains(page.getPageId())) {
-                downloadingChapters.add(page.getPageId());
-                tpExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        File tmp = null;
-                        try {
-                            tmp = new File(FileUtils.getTempDirectory(), Hash.md5(page.getFilePath()) + ".tmp");
-                            if (listener != null)
-                                listener.onDownloadStart(page);
-                            FileUtils.copyURLToFile(new URL(page.getUrl())
-                                    , tmp, CONNECTION_TIMEOUT, READ_TIMEOUT);
-                            if (tmp.exists()) {
-                                File dest = new File(page.getFilePath());
-                                if (dest.exists()) {
-                                    try {
-                                        FileUtils.forceDelete(dest);
-                                    } catch (Exception e) {
+            if (!downloadingChapters.containsKey(page.getPageId())) {
+                downloadingChapters.put(page.getPageId(),
+                        tpExecutor.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                File tmp = null;
+                                try {
+                                    tmp = new File(FileUtils.getTempDirectory(), Hash.md5(page.getFilePath()) + ".tmp");
+                                    if (listener != null)
+                                        listener.onDownloadStart(page);
+                                    FileUtils.copyURLToFile(new URL(page.getUrl())
+                                            , tmp, CONNECTION_TIMEOUT, READ_TIMEOUT);
+                                    if (tmp.exists()) {
+                                        File dest = new File(page.getFilePath());
+                                        if (dest.exists()) {
+                                            try {
+                                                FileUtils.forceDelete(dest);
+                                            } catch (Exception e) {
 
+                                            }
+                                        }
+                                        FileUtils.moveFile(tmp, dest);
+                                        if (listener != null)
+                                            listener.onDownloadCompleted(page);
+                                    }
+                                } catch (Exception e) {
+                                    if (listener != null)
+                                        listener.onError(page, e);
+                                } finally {
+                                    if (tmp != null && tmp.exists()) {
+                                        try {
+                                            FileUtils.forceDelete(tmp);
+                                        } catch (Exception e) {
+
+                                        }
+                                    }
+                                    synchronized (downloadingChapters) {
+                                        downloadingChapters.remove(page.getPageId());
                                     }
                                 }
-                                FileUtils.moveFile(tmp, dest);
-                                if (listener != null)
-                                    listener.onDownloadCompleted(page);
                             }
-                        } catch (Exception e) {
-                            if (listener != null)
-                                listener.onError(page, e);
-                        } finally {
-                            if (tmp != null && tmp.exists()) {
-                                try {
-                                    FileUtils.forceDelete(tmp);
-                                } catch (Exception e) {
+                        }));
 
-                                }
-                            }
-                            synchronized (downloadingChapters) {
-                                downloadingChapters.remove(page.getPageId());
-                            }
-                        }
-                    }
-                });
             } else {
                 SimpleAppLog.error("This chapter page is downloading " + page.getUrl());
             }
         }
     }
 
-    public List<String> getDownloadingChapters() {
-        List<String> chapterIds = new ArrayList<String>();
-        synchronized (downloadingChapters) {
-            for (String chapterId : downloadingChapters) {
-                chapterIds.add(chapterId);
+    public void cancel(String pageId) {
+        if (downloadingChapters.containsKey(pageId)) {
+            final Future future = downloadingChapters.get(pageId);
+            if (future.isCancelled()) {
+                try {
+                    future.cancel(true);
+                } catch (Exception e) {
+
+                }
             }
+            downloadingChapters.remove(pageId);
         }
-        return chapterIds;
     }
 
     public int getDownloadingCount() {

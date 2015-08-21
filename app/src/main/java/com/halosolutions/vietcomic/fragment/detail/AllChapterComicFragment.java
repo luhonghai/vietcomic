@@ -119,6 +119,8 @@ public class AllChapterComicFragment extends DetailComicFragment {
                 ((ComicChapterCursorAdapter) listView.getAdapter()).updateView(getActivity(), view, comicChapter);
                 Intent downloadIntent = new Intent(getActivity(), ComicDownloaderService.class);
                 downloadIntent.putExtra(ComicChapter.class.getName(), gson.toJson(comicChapter));
+                downloadIntent.putExtra(ComicDownloaderService.Action.class.getName(),
+                        ComicDownloaderService.Action.DOWNLOAD);
                 getActivity().startService(downloadIntent);
             }
         }

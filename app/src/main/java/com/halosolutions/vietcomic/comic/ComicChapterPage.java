@@ -17,6 +17,8 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
     public static final int STATUS_DOWNLOADED = 2;
 
+    public static final int STATUS_DOWNLOAD_FAILED = 3;
+
     private String chapterId;
 
     private String bookId;
