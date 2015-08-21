@@ -8,6 +8,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -36,53 +38,79 @@ public class ChapterDownloadManager {
 
     private final DownloadListener listener;
 
+    private final List<String> downloadingChapters = new ArrayList<String>();
+
     public ChapterDownloadManager(DownloadListener listener) {
         this.listener = listener;
     }
 
     public void startDownload(final ComicChapterPage page) {
-        tpExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                File tmp = null;
-                try {
-                    tmp = new File(FileUtils.getTempDirectory(), Hash.md5(page.getFilePath()) + ".tmp");
-                    if (listener != null)
-                        listener.onDownloadStart(page);
-                    FileUtils.copyURLToFile(new URL(page.getUrl())
-                            , tmp, CONNECTION_TIMEOUT, READ_TIMEOUT);
-                    if (tmp.exists()) {
-                        File dest = new File(page.getFilePath());
-                        if (dest.exists()) {
-                            try {
-                                FileUtils.forceDelete(dest);
-                            } catch (Exception e) {
+        synchronized (downloadingChapters) {
+            if (!downloadingChapters.contains(page.getPageId())) {
+                downloadingChapters.add(page.getPageId());
+                tpExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        File tmp = null;
+                        try {
+                            tmp = new File(FileUtils.getTempDirectory(), Hash.md5(page.getFilePath()) + ".tmp");
+                            if (listener != null)
+                                listener.onDownloadStart(page);
+                            FileUtils.copyURLToFile(new URL(page.getUrl())
+                                    , tmp, CONNECTION_TIMEOUT, READ_TIMEOUT);
+                            if (tmp.exists()) {
+                                File dest = new File(page.getFilePath());
+                                if (dest.exists()) {
+                                    try {
+                                        FileUtils.forceDelete(dest);
+                                    } catch (Exception e) {
 
+                                    }
+                                }
+                                FileUtils.moveFile(tmp, dest);
+                                if (listener != null)
+                                    listener.onDownloadCompleted(page);
+                            }
+                        } catch (Exception e) {
+                            if (listener != null)
+                                listener.onError(page, e);
+                        } finally {
+                            if (tmp != null && tmp.exists()) {
+                                try {
+                                    FileUtils.forceDelete(tmp);
+                                } catch (Exception e) {
+
+                                }
+                            }
+                            synchronized (downloadingChapters) {
+                                downloadingChapters.remove(page.getPageId());
                             }
                         }
-                        FileUtils.moveFile(tmp, dest);
-                        if (listener != null)
-                            listener.onDownloadCompleted(page);
                     }
-                } catch (Exception e) {
-                    if (listener != null)
-                        listener.onError(page, e);
-                } finally {
-                    if (tmp != null && tmp.exists()) {
-                        try {
-                            FileUtils.forceDelete(tmp);
-                        } catch (Exception e) {
-
-                        }
-                    }
-                }
+                });
+            } else {
+                SimpleAppLog.error("This chapter page is downloading " + page.getUrl());
             }
-        });
+        }
+    }
+
+    public List<String> getDownloadingChapters() {
+        List<String> chapterIds = new ArrayList<String>();
+        synchronized (downloadingChapters) {
+            for (String chapterId : downloadingChapters) {
+                chapterIds.add(chapterId);
+            }
+        }
+        return chapterIds;
+    }
+
+    public int getDownloadingCount() {
+        return downloadingChapters.size();
     }
 
     public void destroy() {
         try {
-            while (!tpExecutor.isShutdown()) {
+            while (!tpExecutor.isTerminated()) {
                 tpExecutor.shutdownNow();
             }
         } catch (Exception e) {}

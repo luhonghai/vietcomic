@@ -152,4 +152,26 @@ public class ComicChapterPageDBAdapter extends DBAdapter<ComicChapterPage> {
         }
         return null;
     }
+
+    public Cursor listByStatus(Integer[] status) {
+        String selection = "";
+        String[] params = new String[status.length];
+        for (int i = 0; i < status.length; i++) {
+            params[i] = Integer.toString(status[i]);
+            selection += (AbstractData.KEY_STATUS + " = ?");
+            if (i != status.length - 1) {
+                selection += " or ";
+            }
+        }
+
+        return getDB().query(getTableName(),
+                getAllColumns(),
+                selection,
+                params,
+                null,
+                null,
+                AbstractData.KEY_STATUS + " ASC",
+                null
+        );
+    }
 }
