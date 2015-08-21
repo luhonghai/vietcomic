@@ -16,5 +16,5 @@
 
     <dimen name="comic_book_detail_text_margin">3dp</dimen>
 
-    <dimen name="icon_chapter_status_image_size">25dp</dimen>
+    <dimen name="icon_chapter_status_image_size">20dp</dimen>
 </resources>

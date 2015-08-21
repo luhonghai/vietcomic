@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
@@ -27,9 +28,35 @@ import java.sql.SQLException;
 
 public abstract class ComicFragment extends Fragment implements AdapterView.OnItemClickListener {
 
+	private static final int REFRESH_UI_TIME = 300;
+
 	protected ComicBookDBAdapter comicBookDBAdapter;
 
 	protected BroadcastHelper broadcastHelper;
+
+	private Handler handlerUIUpdate = new Handler();
+
+	private Runnable runnableUIUpdate = new Runnable() {
+		@Override
+		public void run() {
+			if (needUpdate) {
+				needUpdate = false;
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							reloadListView();
+						} catch (Exception e) {
+							SimpleAppLog.error("Could not reload list view",e);
+						}
+					}
+				});
+			}
+			handlerUIUpdate.postDelayed(runnableUIUpdate, REFRESH_UI_TIME);
+		}
+	};
+
+	private boolean needUpdate = false;
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
@@ -73,7 +100,7 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 
 	protected void onUpdateComic(ComicBook comicBook, boolean reload) throws Exception {
 		if (reload)
-			reloadListView();
+			setNeedUpdate(true);
 	}
 
 	protected void reloadListView() throws Exception {
@@ -87,6 +114,10 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 				}
 			}
 		}
+	}
+
+	protected void setNeedUpdate(boolean needUpdate) {
+		this.needUpdate = needUpdate;
 	}
 
 	protected abstract Cursor getCursor() throws Exception;
@@ -111,11 +142,13 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 				}
 			}
 		});
+		handlerUIUpdate.postDelayed(runnableUIUpdate, REFRESH_UI_TIME);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		handlerUIUpdate.removeCallbacks(runnableUIUpdate);
 		if (comicBookDBAdapter != null) {
 			comicBookDBAdapter.close();
 		}
