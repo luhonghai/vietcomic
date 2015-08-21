@@ -1,9 +1,11 @@
 package com.halosolutions.vietcomic.service;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -36,11 +38,9 @@ import java.util.List;
  */
 public class ComicDownloaderService extends Service {
 
-    private static final int DOWNLOAD_CHUNK = 1;
-
-    private static final int DOWNLOAD_QUEUE_SIZE = 10;
-
     private static final int ONGOING_NOTIFICATION_ID = 17031989;
+
+    private static final int CHECK_DOWNLOADING_TIME = 2 * 60 * 1000;
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
@@ -50,6 +50,7 @@ public class ComicDownloaderService extends Service {
     private ComicChapterPageDBAdapter chapterPageDBAdapter;
     private ChapterDownloadManager downloadManager;
     private BroadcastHelper broadcastHelper;
+    private boolean isForeGround;
 
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
@@ -142,26 +143,7 @@ public class ComicDownloaderService extends Service {
         List<ComicChapterPage> pages = chapterPageDBAdapter.listByComicChapter(chapter.getChapterId());
         if (pages != null && pages.size() > 0) {
             for (ComicChapterPage page : pages) {
-                String fileName = chapter.getBookId() + "-" + chapter.getChapterId() + "-" + page.getPageId();
-                int taskId = page.getTaskId();
-                SimpleAppLog.debug("Current status: " + page.getStatus()
-                        + ". TaskId: " + taskId
-                        + ". URL: " + page.getUrl());
-                if (page.getStatus() == ComicChapterPage.STATUS_DEFAULT) {
-                    SimpleAppLog.debug("Add to download queue: " + page.getUrl());
-                    page.setFilePath(new File(AndroidHelper.getFolder(
-                            getApplicationContext(),
-                            AndroidHelper.DOWNLOAD_TEMP_CACHE_DIR),
-                            fileName).getAbsolutePath());
-                    page.setStatus(ComicChapterPage.STATUS_DOWNLOADING);
-                    page.setTaskId(taskId);
-                    downloadManager.startDownload(page);
-                    SimpleAppLog.debug("Update status to database: " + page.getUrl());
-                    chapterPageDBAdapter.update(page);
-                }
-                SimpleAppLog.debug("Next status: " + page.getStatus()
-                        + ". TaskId: " + taskId
-                        + ". URL: " + page.getUrl());
+                downloadChapterPage(page, false);
             }
             chapter.setImageCount(pages.size());
             chapter.setStatus(ComicChapter.STATUS_DOWNLOADING);
@@ -172,6 +154,25 @@ public class ComicDownloaderService extends Service {
             chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
             sendUpdateChapter(chapter);
         }
+    }
+
+    private void downloadChapterPage(final ComicChapterPage page, boolean forceDownload) throws Exception {
+        String fileName = page.getBookId() + "-" + page.getChapterId() + "-" + page.getPageId();
+        SimpleAppLog.debug("Current status: " + page.getStatus()
+                + ". URL: " + page.getUrl());
+        if (page.getStatus() == ComicChapterPage.STATUS_DEFAULT || forceDownload) {
+            SimpleAppLog.debug("Add to download queue: " + page.getUrl());
+            page.setFilePath(new File(AndroidHelper.getFolder(
+                    getApplicationContext(),
+                    AndroidHelper.DOWNLOAD_TEMP_CACHE_DIR),
+                    fileName).getAbsolutePath());
+            page.setStatus(ComicChapterPage.STATUS_DOWNLOADING);
+            downloadManager.startDownload(page);
+            SimpleAppLog.debug("Update status to database: " + page.getUrl());
+            chapterPageDBAdapter.update(page);
+        }
+        SimpleAppLog.debug("Next status: " + page.getStatus()
+                + ". URL: " + page.getUrl());
     }
 
     private void verifyDownloadedPages(ComicChapter chapter) {
@@ -196,6 +197,13 @@ public class ComicDownloaderService extends Service {
                     if (ComicService.joinComicBook(chapter, pages)) {
                         chapter.setStatus(ComicChapter.STATUS_DOWNLOADED);
                         sendUpdateChapter(chapter);
+                        ComicBook comicBook = bookDBAdapter.getComicByBookId(chapter.getBookId());
+                        if (comicBook != null) {
+                            comicBook.setIsDownloaded(true);
+                            bookDBAdapter.update(comicBook);
+                            broadcastHelper.sendComicUpdate(comicBook);
+                        }
+
                         for (ComicChapterPage page : pages) {
                             File f = new File(page.getFilePath());
                             if (f.exists()) {
@@ -270,14 +278,16 @@ public class ComicDownloaderService extends Service {
 
             @Override
             public void onDownloadCompleted(ComicChapterPage page) {
-                    page.setStatus(ComicChapterPage.STATUS_DOWNLOADED);
-                    updateChapterPage(page);
-                    ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
-                    if (chapter != null) {
-                        verifyDownloadedPages(chapter);
-                    } else {
-                        SimpleAppLog.error("Could not found chapter with page URL: " + page.getUrl());
-                    }
+                page.setStatus(ComicChapterPage.STATUS_DOWNLOADED);
+                updateChapterPage(page);
+                ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
+                if (chapter != null) {
+                    verifyDownloadedPages(chapter);
+                } else {
+                    SimpleAppLog.error("Could not found chapter with page URL: " + page.getUrl());
+                }
+                handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
+                handlerCheckDownloading.post(runnableCheckDownloading);
             }
 
             @Override
@@ -301,6 +311,8 @@ public class ComicDownloaderService extends Service {
                 } else {
                     SimpleAppLog.error("Could not found chapter with Page URL: " + page.getUrl());
                 }
+                handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
+                handlerCheckDownloading.post(runnableCheckDownloading);
             }
         });
     }
@@ -308,6 +320,7 @@ public class ComicDownloaderService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
         SimpleAppLog.info("Download service destroy");
         bookDBAdapter.close();
         chapterDBAdapter.close();
@@ -325,17 +338,20 @@ public class ComicDownloaderService extends Service {
             try {
                 final ComicChapter comicChapter = gson.fromJson(bundle.getString(ComicChapter.class.getName()), ComicChapter.class);
                 if (comicChapter != null) {
-                    Notification notification = new Notification(R.drawable.app_icon, getText(R.string.app_name),
-                            System.currentTimeMillis());
-                    Intent notificationIntent = new Intent(this, MainActivity.class);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-                    notification.setLatestEventInfo(this, "Đang tải truyện",
-                            "Vui lòng chờ trong giây lát", pendingIntent);
-                    startForeground(ONGOING_NOTIFICATION_ID, notification);
                     Message msg = mServiceHandler.obtainMessage();
                     msg.arg1 = startId;
                     msg.setData(bundle);
                     mServiceHandler.sendMessage(msg);
+
+                    Cursor cursorChapters = chapterDBAdapter.listByStatus(new Integer[] {
+                            ComicChapter.STATUS_INIT_DOWNLOADING,
+                            ComicChapter.STATUS_DOWNLOADING,
+                            ComicChapter.STATUS_DOWNLOAD_JOINING
+                    });
+                    int downloadCount = cursorChapters.getCount();
+                    cursorChapters.close();
+                    showForegroundNotification("Đang tải " + downloadCount + " tập truyện",
+                            "Vui lòng chờ trong giây lát");
                 } else {
                     SimpleAppLog.error("No chapter found");
                 }
@@ -346,4 +362,74 @@ public class ComicDownloaderService extends Service {
         return START_STICKY;
     }
 
+    private Handler handlerCheckDownloading = new Handler();
+
+
+    private Runnable runnableCheckDownloading = new Runnable() {
+        @Override
+        public void run() {
+            boolean stopService = false;
+            boolean isChapterDownloading;
+            boolean isChapterPageDownloading;
+            int downloadCount = 0;
+            Cursor cursorChapters = null;
+            Cursor cursorChapterPages = null;
+            try {
+                cursorChapters = chapterDBAdapter.listByStatus(new Integer[] {
+                        ComicChapter.STATUS_INIT_DOWNLOADING,
+                        ComicChapter.STATUS_DOWNLOADING,
+                        ComicChapter.STATUS_DOWNLOAD_JOINING
+                });
+                cursorChapters.moveToFirst();
+                downloadCount = cursorChapters.getCount();
+                isChapterDownloading = downloadCount > 0;
+                cursorChapterPages = chapterPageDBAdapter.listByStatus(new Integer[] {
+                    ComicChapterPage.STATUS_DOWNLOADING
+                });
+                cursorChapterPages.moveToFirst();
+                isChapterPageDownloading = cursorChapterPages.getCount() > 0;
+                stopService = !(isChapterDownloading || isChapterPageDownloading);
+                if (downloadManager.getDownloadingCount() == 0 && isChapterPageDownloading) {
+                    SimpleAppLog.error("Look like not all page is submit to download thread");
+                    while (!cursorChapterPages.isAfterLast()) {
+                        downloadChapterPage(chapterPageDBAdapter.toObject(cursorChapterPages), true);
+                        cursorChapterPages.moveToNext();
+                    }
+                }
+            } catch (Exception e) {
+                SimpleAppLog.error("Could not check downloading",e);
+            } finally {
+                if (cursorChapters != null)
+                    cursorChapters.close();
+                if (cursorChapterPages != null)
+                    cursorChapterPages.close();
+            }
+            if (stopService) {
+                stopForeground(true);
+                isForeGround = false;
+            } else {
+                showForegroundNotification("Đang tải " + downloadCount + " tập truyện",
+                        "Vui lòng chờ trong giây lát");
+                handlerCheckDownloading.postDelayed(runnableCheckDownloading, CHECK_DOWNLOADING_TIME);
+            }
+        }
+    };
+
+    private void showForegroundNotification(String title, String description) {
+        SimpleAppLog.debug("Send foreground notification: " + title + ". Description: " + description);
+        Notification notification = new Notification(R.drawable.app_icon, getText(R.string.app_name),
+                System.currentTimeMillis());
+        Intent notificationIntent = new Intent(ComicDownloaderService.this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(ComicDownloaderService.this, 0, notificationIntent, 0);
+        notification.setLatestEventInfo(ComicDownloaderService.this, title,
+                description, pendingIntent);
+        if (!isForeGround) {
+            isForeGround = true;
+            startForeground(ONGOING_NOTIFICATION_ID, notification);
+        } else {
+            final NotificationManager notificationManager = (NotificationManager) getApplicationContext()
+                    .getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
+            notificationManager.notify(ONGOING_NOTIFICATION_ID, notification);
+        }
+    }
 }

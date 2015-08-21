@@ -51,7 +51,7 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
     @Override
     public String toPrettyString(Context context) {
-        return url;
+        return bookId + "-" + chapterId + "-" + pageId;
     }
 
     @Override
