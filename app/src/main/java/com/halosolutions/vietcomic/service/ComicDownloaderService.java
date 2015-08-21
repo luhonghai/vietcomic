@@ -453,13 +453,13 @@ public class ComicDownloaderService extends Service {
                 cursorChapterPages.moveToFirst();
                 isChapterPageDownloading = cursorChapterPages.getCount() > 0;
                 stopService = !(isChapterDownloading || isChapterPageDownloading);
-                if (downloadManager.getDownloadingCount() == 0 && isChapterPageDownloading) {
-                    SimpleAppLog.error("Look like not all page is submit to download thread");
-                    while (!cursorChapterPages.isAfterLast()) {
-                        downloadChapterPage(chapterPageDBAdapter.toObject(cursorChapterPages), true);
-                        cursorChapterPages.moveToNext();
-                    }
-                }
+//                if (downloadManager.getDownloadingCount() == 0 && isChapterPageDownloading) {
+//                    SimpleAppLog.error("Look like not all page is submit to download thread");
+//                    while (!cursorChapterPages.isAfterLast()) {
+//                        downloadChapterPage(chapterPageDBAdapter.toObject(cursorChapterPages), true);
+//                        cursorChapterPages.moveToNext();
+//                    }
+//                }
             } catch (Exception e) {
                 SimpleAppLog.error("Could not check downloading",e);
             } finally {
