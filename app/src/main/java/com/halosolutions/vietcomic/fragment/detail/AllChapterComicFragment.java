@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
@@ -37,6 +38,8 @@ public class AllChapterComicFragment extends DetailComicFragment {
 
     private ComicChapterDBAdapter dbAdapter;
 
+    private Gson gson;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_comic_list, container, false);
@@ -64,8 +67,8 @@ public class AllChapterComicFragment extends DetailComicFragment {
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final ComicChapter comicChapter = (ComicChapter) view.getTag();
-        SimpleAppLog.debug("Chapter status: " + comicChapter);
-        Gson gson = new Gson();
+        SimpleAppLog.debug("Chapter status: " + comicChapter.getStatus());
+
         if (comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADED
                 || comicChapter.getStatus() == ComicChapter.STATUS_READED) {
             File pdfComic = new File(comicChapter.getFilePath());
@@ -93,17 +96,33 @@ public class AllChapterComicFragment extends DetailComicFragment {
                 }.execute();
             } else {
                 SimpleAppLog.debug("File not is exists. Try to re-download");
-                Intent downloadIntent = new Intent(getActivity(), ComicDownloaderService.class);
-                downloadIntent.putExtra(ComicChapter.class.getName(), gson.toJson(comicChapter));
-                getActivity().startService(downloadIntent);
+                sendDownloadChapter(view, comicChapter);
             }
         } else if (comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOAD_FAILED
                 || comicChapter.getStatus() == ComicChapter.STATUS_NEW
                 || comicChapter.getStatus() == ComicChapter.STATUS_SELECTED) {
-            Intent downloadIntent = new Intent(getActivity(), ComicDownloaderService.class);
-            downloadIntent.putExtra(ComicChapter.class.getName(), gson.toJson(comicChapter));
-            getActivity().startService(downloadIntent);
+            sendDownloadChapter(view, comicChapter);
         }
+    }
+
+    private void sendDownloadChapter(View view, ComicChapter comicChapter) {
+        View root = getView();
+        if (root != null) {
+            if (comicChapter.getStatus() != ComicChapter.STATUS_DOWNLOADING) {
+                comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
+                try {
+                    dbAdapter.update(comicChapter);
+                } catch (Exception e) {
+                    SimpleAppLog.error("Could not update database",e);
+                }
+                AbsListView listView = (AbsListView) root.findViewById(R.id.listComic);
+                ((ComicChapterCursorAdapter) listView.getAdapter()).updateView(getActivity(), view, comicChapter);
+                Intent downloadIntent = new Intent(getActivity(), ComicDownloaderService.class);
+                downloadIntent.putExtra(ComicChapter.class.getName(), gson.toJson(comicChapter));
+                getActivity().startService(downloadIntent);
+            }
+        }
+
     }
 
     @Override
@@ -118,11 +137,7 @@ public class AllChapterComicFragment extends DetailComicFragment {
             @Override
             public void onUpdated(ComicChapter chapter) {
                 if (chapter.getBookId().equals(getComicBook().getBookId())) {
-                    try {
-                        reloadListView();
-                    } catch (Exception e) {
-                        SimpleAppLog.error("Could not reload list chapters",e);
-                    }
+                    setNeedUpdate(true);
                 }
             }
         });
@@ -132,6 +147,7 @@ public class AllChapterComicFragment extends DetailComicFragment {
         } catch (SQLException e) {
             SimpleAppLog.error("Could not open database",e);
         }
+        gson = new Gson();
     }
 
     @Override

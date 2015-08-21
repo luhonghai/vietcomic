@@ -2,6 +2,7 @@ package com.halosolutions.vietcomic.service;
 
 import com.halosolutions.vietcomic.comic.ComicChapterPage;
 import com.halosolutions.vietcomic.util.Hash;
+import com.halosolutions.vietcomic.util.SimpleAppLog;
 
 import org.apache.commons.io.FileUtils;
 
@@ -9,6 +10,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Created by luhonghai on 8/20/15.
@@ -24,11 +26,11 @@ public class ChapterDownloadManager {
         void onError(ComicChapterPage page, Throwable e);
     }
 
-    private static final int READ_TIMEOUT = 10 * 1000;
+    private static final int READ_TIMEOUT = 30 * 1000;
 
-    private static final int CONNECTION_TIMEOUT = 2 * 60 * 1000;
+    private static final int CONNECTION_TIMEOUT = 10 * 1000;
 
-    private static final int MAX_POOL_SIZE = 10;
+    private static final int MAX_POOL_SIZE = 5;
 
     private ExecutorService tpExecutor = Executors.newFixedThreadPool(MAX_POOL_SIZE);
 

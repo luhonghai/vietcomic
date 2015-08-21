@@ -31,7 +31,7 @@ public abstract class ComicService {
         void onChapterPageFound(ComicChapterPage page);
     }
 
-    protected static final int REQUEST_TIMEOUT = 30000;
+    protected static final int REQUEST_TIMEOUT = 10000;
 
     private static final String SOURCE_VECHAI = "vechai.info";
 
@@ -62,6 +62,9 @@ public abstract class ComicService {
         if (pages == null) return false;
         synchronized (joinLock) {
             try {
+                File pdf = new File(chapter.getFilePath());
+                if (pdf.exists())
+                    return true;
                 SimpleAppLog.debug("Try to sort by index");
                 Collections.sort(pages, new Comparator<ComicChapterPage>() {
                     @Override
@@ -74,13 +77,6 @@ public abstract class ComicService {
                 pdfDoc.setMargins(0, 0, 0, 0);
                 float documentWidth = pdfDoc.getPageSize().getWidth() - pdfDoc.leftMargin() - pdfDoc.rightMargin();
                 float documentHeight = pdfDoc.getPageSize().getHeight() - pdfDoc.topMargin() - pdfDoc.bottomMargin();
-                File pdf = new File(chapter.getFilePath());
-                if (pdf.exists()) {
-                    try {
-                        FileUtils.forceDelete(pdf);
-                    } catch (Exception e) {
-                    }
-                }
                 FileOutputStream fos = new FileOutputStream(pdf);
                 PdfWriter.getInstance(pdfDoc, fos);
                 boolean isComplete = true;
@@ -97,28 +93,22 @@ public abstract class ComicService {
                         }
                         SimpleAppLog.debug("Found image file path: " + page.getFilePath());
                         File tmpImg = new File(page.getFilePath());
-                        File outTmp = new File(tmpImg.getParentFile(), page.getBookId() + "-" + page.getChapterId() + "-" + page.getPageId() + "xxx");
                         if (!tmpImg.exists()) {
-                            SimpleAppLog.debug("Image file is not exists " + tmpImg);
-                            isComplete = false;
-                            break;
-                        } else {
-                            FileUtils.copyFile(tmpImg, outTmp);
+                            errorCount++;
+                            SimpleAppLog.error("Image file is not exists " + tmpImg);
+                            if (errorCount > 2) {
+                                isComplete = false;
+                                break;
+                            }
                         }
                         try {
-                            Image pdfImg = Image.getInstance(outTmp.getAbsolutePath());
+                            Image pdfImg = Image.getInstance(tmpImg.getAbsolutePath());
                             pdfImg.scaleToFit(documentWidth, documentHeight);
                             pdfImg.setAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
-                            SimpleAppLog.info("Add img to PDF doc. " + outTmp);
+                            SimpleAppLog.info("Add img to PDF doc. " + tmpImg);
                             pdfDoc.add(pdfImg);
                             if (i != pages.size() - 1) {
                                 pdfDoc.newPage();
-                            }
-                            if (outTmp.exists()) {
-                                try {
-                                    FileUtils.forceDelete(outTmp);
-                                } catch (Exception e) {
-                                }
                             }
                         } catch (Exception e) {
                             errorCount++;

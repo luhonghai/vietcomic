@@ -45,6 +45,10 @@ public class ComicChapterCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ComicChapter comicChapter = dbAdapter.toObject(cursor);
+        updateView(context, view, comicChapter);
+    }
+
+    public void updateView(Context context, View view, ComicChapter comicChapter) {
         view.setTag(comicChapter);
         EllipsizingTextView textName = (EllipsizingTextView) view.findViewById(R.id.txtName);
         textName.setText(comicChapter.getName());

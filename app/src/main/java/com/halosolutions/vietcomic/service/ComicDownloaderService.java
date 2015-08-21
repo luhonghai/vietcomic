@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -266,7 +265,7 @@ public class ComicDownloaderService extends Service {
         downloadManager = new ChapterDownloadManager(new ChapterDownloadManager.DownloadListener() {
             @Override
             public void onDownloadStart(ComicChapterPage page) {
-
+                SimpleAppLog.debug("Start download chaper page: " + page.getUrl());
             }
 
             @Override
@@ -326,16 +325,6 @@ public class ComicDownloaderService extends Service {
             try {
                 final ComicChapter comicChapter = gson.fromJson(bundle.getString(ComicChapter.class.getName()), ComicChapter.class);
                 if (comicChapter != null) {
-                    new AsyncTask<Void, Void, Void>() {
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            if (comicChapter.getStatus() != ComicChapter.STATUS_DOWNLOADING) {
-                                comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
-                                sendUpdateChapter(comicChapter);
-                            }
-                            return null;
-                        }
-                    }.execute();
                     Notification notification = new Notification(R.drawable.app_icon, getText(R.string.app_name),
                             System.currentTimeMillis());
                     Intent notificationIntent = new Intent(this, MainActivity.class);
