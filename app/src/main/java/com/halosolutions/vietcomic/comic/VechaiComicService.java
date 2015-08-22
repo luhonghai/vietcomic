@@ -42,7 +42,7 @@ public class VechaiComicService extends ComicService {
         SimpleAppLog.debug("Start fetch comic book chapter pages at " + chapter.getUrl());
         Document doc = Jsoup.connect(chapter.getUrl())
                 .userAgent(USER_AGENT)
-                .timeout(REQUEST_TIMEOUT)
+                .timeout(PAGE_REQUEST_TIMEOUT)
                 .get();
         removeElements(doc, "#advInPage");
         Elements images = doc.select(SELECTOR_BOOK_CHAPTER_PAGE_IMAGE);

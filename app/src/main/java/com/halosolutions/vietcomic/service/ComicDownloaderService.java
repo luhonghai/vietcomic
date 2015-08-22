@@ -8,10 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.Nullable;
 
 import com.cmg.android.cmgpdf.AsyncTask;
@@ -36,6 +33,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created by cmg on 20/08/15.
@@ -51,12 +51,12 @@ public class ComicDownloaderService extends Service {
         public static final int RECHECK = 3;
     }
 
+    private static final int POOL_SIZE = 3;
+
     private static final int ONGOING_NOTIFICATION_ID = 17031989;
 
     private static final int CHECK_DOWNLOADING_TIME = 2 * 60 * 1000;
 
-    private Looper mServiceLooper;
-    private ServiceHandler mServiceHandler;
     private Gson gson;
     private ComicBookDBAdapter bookDBAdapter;
     private ComicChapterDBAdapter chapterDBAdapter;
@@ -65,49 +65,46 @@ public class ComicDownloaderService extends Service {
     private BroadcastHelper broadcastHelper;
     private boolean isForeGround;
 
-    private Map<String, Integer> whatMessages = new WeakHashMap<String, Integer>();
+    private final Map<String, Future> downloadQueue = new WeakHashMap<String, Future>();
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(POOL_SIZE);
 
     private int currentDownloading = 0;
 
-    private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
-            super(looper);
-        }
-        @Override
-        public void handleMessage(Message msg) {
-            SimpleAppLog.debug("Handle message download");
-            Bundle bundle = msg.getData();
-            ComicChapter comicChapter = null;
-            try {
-                comicChapter = gson.fromJson(bundle.getString(ComicChapter.class.getName()), ComicChapter.class);
-                if (comicChapter == null) {
-                    SimpleAppLog.error("No chapter found for download");
-                    return;
-                }
-                comicChapter = chapterDBAdapter.getByChapterId(comicChapter.getChapterId());
-                if (comicChapter.getStatus() != ComicChapter.STATUS_DOWNLOADING) {
-                    comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
-                    sendUpdateChapter(comicChapter);
-                    SimpleAppLog.debug("Start download chapter: " + comicChapter.getName() + ". URL: " + comicChapter.getUrl());
-                    downloadChapterPage(comicChapter, true);
-                } else {
-                    SimpleAppLog.debug("Chapter is download. Skip by default");
-                }
-            } catch (Exception e) {
-                SimpleAppLog.error("Could not download chapter: "
-                                + (comicChapter == null ? "null" : (comicChapter.getName() + " " + comicChapter.getUrl())),
-                        e);
-                if (comicChapter != null) {
-                    comicChapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-                    sendUpdateChapter(comicChapter);
-                }
-            } finally {
-                if (comicChapter != null) {
-                    if (whatMessages.containsKey(comicChapter.getChapterId()))
-                        whatMessages.remove(comicChapter.getChapterId());
+    private void submitDownloadChapter(final String chapterId) {
+        Future future = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                ComicChapter comicChapter = chapterDBAdapter.getByChapterId(chapterId);
+                try {
+                    if (comicChapter.getStatus() != ComicChapter.STATUS_DOWNLOADING) {
+                        comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
+                        sendUpdateChapter(comicChapter);
+                        SimpleAppLog.debug("Start download chapter: " + comicChapter.getName() + ". URL: " + comicChapter.getUrl());
+                        downloadChapterPage(comicChapter, true);
+                    } else {
+                        SimpleAppLog.debug("Chapter is download. Skip by default");
+                    }
+                } catch (Exception e) {
+                    SimpleAppLog.error("Could not download chapter: "
+                                    + (comicChapter == null ? "null" : (comicChapter.getName() + " " + comicChapter.getUrl())),
+                            e);
+                    if (comicChapter != null) {
+                        comicChapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+                        sendUpdateChapter(comicChapter);
+                    }
+                } finally {
+                    if (comicChapter != null && downloadQueue.containsKey(comicChapter.getChapterId()))
+                        downloadQueue.remove(comicChapter.getChapterId());
                 }
             }
-            //stopSelf(msg.arg1);
+        });
+        synchronized (downloadQueue) {
+            if (!downloadQueue.containsKey(chapterId)) {
+                downloadQueue.put(chapterId, future);
+            } else {
+                future.cancel(true);
+            }
         }
     }
 
@@ -284,12 +281,7 @@ public class ComicDownloaderService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        HandlerThread thread = new HandlerThread("ServiceStartArguments",
-                android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        thread.start();
         broadcastHelper = new BroadcastHelper(getApplicationContext());
-        mServiceLooper = thread.getLooper();
-        mServiceHandler = new ServiceHandler(mServiceLooper);
 
         gson = new Gson();
 
@@ -365,6 +357,13 @@ public class ComicDownloaderService extends Service {
         chapterPageDBAdapter.close();
         broadcastHelper.unregister();
         downloadManager.destroy();
+        if (downloadQueue.size() > 0) {
+            for (Future future : downloadQueue.values()) {
+                try {
+                    future.cancel(true);
+                } catch (Exception e) {}
+            }
+        }
     }
 
     @Override
@@ -380,20 +379,20 @@ public class ComicDownloaderService extends Service {
             switch (action) {
                 case Action.DOWNLOAD:
                     try {
-                        Message msg = mServiceHandler.obtainMessage();
-                        msg.arg1 = startId;
-                        msg.setData(bundle);
-                        mServiceHandler.sendMessage(msg);
-                        Cursor cursorChapters = chapterDBAdapter.listByStatus(new Integer[] {
-                                ComicChapter.STATUS_INIT_DOWNLOADING,
-                                ComicChapter.STATUS_DOWNLOADING,
-                                ComicChapter.STATUS_DOWNLOAD_JOINING
-                        });
-                        int downloadCount = cursorChapters.getCount();
-                        cursorChapters.close();
-                        showForegroundNotification("Đang tải " + downloadCount + " tập truyện",
-                                "Vui lòng chờ trong giây lát", downloadCount);
-
+                        if (!downloadQueue.containsKey(comicChapter.getChapterId())) {
+                            submitDownloadChapter(comicChapter.getChapterId());
+                            Cursor cursorChapters = chapterDBAdapter.listByStatus(new Integer[]{
+                                    ComicChapter.STATUS_INIT_DOWNLOADING,
+                                    ComicChapter.STATUS_DOWNLOADING,
+                                    ComicChapter.STATUS_DOWNLOAD_JOINING
+                            });
+                            int downloadCount = cursorChapters.getCount();
+                            cursorChapters.close();
+                            showForegroundNotification("Đang tải " + downloadCount + " tập truyện",
+                                    "Vui lòng chờ trong giây lát", downloadCount);
+                        } else {
+                            SimpleAppLog.debug("Chapter " + comicChapter.getUrl() +" is download. Skip by default");
+                        }
                     } catch (Exception e) {
                         SimpleAppLog.error("Could not start download",e);
                     }
@@ -431,9 +430,9 @@ public class ComicDownloaderService extends Service {
             }
             handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
             handlerCheckDownloading.post(runnableCheckDownloading);
-            if (whatMessages.containsKey(chapter.getChapterId())) {
-                mServiceHandler.removeMessages(whatMessages.get(chapter.getChapterId()));
-                whatMessages.remove(chapter.getChapterId());
+            if (downloadQueue.containsKey(chapter.getChapterId())) {
+                downloadQueue.get(chapter.getChapterId()).cancel(true);
+                downloadQueue.remove(chapter.getChapterId());
             }
         } catch (Exception e) {
             SimpleAppLog.error("Could not stop download chapter " + chapter.getUrl(),e);

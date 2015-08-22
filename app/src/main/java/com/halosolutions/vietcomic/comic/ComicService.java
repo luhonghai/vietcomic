@@ -33,7 +33,9 @@ public abstract class ComicService {
         void onChapterPageFound(ComicChapterPage page);
     }
 
-    protected static final int REQUEST_TIMEOUT = 10000;
+    protected static final int PAGE_REQUEST_TIMEOUT = 2 * 60 * 1000;
+
+    protected static final int REQUEST_TIMEOUT = 10 * 1000;
 
     private static final String SOURCE_VECHAI = "vechai.info";
 
