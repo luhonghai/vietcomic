@@ -93,8 +93,7 @@ public class ChapterDownloadManager {
                     downloadingChapters.put(page.getPageId(),
                             future);
                 } else {
-                    downloadingChapters.get(page.getPageId()).cancel(true);
-                    downloadingChapters.remove(page.getPageId());
+                    future.cancel(true);
                 }
             }
         } else {

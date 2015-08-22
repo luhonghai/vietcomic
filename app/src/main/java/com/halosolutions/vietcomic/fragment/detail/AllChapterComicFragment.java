@@ -120,11 +120,10 @@ public class AllChapterComicFragment extends DetailComicFragment {
                 comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
                 try {
                     dbAdapter.update(comicChapter);
+                    reloadListView();
                 } catch (Exception e) {
                     SimpleAppLog.error("Could not update database",e);
                 }
-                AbsListView listView = (AbsListView) root.findViewById(R.id.listComic);
-                ((ComicChapterCursorAdapter) listView.getAdapter()).updateView(getActivity(), view, comicChapter);
                 Intent downloadIntent = new Intent(getActivity(), ComicDownloaderService.class);
                 downloadIntent.putExtra(ComicChapter.class.getName(), gson.toJson(comicChapter));
                 downloadIntent.putExtra(ComicDownloaderService.Action.class.getName(),
