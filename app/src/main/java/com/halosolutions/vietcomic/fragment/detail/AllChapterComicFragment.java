@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
@@ -30,6 +29,7 @@ import com.rey.material.widget.ProgressView;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * Created by cmg on 19/08/15.
@@ -88,6 +88,13 @@ public class AllChapterComicFragment extends DetailComicFragment {
                         try {
                             dbAdapter.update(comicChapter);
                             broadcastHelper.sendComicChaptersUpdate(comicChapter);
+                            ComicBook comicBook = comicBookDBAdapter.getComicByBookId(comicChapter.getBookId());
+                            if (comicBook != null) {
+                                comicBook.setIsWatched(true);
+                                comicBook.setTimestamp(new Date(System.currentTimeMillis()));
+                                comicBookDBAdapter.update(comicBook);
+                                broadcastHelper.sendComicUpdate(comicBook);
+                            }
                         } catch (Exception e) {
                             SimpleAppLog.error("Could not update chapter status",e);
                         }
@@ -108,7 +115,8 @@ public class AllChapterComicFragment extends DetailComicFragment {
     private void sendDownloadChapter(View view, ComicChapter comicChapter) {
         View root = getView();
         if (root != null) {
-            if (comicChapter.getStatus() != ComicChapter.STATUS_DOWNLOADING) {
+            if (comicChapter.getStatus() != ComicChapter.STATUS_DOWNLOADING
+                    && comicChapter.getStatus() != ComicChapter.STATUS_INIT_DOWNLOADING) {
                 comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
                 try {
                     dbAdapter.update(comicChapter);

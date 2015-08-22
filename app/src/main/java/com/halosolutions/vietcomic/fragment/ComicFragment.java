@@ -28,7 +28,7 @@ import java.sql.SQLException;
 
 public abstract class ComicFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-	private static final int REFRESH_UI_TIME = 300;
+	private static final int REFRESH_UI_TIME = 400;
 
 	protected ComicBookDBAdapter comicBookDBAdapter;
 
@@ -36,10 +36,12 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 
 	private Handler handlerUIUpdate = new Handler();
 
+	private boolean isRunning;
+
 	private Runnable runnableUIUpdate = new Runnable() {
 		@Override
 		public void run() {
-			if (needUpdate) {
+			if (needUpdate && isRunning) {
 				needUpdate = false;
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
@@ -153,5 +155,17 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 			comicBookDBAdapter.close();
 		}
 		broadcastHelper.unregister();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		isRunning = true;
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		isRunning = false;
 	}
 }

@@ -40,7 +40,10 @@ public class VechaiComicService extends ComicService {
     public void fetchChapterPage(ComicChapter chapter, FetchChapterPageListener listener) throws Exception {
         long start =System.currentTimeMillis();
         SimpleAppLog.debug("Start fetch comic book chapter pages at " + chapter.getUrl());
-        Document doc = Jsoup.connect(chapter.getUrl()).timeout(REQUEST_TIMEOUT).get();
+        Document doc = Jsoup.connect(chapter.getUrl())
+                .userAgent(USER_AGENT)
+                .timeout(REQUEST_TIMEOUT)
+                .get();
         removeElements(doc, "#advInPage");
         Elements images = doc.select(SELECTOR_BOOK_CHAPTER_PAGE_IMAGE);
         if (images != null) {
@@ -77,7 +80,10 @@ public class VechaiComicService extends ComicService {
     public void fetchChapter(final ComicBook comicBook, FetchChapterListener listener) throws Exception {
         long start =System.currentTimeMillis();
         SimpleAppLog.info("Start fetch comic book chapter at " + comicBook.getUrl());
-        Document doc = Jsoup.connect(comicBook.getUrl()).timeout(REQUEST_TIMEOUT).get();
+        Document doc = Jsoup
+                .connect(comicBook.getUrl())
+                .userAgent(USER_AGENT)
+                .timeout(REQUEST_TIMEOUT).get();
         removeElements(doc, SELECTOR_BOOK_TITLE);
         //comicBook.setDescription(getText(doc, SELECTOR_BOOK_INFO_TEXT, 0, ""));
         if (listener != null)

@@ -8,6 +8,7 @@ import com.halosolutions.vietcomic.util.DateHelper;
 import com.halosolutions.vietcomic.util.StringHelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,6 +52,8 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     private String strCategories;
 
+    private Date timestamp;
+
     @Override
     public String toPrettyString(Context context) {
         return name;
@@ -78,6 +81,8 @@ public class ComicBook extends AbstractData<ComicBook> {
         cv.put(KEY_WATCHED, isWatched() ? 1 : 0);
         if (getCreatedDate() != null)
             cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
+        if (getTimestamp() != null)
+            cv.put(KEY_TIMESTAMP, DateHelper.convertDateToString(getTimestamp()));
         cv.put(KEY_CATEGORIES, getStrCategories());
         return cv;
     }
@@ -253,5 +258,13 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     public void setIsWatched(boolean isWatched) {
         this.isWatched = isWatched;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 }
