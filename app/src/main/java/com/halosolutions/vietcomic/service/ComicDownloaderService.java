@@ -32,6 +32,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -66,6 +67,8 @@ public class ComicDownloaderService extends Service {
 
     private Map<String, Integer> whatMessages = new WeakHashMap<String, Integer>();
 
+    private int currentDownloading = 0;
+
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
             super(looper);
@@ -86,8 +89,7 @@ public class ComicDownloaderService extends Service {
                     comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
                     sendUpdateChapter(comicChapter);
                     SimpleAppLog.debug("Start download chapter: " + comicChapter.getName() + ". URL: " + comicChapter.getUrl());
-                    fetchChapterPage(comicChapter);
-                    downloadChapterPage(comicChapter);
+                    downloadChapterPage(comicChapter, true);
                 } else {
                     SimpleAppLog.debug("Chapter is download. Skip by default");
                 }
@@ -159,7 +161,7 @@ public class ComicDownloaderService extends Service {
         }
     }
 
-    private void downloadChapterPage(final ComicChapter chapter) throws Exception {
+    private void downloadChapterPage(final ComicChapter chapter, boolean willFetch) throws Exception {
         List<ComicChapterPage> pages = chapterPageDBAdapter.listByComicChapter(chapter.getChapterId());
         if (pages != null && pages.size() > 0) {
             for (ComicChapterPage page : pages) {
@@ -170,9 +172,14 @@ public class ComicDownloaderService extends Service {
             //sendUpdateChapter(chapter);
             verifyDownloadedPages(chapter);
         } else {
-            SimpleAppLog.error("No chapter page found from database");
-            chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-            sendUpdateChapter(chapter);
+            if (willFetch) {
+                fetchChapterPage(chapter);
+                downloadChapterPage(chapter, false);
+            } else {
+                SimpleAppLog.error("No chapter page found from database");
+                chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+                sendUpdateChapter(chapter);
+            }
         }
     }
 
@@ -197,6 +204,7 @@ public class ComicDownloaderService extends Service {
 
     private void verifyDownloadedPages(ComicChapter chapter) {
         try {
+            boolean willCheck = false;
             List<ComicChapterPage> pages = chapterPageDBAdapter.listByComicChapter(chapter.getChapterId());
             if (pages != null && pages.size() > 0) {
                 int completedCount = 0;
@@ -225,8 +233,10 @@ public class ComicDownloaderService extends Service {
                         ComicBook comicBook = bookDBAdapter.getComicByBookId(chapter.getBookId());
                         if (comicBook != null) {
                             comicBook.setIsDownloaded(true);
+                            comicBook.setTimestamp(new Date(System.currentTimeMillis()));
                             bookDBAdapter.update(comicBook);
                             broadcastHelper.sendComicUpdate(comicBook);
+                            willCheck = true;
                         }
 
                         for (ComicChapterPage page : pages) {
@@ -244,6 +254,7 @@ public class ComicDownloaderService extends Service {
                         chapter.setFilePath(null);
                         chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
                         sendUpdateChapter(chapter);
+                        willCheck = true;
                     }
                 } else {
                     sendUpdateChapter(chapter);
@@ -252,6 +263,11 @@ public class ComicDownloaderService extends Service {
                 SimpleAppLog.error("No pending download pages found!");
                 chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
                 sendUpdateChapter(chapter);
+                willCheck = true;
+            }
+            if (willCheck) {
+                handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
+                handlerCheckDownloading.post(runnableCheckDownloading);
             }
         } catch (Exception e) {
             SimpleAppLog.error("Could not verify comic chapter: "+ chapter.getName() + ". URL: " + chapter.getUrl(), e);
@@ -311,8 +327,6 @@ public class ComicDownloaderService extends Service {
                 } else {
                     SimpleAppLog.error("Could not found chapter with page URL: " + page.getUrl());
                 }
-                handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
-                handlerCheckDownloading.post(runnableCheckDownloading);
             }
 
             @Override
@@ -324,9 +338,10 @@ public class ComicDownloaderService extends Service {
                     if (chapter.getStatus() == ComicChapter.STATUS_DOWNLOADING) {
                         SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
                                 ". Chapter URL: " + chapter.getUrl()
-                                +". Page URL: " + page.getUrl());
+                                + ". Page URL: " + page.getUrl());
                         chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
                         sendUpdateChapter(chapter);
+                        stopDownloadChapter(chapter);
                     } else {
                         SimpleAppLog.debug("Status: " + chapter.getStatus() +". Skip by default. "
                                 +". Chapter URL: " + chapter.getUrl()
@@ -335,8 +350,7 @@ public class ComicDownloaderService extends Service {
                 } else {
                     SimpleAppLog.error("Could not found chapter with Page URL: " + page.getUrl());
                 }
-                handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
-                handlerCheckDownloading.post(runnableCheckDownloading);
+
             }
         });
     }
@@ -378,7 +392,7 @@ public class ComicDownloaderService extends Service {
                         int downloadCount = cursorChapters.getCount();
                         cursorChapters.close();
                         showForegroundNotification("Đang tải " + downloadCount + " tập truyện",
-                                "Vui lòng chờ trong giây lát");
+                                "Vui lòng chờ trong giây lát", downloadCount);
 
                     } catch (Exception e) {
                         SimpleAppLog.error("Could not start download",e);
@@ -428,7 +442,6 @@ public class ComicDownloaderService extends Service {
 
     private Handler handlerCheckDownloading = new Handler();
 
-
     private Runnable runnableCheckDownloading = new Runnable() {
         @Override
         public void run() {
@@ -453,7 +466,9 @@ public class ComicDownloaderService extends Service {
                 cursorChapterPages.moveToFirst();
                 isChapterPageDownloading = cursorChapterPages.getCount() > 0;
                 stopService = !(isChapterDownloading || isChapterPageDownloading);
-//                if (downloadManager.getDownloadingCount() == 0 && isChapterPageDownloading) {
+//                if (downloadManager.getDownloadingCount() == 0
+//                        && isChapterPageDownloading
+//                        && isChapterDownloading) {
 //                    SimpleAppLog.error("Look like not all page is submit to download thread");
 //                    while (!cursorChapterPages.isAfterLast()) {
 //                        downloadChapterPage(chapterPageDBAdapter.toObject(cursorChapterPages), true);
@@ -473,13 +488,13 @@ public class ComicDownloaderService extends Service {
                 isForeGround = false;
             } else {
                 showForegroundNotification("Đang tải " + downloadCount + " tập truyện",
-                        "Vui lòng chờ trong giây lát");
+                        "Vui lòng chờ trong giây lát", downloadCount);
                 handlerCheckDownloading.postDelayed(runnableCheckDownloading, CHECK_DOWNLOADING_TIME);
             }
         }
     };
 
-    private void showForegroundNotification(String title, String description) {
+    private void showForegroundNotification(String title, String description, int downloadingNumber) {
         SimpleAppLog.debug("Send foreground notification: " + title + ". Description: " + description);
         Notification notification = new Notification(R.drawable.app_icon, getText(R.string.app_name),
                 System.currentTimeMillis());
@@ -488,9 +503,11 @@ public class ComicDownloaderService extends Service {
         notification.setLatestEventInfo(ComicDownloaderService.this, title,
                 description, pendingIntent);
         if (!isForeGround) {
+            currentDownloading = downloadingNumber;
             isForeGround = true;
             startForeground(ONGOING_NOTIFICATION_ID, notification);
-        } else {
+        } else if (downloadingNumber != currentDownloading) {
+            currentDownloading = downloadingNumber;
             final NotificationManager notificationManager = (NotificationManager) getApplicationContext()
                     .getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
             notificationManager.notify(ONGOING_NOTIFICATION_ID, notification);

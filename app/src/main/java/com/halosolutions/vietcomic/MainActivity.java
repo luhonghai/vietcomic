@@ -29,9 +29,11 @@ import com.google.gson.Gson;
 import com.halosolutions.vietcomic.adapter.ComicBookCursorAdapter;
 import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.fragment.AllComicFragment;
+import com.halosolutions.vietcomic.fragment.DownloadedComicFragment;
 import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
 import com.halosolutions.vietcomic.fragment.HotComicFragment;
 import com.halosolutions.vietcomic.fragment.NewComicFragment;
+import com.halosolutions.vietcomic.fragment.WatchedComicFragment;
 import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.rey.material.app.ToolbarManager;
@@ -67,7 +69,7 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 
 	private ComicBookCursorAdapter adapter;
 
-	private Tab[] mItems = new Tab[]{Tab.HOT,Tab.NEW,Tab.FAVORITE, Tab.ALL };
+	private Tab[] mItems = new Tab[]{Tab.HOT,Tab.NEW,Tab.FAVORITE, Tab.DOWNLOADED, Tab.WATCHED, Tab.ALL };
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -284,7 +286,10 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 	    HOT("Truyện HOT"),
 		NEW("Truyện mới"),
         ALL("Toàn bộ"),
-        FAVORITE("Yêu thích");
+        FAVORITE("Yêu thích"),
+		DOWNLOADED("Đã tải"),
+		WATCHED("Đã xem");
+
 	    private final String name;       
 
 	    private Tab(String s) {
@@ -406,6 +411,10 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
                             setFragment(Tab.FAVORITE, fragment);
 						else if(fragment instanceof NewComicFragment)
 							setFragment(Tab.NEW, fragment);
+						else if(fragment instanceof WatchedComicFragment)
+							setFragment(Tab.WATCHED, fragment);
+						else if(fragment instanceof DownloadedComicFragment)
+							setFragment(Tab.DOWNLOADED, fragment);
     				}
     			}
     		}
@@ -435,6 +444,12 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
                         break;
 					case NEW:
 						mFragments[position] = new NewComicFragment();
+						break;
+					case WATCHED:
+						mFragments[position] = new WatchedComicFragment();
+						break;
+					case DOWNLOADED:
+						mFragments[position] = new DownloadedComicFragment();
 						break;
 				}
 			}

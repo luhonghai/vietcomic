@@ -59,6 +59,7 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 ComicBook.KEY_DOWNLOADED,
                 ComicBook.KEY_WATCHED,
                 ComicBook.KEY_CATEGORIES,
+                ComicBook.KEY_TIMESTAMP,
                 ComicBook.KEY_CREATED_DATE,
         };
     }
@@ -84,6 +85,7 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
         comicBook.setIsDownloaded(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_DOWNLOADED)) == 1);
         comicBook.setIsWatched(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_WATCHED)) == 1);
         comicBook.setCreatedDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_CREATED_DATE))));
+        comicBook.setTimestamp(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_TIMESTAMP))));
         comicBook.setStrCategories(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_CATEGORIES)));
         return comicBook;
     }
@@ -166,6 +168,24 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 ComicBook.KEY_NAME + " ASC");
     }
 
+    public Cursor cursorDownloaded() throws Exception {
+        return getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_DOWNLOADED + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                null,
+                null,
+                null,
+                ComicBook.KEY_TIMESTAMP + " DESC");
+    }
+
+    public Cursor cursorWatched() throws Exception {
+        return getDB().query(getTableName(), getAllColumns(),
+                ComicBook.KEY_WATCHED + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                null,
+                null,
+                null,
+                ComicBook.KEY_TIMESTAMP + " DESC");
+    }
+
     public ComicBook getComicByBookId(String bookId) throws Exception {
         Cursor cursor = getDB().query(getTableName(), getAllColumns(),
                 ComicBook.KEY_BOOK_ID+ " = ? and " + ComicBook.KEY_DELETED + " = 0",
@@ -227,6 +247,7 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 obj.setIsDownloaded(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_DOWNLOADED)) == 1);
                 obj.setIsWatched(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_WATCHED)) == 1);
                 obj.setCreatedDate(new Date(System.currentTimeMillis()));
+                obj.setTimestamp(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_TIMESTAMP))));
                 update(obj);
                 return oldId;
             }

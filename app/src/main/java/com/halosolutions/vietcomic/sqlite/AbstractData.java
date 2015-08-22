@@ -80,6 +80,8 @@ public abstract class AbstractData<T> {
 
     public static final String KEY_COMPLETED_COUNT = "completed_count";
 
+    public static final String KEY_TIMESTAMP = "c_timestamp";
+
     private long id;
 
     private Date createdDate;

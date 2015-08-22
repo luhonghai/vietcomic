@@ -22,6 +22,8 @@ import java.util.List;
  */
 public abstract class ComicService {
 
+    protected static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36";
+
     public interface FetchChapterListener {
         void onChapterFound(ComicChapter chapter);
         void onDescriptionFound(String description);

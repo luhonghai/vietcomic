@@ -45,6 +45,7 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
                     + AbstractData.KEY_FAVORITE + " integer, "
                     + AbstractData.KEY_DOWNLOADED + " integer, "
                     + AbstractData.KEY_WATCHED + " integer, "
+                    + AbstractData.KEY_TIMESTAMP + " date,"
                     + AbstractData.KEY_CREATED_DATE + " date not null"
                     + ");",
             "create table " + AbstractData.TABLE_COMIC_CHAPTER
