@@ -33,6 +33,12 @@ public abstract class ComicService {
         void onChapterPageFound(ComicChapterPage page);
     }
 
+    public interface FetchHotAndNewListener {
+        void onHotComicFound(String bookId);
+
+        void onNewComicFound(String bookId);
+    }
+
     protected static final int PAGE_REQUEST_TIMEOUT = 2 * 60 * 1000;
 
     protected static final int REQUEST_TIMEOUT = 10 * 1000;
@@ -61,6 +67,8 @@ public abstract class ComicService {
     public abstract void fetchChapterPage(final ComicChapter chapter, FetchChapterPageListener listener) throws Exception;
 
     public abstract void fetchChapter(final ComicBook comicBook, FetchChapterListener listener) throws Exception;
+
+    public abstract void fetchHotAndNewComic(FetchHotAndNewListener listener) throws Exception;
 
     public static boolean joinComicBook(final ComicChapter chapter, final List<ComicChapterPage> pages) {
         if (pages == null) return false;

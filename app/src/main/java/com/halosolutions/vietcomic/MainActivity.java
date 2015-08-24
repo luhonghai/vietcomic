@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,8 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.gson.Gson;
 import com.halosolutions.vietcomic.adapter.ComicBookCursorAdapter;
 import com.halosolutions.vietcomic.comic.ComicBook;
@@ -70,7 +73,9 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 	private ComicBookCursorAdapter adapter;
 
 	private Tab[] mItems = new Tab[]{Tab.HOT,Tab.NEW,Tab.FAVORITE, Tab.DOWNLOADED, Tab.WATCHED, Tab.ALL };
-	
+
+	private AdView mAdView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -141,6 +146,14 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
         ViewUtil.setBackground(mToolbar, new ThemeDrawable(R.array.bg_toolbar));
 		dbAdapter = new ComicBookDBAdapter(this);
 		setSupportActionBar(mToolbar);
+
+
+		mAdView = (AdView) findViewById(R.id.adView);
+		if (mAdView != null && BuildConfig.IS_FREE) {
+			mAdView.setVisibility(View.VISIBLE);
+			AdRequest adRequest = new AdRequest.Builder().build();
+			mAdView.loadAd(adRequest);
+		}
     }
 
 	@Override
@@ -179,11 +192,27 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		if (mAdView != null)
+			mAdView.resume();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (mAdView != null)
+			mAdView.pause();
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		if (dbAdapter != null) {
 			dbAdapter.close();
 		}
+		if (mAdView != null)
+			mAdView.destroy();
 	}
 
 	@Override

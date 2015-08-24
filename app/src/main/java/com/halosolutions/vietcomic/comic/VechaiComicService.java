@@ -162,4 +162,9 @@ public class VechaiComicService extends ComicService {
         long end = System.currentTimeMillis();
         SimpleAppLog.info("Fetch time: " + (end - start) + "ms");
     }
+
+    @Override
+    public void fetchHotAndNewComic(FetchHotAndNewListener listener) throws Exception {
+
+    }
 }

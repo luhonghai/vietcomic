@@ -22,7 +22,7 @@ public class AnalyticHelper {
             t.enableExceptionReporting(true);
             return t;
         } catch (Exception e) {
-            e.printStackTrace();
+            SimpleAppLog.error("Could not get google analytic tracker", e);
             return null;
         }
     }
