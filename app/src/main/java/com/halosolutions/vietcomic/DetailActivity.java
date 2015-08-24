@@ -21,6 +21,8 @@ import android.widget.TextView;
 import com.cmg.android.cmgpdf.AsyncTask;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.gson.Gson;
 import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.comic.ComicChapter;
@@ -77,6 +79,8 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
     private BroadcastHelper broadcastHelper;
 
     private DisplayImageOptions displayImageOptions;
+
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +171,13 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
             updateBook.putExtra(ComicBook.class.getName(), gson.toJson(selectedBook));
             startService(updateBook);
         }
+
+        mAdView = (AdView) findViewById(R.id.adView);
+        if (mAdView != null && BuildConfig.IS_FREE) {
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
     }
 
     private void loadComicInfo() {
@@ -215,7 +226,15 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
     @Override
     protected void onResume() {
         super.onResume();
+        if (mAdView != null)
+            mAdView.resume();
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mAdView != null)
+            mAdView.pause();
     }
 
     @Override
@@ -243,6 +262,8 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         }
         if (broadcastHelper != null)
             broadcastHelper.unregister();
+        if (mAdView != null)
+            mAdView.destroy();
     }
 
     @Override
