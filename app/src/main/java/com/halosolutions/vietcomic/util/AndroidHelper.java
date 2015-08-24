@@ -19,6 +19,8 @@ import java.util.Map;
  */
 public class AndroidHelper {
 
+    public static final String THUMBNAIL_DIR = "thumbnails";
+
     public static final String DOWNLOADED_BOOK_DIR = "comics";
 
     public static final String DOWNLOAD_TEMP_CACHE_DIR = "download_tmp_cache";
@@ -26,14 +28,28 @@ public class AndroidHelper {
     private static final String VIET_COMIC_DIR = "Vietcomic";
 
     public static File getApplicationDir(Context context) {
-        PackageManager m = context.getPackageManager();
-        String s = context.getPackageName();
-        try {
-            PackageInfo p = m.getPackageInfo(s, 0);
-            return new File(p.applicationInfo.dataDir);
-        } catch (PackageManager.NameNotFoundException e) {
-            return new File(Environment.getExternalStorageDirectory().getPath() + File.separator + VIET_COMIC_DIR);
+        Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
+        File dir;
+        if(isSDPresent)
+        {
+            dir = new File(context.getExternalFilesDir(null), VIET_COMIC_DIR);
         }
+        else
+        {
+            dir = new File(context.getFilesDir(), VIET_COMIC_DIR);
+        }
+        if (!dir.exists() || !dir.isDirectory()) {
+            dir.mkdirs();
+        }
+        return dir;
+//        PackageManager m = context.getPackageManager();
+//        String s = context.getPackageName();
+//        try {
+//            PackageInfo p = m.getPackageInfo(s, 0);
+//            return new File(p.applicationInfo.dataDir);
+//        } catch (PackageManager.NameNotFoundException e) {
+//            return new File(Environment.getExternalStorageDirectory().getPath() + File.separator + VIET_COMIC_DIR);
+//        }
     }
 
     public static File getFolder(Context context, String folderName) {
