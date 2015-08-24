@@ -107,4 +107,11 @@
         <item name="cet_spanSpacing">4dp</item>
     </style>
 
+    <style name="FloatingWaveColorActionButtonFeedback" parent="Material.Drawable.Ripple.Wave.Light">
+        <item name="rd_rippleColor">#33000000</item>
+        <item name="fab_backgroundColor">#FF2196F3</item>
+        <item name="fab_elevation">4dp</item>
+        <item name="rd_delayClick">afterRelease</item>
+        <item name="fab_iconSrc">@drawable/ic_application_x_send</item>
+    </style>
 </resources>

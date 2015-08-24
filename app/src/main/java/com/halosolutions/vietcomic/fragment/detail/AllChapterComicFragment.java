@@ -100,10 +100,11 @@ public class AllChapterComicFragment extends DetailComicFragment {
         final ComicChapter comicChapter = (ComicChapter) view.getTag();
         SimpleAppLog.debug("Chapter status: " + comicChapter.getStatus());
 
-        if (comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADED
-                || comicChapter.getStatus() == ComicChapter.STATUS_READED) {
-            File pdfComic = new File(comicChapter.getFilePath());
-            if (pdfComic.exists()) {
+        if ((comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADED
+                || comicChapter.getStatus() == ComicChapter.STATUS_READED)) {
+            File pdfComic;
+            if (comicChapter.getFilePath().length() > 0
+                    && (pdfComic = new File(comicChapter.getFilePath())).exists()) {
                 readComicChapter(comicChapter, pdfComic);
             } else {
                 SimpleAppLog.debug("File not is exists. Try to re-download");

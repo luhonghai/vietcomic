@@ -135,6 +135,7 @@ public class ComicChapter extends AbstractData<ComicChapter> {
     }
 
     public String getFilePath() {
+        if (filePath == null) return "";
         return filePath;
     }
 

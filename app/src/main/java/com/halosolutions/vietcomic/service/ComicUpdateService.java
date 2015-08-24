@@ -3,6 +3,7 @@ package com.halosolutions.vietcomic.service;
 import android.app.Service;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
@@ -42,43 +43,46 @@ public class ComicUpdateService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
             Gson gson = new Gson();
-            final ComicBook comicBook = gson.fromJson(intent.getStringExtra(ComicBook.class.getName()), ComicBook.class);
-            synchronized (updateQueue) {
-                if (comicBook != null && !updateQueue.containsKey(comicBook.getBookId())) {
-                    ComicChapterDBAdapter chapterDBAdapter = new ComicChapterDBAdapter(this);
-                    Cursor cursorChapters = null;
-                    try {
-                        chapterDBAdapter.open();
-                        cursorChapters = chapterDBAdapter.listByComic(comicBook);
-                        cursorChapters.moveToFirst();
-                        Date lastTimestamp = comicBook.getTimestamp();
-                        if (cursorChapters.getCount() == 0 || lastTimestamp == null ||
-                                (System.currentTimeMillis() - lastTimestamp.getTime() > REQUEST_DATA_TIMEOUT)) {
-                            SimpleAppLog.info("Submit comic book update: " + comicBook.getUrl() + ". Name: " + comicBook.getName());
-                            updateQueue.put(comicBook.getBookId(),
-                                    executorService.submit(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try {
-                                                doUpdateComicBook(comicBook.getBookId());
-                                            } catch (Exception e) {
-                                                SimpleAppLog.error("Could not update comic book", e);
-                                            } finally {
-                                                updateQueue.remove(comicBook.getBookId());
+            Bundle bundle = intent.getExtras();
+            if (bundle != null && bundle.containsKey(ComicBook.class.getName())) {
+                final ComicBook comicBook = gson.fromJson(bundle.getString(ComicBook.class.getName()), ComicBook.class);
+                synchronized (updateQueue) {
+                    if (comicBook != null && !updateQueue.containsKey(comicBook.getBookId())) {
+                        ComicChapterDBAdapter chapterDBAdapter = new ComicChapterDBAdapter(this);
+                        Cursor cursorChapters = null;
+                        try {
+                            chapterDBAdapter.open();
+                            cursorChapters = chapterDBAdapter.listByComic(comicBook);
+                            cursorChapters.moveToFirst();
+                            Date lastTimestamp = comicBook.getTimestamp();
+                            if (cursorChapters.getCount() == 0 || lastTimestamp == null ||
+                                    (System.currentTimeMillis() - lastTimestamp.getTime() > REQUEST_DATA_TIMEOUT)) {
+                                SimpleAppLog.info("Submit comic book update: " + comicBook.getUrl() + ". Name: " + comicBook.getName());
+                                updateQueue.put(comicBook.getBookId(),
+                                        executorService.submit(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    doUpdateComicBook(comicBook.getBookId());
+                                                } catch (Exception e) {
+                                                    SimpleAppLog.error("Could not update comic book", e);
+                                                } finally {
+                                                    updateQueue.remove(comicBook.getBookId());
+                                                }
                                             }
-                                        }
-                                    }));
-                        } else {
-                            SimpleAppLog.info("Skip upload book info. " + comicBook.getUrl());
+                                        }));
+                            } else {
+                                SimpleAppLog.info("Skip upload book info. " + comicBook.getUrl());
+                            }
+                        } catch (Exception e) {
+                            SimpleAppLog.error("Could not check update book", e);
+                        } finally {
+                            if (cursorChapters != null)
+                                cursorChapters.close();
+                            chapterDBAdapter.close();
                         }
-                    } catch (Exception e) {
-                        SimpleAppLog.error("Could not check update book",e);
-                    } finally {
-                        if (cursorChapters != null)
-                            cursorChapters.close();
-                        chapterDBAdapter.close();
-                    }
 
+                    }
                 }
             }
         } catch (Exception e) {

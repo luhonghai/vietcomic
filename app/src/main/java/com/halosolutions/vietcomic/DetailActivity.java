@@ -208,9 +208,9 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                     , new HtmlTextView.RemoteImageGetter());
             if (selectedBook.getDescription() != null && selectedBook.getDescription().length() > 0) {
                 HtmlTextView txtDescription = ((HtmlTextView) findViewById(R.id.txtComicDescription));
-                if (txtDescription.getText().toString().length() == 0) {
-                    YoYo.with(Techniques.Tada).delay(300).duration(1500).playOn(findViewById(R.id.imgExpandView));
-                }
+//                if (txtDescription.getText().toString().length() == 0) {
+//                    YoYo.with(Techniques.Tada).delay(300).duration(1500).playOn(findViewById(R.id.imgExpandView));
+//                }
                 txtDescription.setHtmlFromString(selectedBook.getDescription()
                                 , new HtmlTextView.RemoteImageGetter());
 
@@ -238,6 +238,18 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbAdapter != null) {
+            dbAdapter.close();
+        }
+        if (broadcastHelper != null)
+            broadcastHelper.unregister();
+        if (mAdView != null)
+            mAdView.destroy();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         mToolbarManager.createMenu(R.menu.menu_detail);
         updateFavoriteMenuItem(mToolbar.getMenu().findItem(R.id.action_favorite));
@@ -252,18 +264,6 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                 favorite.setIcon(getResources().getDrawable(R.drawable.app_icon_menu_love_white));
             }
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (dbAdapter != null) {
-            dbAdapter.close();
-        }
-        if (broadcastHelper != null)
-            broadcastHelper.unregister();
-        if (mAdView != null)
-            mAdView.destroy();
     }
 
     @Override
@@ -291,6 +291,14 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                     }.execute();
                 }
                 updateFavoriteMenuItem(item);
+                break;
+            case R.id.menu_feedback:
+                Intent intent = new Intent(this, FeedbackActivity.class);
+                if (selectedBook != null) {
+                    Gson gson = new Gson();
+                    intent.putExtra(ComicBook.class.getName(), gson.toJson(selectedBook));
+                }
+                startActivity(intent);
                 break;
             default:
                 break;

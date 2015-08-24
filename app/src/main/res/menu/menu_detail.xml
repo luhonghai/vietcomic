@@ -4,6 +4,11 @@
     <group
         android:id="@+id/tb_group_main">
         <item
+            android:id="@+id/menu_feedback"
+            app:showAsAction="always"
+            android:icon="@drawable/ic_application_x_send"
+            android:title="Phản hồi"/>
+        <item
             android:id="@+id/action_favorite"
             android:icon="@drawable/app_icon_menu_love_red"
             app:showAsAction="always"
