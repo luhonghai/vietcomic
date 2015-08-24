@@ -47,8 +47,6 @@ public class ComicDownloaderService extends Service {
         public static final int DOWNLOAD = 1;
 
         public static final int STOP = 2;
-
-        public static final int RECHECK = 3;
     }
 
     private static final int INIT_POOL_SIZE = 5;
@@ -401,8 +399,6 @@ public class ComicDownloaderService extends Service {
                             return null;
                         }
                     }.execute();
-                    break;
-                case Action.RECHECK:
                     break;
             }
 

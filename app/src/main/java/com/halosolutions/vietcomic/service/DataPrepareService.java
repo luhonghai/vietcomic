@@ -1,6 +1,7 @@
 package com.halosolutions.vietcomic.service;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.halosolutions.vietcomic.comic.ComicBook;
 import com.halosolutions.vietcomic.comic.ComicVersion;
@@ -28,19 +29,11 @@ public class DataPrepareService {
         try {
             comicBookDBAdapter.open();
             ComicVersion comicVersion = ComicVersion.getComicVersion(context);
-            ComicVersion latestVersion = ComicVersion.fetchComicVersion(context);
-            List<ComicBook> books = null;
             if (comicBookDBAdapter.count() == 0) {
-                books = ComicVersion.getBookData(context, comicVersion);
-            } else if (latestVersion != null
-                        && comicVersion != null
-                        && latestVersion.getVersion() > comicVersion.getVersion()) {
-                books = ComicVersion.getBookData(context, latestVersion);
-                ComicVersion.saveComicVersion(context, latestVersion);
-                ComicVersion.deleteBookData(context, comicVersion);
-            }
-            if (books != null && books.size() > 0) {
-                comicBookDBAdapter.bulkInsert(books, true);
+                List<ComicBook> books = ComicVersion.getBookData(context, comicVersion);
+                if (books != null && books.size() > 0) {
+                    comicBookDBAdapter.bulkInsert(books, true);
+                }
             }
         } catch (Exception e) {
             SimpleAppLog.error("Could not prepare comic books", e);

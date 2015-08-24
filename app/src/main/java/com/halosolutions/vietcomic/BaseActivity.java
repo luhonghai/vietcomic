@@ -10,7 +10,6 @@ import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.File;
 
@@ -23,10 +22,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!ImageLoader.getInstance().isInited()) {
-            File cacheDir = new File(AndroidHelper.getApplicationDir(this), "thumbnails");
-            if (!cacheDir.exists() || !cacheDir.isDirectory()) {
-                cacheDir.mkdirs();
-            }
+            File cacheDir = AndroidHelper.getFolder(this,AndroidHelper.THUMBNAIL_DIR);
             ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                     .threadPoolSize(5)
                     .threadPriority(Thread.NORM_PRIORITY - 1)
