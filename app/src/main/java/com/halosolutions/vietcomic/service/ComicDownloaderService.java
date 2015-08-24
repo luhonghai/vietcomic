@@ -80,6 +80,7 @@ public class ComicDownloaderService extends Service {
                         ComicChapter comicChapter = chapterDBAdapter.getByChapterId(chapterId);
                         try {
                             comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
+                            comicChapter.setCompletedCount(0);
                             sendUpdateChapter(comicChapter);
                             SimpleAppLog.debug("Start download chapter: " + comicChapter.getName() + ". URL: " + comicChapter.getUrl());
                             downloadChapterPage(comicChapter, true);
@@ -152,7 +153,7 @@ public class ComicDownloaderService extends Service {
         List<ComicChapterPage> pages = chapterPageDBAdapter.listByComicChapter(chapter.getChapterId());
         if (pages != null && pages.size() > 0) {
             for (ComicChapterPage page : pages) {
-                downloadChapterPage(page, false);
+                downloadChapterPage(page, true);
             }
             chapter.setImageCount(pages.size());
             chapter.setStatus(ComicChapter.STATUS_DOWNLOADING);
@@ -161,7 +162,7 @@ public class ComicDownloaderService extends Service {
         } else {
             if (willFetch) {
                 fetchChapterPage(chapter);
-                downloadChapterPage(chapter, false);
+                downloadChapterPage(chapter, true);
             } else {
                 SimpleAppLog.error("No chapter page found from database");
                 chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
@@ -205,7 +206,7 @@ public class ComicDownloaderService extends Service {
                 }
                 SimpleAppLog.debug("Completed task " + completedCount + "/" + pages.size());
                 chapter.setCompletedCount(completedCount);
-                if ( (completedCount == pages.size() || ((completedCount + failedCount) == pages.size() && failedCount <= 2))
+                if ( (completedCount == pages.size() || ((completedCount + failedCount) == pages.size() && failedCount < 2))
                         && chapter.getStatus() != ComicChapter.STATUS_DOWNLOAD_JOINING) {
                     chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_JOINING);
                     sendUpdateChapter(chapter);
@@ -321,18 +322,12 @@ public class ComicDownloaderService extends Service {
                 updateChapterPage(page);
                 ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
                 if (chapter != null) {
-                    if (chapter.getStatus() == ComicChapter.STATUS_DOWNLOADING) {
-                        SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
-                                ". Chapter URL: " + chapter.getUrl()
-                                + ". Page URL: " + page.getUrl());
-                        chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-                        sendUpdateChapter(chapter);
-                        stopDownloadChapter(chapter);
-                    } else {
-                        SimpleAppLog.debug("Status: " + chapter.getStatus() +". Skip by default. "
-                                +". Chapter URL: " + chapter.getUrl()
-                                +". Page URL: " + page.getUrl());
-                    }
+                    SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
+                            ". Chapter URL: " + chapter.getUrl()
+                            + ". Page URL: " + page.getUrl());
+                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+                    sendUpdateChapter(chapter);
+                    stopDownloadChapter(chapter);
                 } else {
                     SimpleAppLog.error("Could not found chapter with Page URL: " + page.getUrl());
                 }

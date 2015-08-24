@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.os.Process;
 
 
+import com.halosolutions.vietcomic.FeedbackActivity;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -25,7 +27,9 @@ import java.io.StringWriter;
  * @Last changed: $LastChangedDate$
  */
 public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
+
     private final Context context;
+
     public final static String STACK_TRACE = "bug";
 
     /**
@@ -47,11 +51,11 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
         StringWriter stackTrace = new StringWriter();
         ex.printStackTrace(new PrintWriter(stackTrace));
         SimpleAppLog.error("Error: " + stackTrace.toString());
-//        Intent forceClose = new Intent(context, FeedbackActivity.class);
-//        forceClose.putExtra(STACK_TRACE, stackTrace.toString());
-//        context.startActivity(forceClose);
-//        Process.killProcess(Process.myPid());
-//        System.exit(10);
+        Intent forceClose = new Intent(context, FeedbackActivity.class);
+        forceClose.putExtra(STACK_TRACE, stackTrace.toString());
+        context.startActivity(forceClose);
+        Process.killProcess(Process.myPid());
+        System.exit(10);
     }
 
 }

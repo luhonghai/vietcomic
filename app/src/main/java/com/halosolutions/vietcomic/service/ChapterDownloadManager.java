@@ -52,22 +52,27 @@ public class ChapterDownloadManager {
                 @Override
                 public void run() {
                     File tmp = null;
+                    File dest = new File(page.getFilePath());
                     try {
-                        tmp = new File(FileUtils.getTempDirectory(), Hash.md5(page.getFilePath()) + ".tmp");
-                        if (listener != null)
-                            listener.onDownloadStart(page);
-                        FileUtils.copyURLToFile(new URL(page.getUrl())
-                                , tmp, CONNECTION_TIMEOUT, READ_TIMEOUT);
-                        if (tmp.exists()) {
-                            File dest = new File(page.getFilePath());
-                            if (dest.exists()) {
-                                try {
-                                    FileUtils.forceDelete(dest);
-                                } catch (Exception e) {
+                        if (!dest.exists()) {
+                            tmp = new File(FileUtils.getTempDirectory(), Hash.md5(page.getFilePath()) + ".tmp");
+                            if (listener != null)
+                                listener.onDownloadStart(page);
+                            FileUtils.copyURLToFile(new URL(page.getUrl())
+                                    , tmp, CONNECTION_TIMEOUT, READ_TIMEOUT);
+                            if (tmp.exists()) {
+                                if (dest.exists()) {
+                                    try {
+                                        FileUtils.forceDelete(dest);
+                                    } catch (Exception e) {
 
+                                    }
                                 }
+                                FileUtils.moveFile(tmp, dest);
+                                if (listener != null)
+                                    listener.onDownloadCompleted(page);
                             }
-                            FileUtils.moveFile(tmp, dest);
+                        } else {
                             if (listener != null)
                                 listener.onDownloadCompleted(page);
                         }
