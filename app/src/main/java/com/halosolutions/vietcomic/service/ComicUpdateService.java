@@ -75,6 +75,7 @@ public class ComicUpdateService extends IntentService {
                                 chapter.setFilePath(oldChapter.getFilePath());
                                 chapter.setImageCount(oldChapter.getImageCount());
                                 chapter.setCompletedCount(oldChapter.getCompletedCount());
+                                chapter.setTimestamp(oldChapter.getTimestamp());
                                 comicChapterDBAdapter.update(chapter);
                             } else {
                                 comicChapterDBAdapter.insert(chapter);
