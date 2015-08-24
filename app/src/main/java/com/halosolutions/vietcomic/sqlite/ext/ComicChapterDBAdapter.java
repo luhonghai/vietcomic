@@ -9,7 +9,10 @@ import com.halosolutions.vietcomic.sqlite.AbstractData;
 import com.halosolutions.vietcomic.sqlite.DBAdapter;
 import com.halosolutions.vietcomic.util.DateHelper;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by cmg on 19/08/15.
@@ -44,6 +47,7 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
                 AbstractData.KEY_INDEX,
                 AbstractData.KEY_IMAGE_COUNT,
                 AbstractData.KEY_COMPLETED_COUNT,
+                AbstractData.KEY_TIMESTAMP,
                 AbstractData.KEY_CREATED_DATE
         };
     }
@@ -62,6 +66,7 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
         chapter.setImageCount(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_IMAGE_COUNT)));
         chapter.setCompletedCount(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_COMPLETED_COUNT)));
         chapter.setPublishDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_PUBLISH_DATE))));
+        chapter.setTimestamp(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_TIMESTAMP))));
         chapter.setCreatedDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_CREATED_DATE))));
         return chapter;
     }
@@ -95,15 +100,29 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
         );
     }
 
-    public Cursor listByStatus(Integer[] status) {
-        String selection = "";
-        String[] params = new String[status.length];
-        for (int i = 0; i < status.length; i++) {
+    public Cursor listByStatus(Integer[] status, Set<String> chapterIds, String limit) {
+        String selection = "(";
+        int statusLength = status.length;
+        String[] params = new String[statusLength + ((chapterIds != null) ? chapterIds.size() : 0)];
+        for (int i = 0; i < statusLength; i++) {
             params[i] = Integer.toString(status[i]);
             selection += (AbstractData.KEY_STATUS + " = ?");
-            if (i != status.length - 1) {
+            if (i != statusLength - 1) {
                 selection += " or ";
             }
+        }
+        selection += ")";
+        if (chapterIds != null && chapterIds.size() > 0) {
+            selection += " and " + AbstractData.KEY_CHAPTER_ID + " not in (";
+            int count = 0;
+            for (String chapterId : chapterIds) {
+                params[statusLength + count++] = chapterId;
+                selection += "?";
+                if (count != params.length - 1) {
+                    selection += ",";
+                }
+            }
+            selection += ")";
         }
 
         return getDB().query(getTableName(),
@@ -112,9 +131,13 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
                 params,
                 null,
                 null,
-                AbstractData.KEY_STATUS + " ASC",
-                null
+                AbstractData.KEY_STATUS + " ASC, " + AbstractData.KEY_TIMESTAMP + " ASC",
+                limit
         );
+    }
+
+    public Cursor listByStatus(Integer[] status) {
+        return listByStatus(status,null, null);
     }
 
     public ComicChapter getByChapterId(String chapterId) {

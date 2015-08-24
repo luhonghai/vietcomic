@@ -41,6 +41,8 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     private Date publishDate;
 
+    private Date timestamp;
+
     private int index;
 
     private int imageCount;
@@ -103,6 +105,8 @@ public class ComicChapter extends AbstractData<ComicChapter> {
             cv.put(KEY_PUBLISH_DATE, DateHelper.convertDateToString(getPublishDate()));
         if (getCreatedDate() != null)
             cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
+        if (getTimestamp() != null)
+            cv.put(KEY_TIMESTAMP, DateHelper.convertDateToString(getTimestamp()));
         return cv;
     }
 
@@ -168,5 +172,13 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     public void setCompletedCount(int completedCount) {
         this.completedCount = completedCount;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 }
