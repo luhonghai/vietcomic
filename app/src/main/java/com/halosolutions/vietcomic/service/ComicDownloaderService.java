@@ -318,6 +318,7 @@ public class ComicDownloaderService extends Service {
 
             @Override
             public void onError(ComicChapterPage page, Throwable e) {
+                SimpleAppLog.error("Could not download comic chapter page: " + page.getUrl(),e);
                 page.setStatus(ComicChapterPage.STATUS_DOWNLOAD_FAILED);
                 updateChapterPage(page);
                 ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
@@ -390,7 +391,9 @@ public class ComicDownloaderService extends Service {
                         @Override
                         protected Void doInBackground(Void... params) {
                             final ComicChapter comicChapter = gson.fromJson(bundle.getString(ComicChapter.class.getName()), ComicChapter.class);
+                            comicChapter.setStatus(ComicChapter.STATUS_SELECTED);
                             stopDownloadChapter(comicChapter);
+                            sendUpdateChapter(comicChapter);
                             return null;
                         }
                     }.execute();
@@ -403,8 +406,8 @@ public class ComicDownloaderService extends Service {
 
     private void stopDownloadChapter(ComicChapter chapter) {
         try {
-            chapter.setStatus(ComicChapter.STATUS_READED);
-            chapterDBAdapter.update(chapter);
+            //chapter.setStatus(ComicChapter.STATUS_WATCHED);
+            //chapterDBAdapter.update(chapter);
             List<ComicChapterPage> pages = chapterPageDBAdapter.listByComicChapter(chapter.getChapterId());
             if (pages != null && pages.size() > 0) {
                 for (ComicChapterPage page : pages) {
