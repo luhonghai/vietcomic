@@ -8,7 +8,6 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.halosolutions.vietcomic.util.AnalyticHelper;
 import com.halosolutions.vietcomic.util.AndroidHelper;
-import com.halosolutions.vietcomic.util.ExceptionHandler;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;

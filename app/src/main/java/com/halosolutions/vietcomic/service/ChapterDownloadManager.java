@@ -69,14 +69,10 @@ public class ChapterDownloadManager {
                                                 }
                                             }
                                             FileUtils.moveFile(tmp, dest);
-                                            if (listener != null)
-                                                listener.onDownloadCompleted(page);
                                         }
-                                    } else {
-                                        if (listener != null)
-                                            listener.onDownloadCompleted(page);
                                     }
                                 } catch (Exception e) {
+                                    e.printStackTrace();
                                     if (listener != null)
                                         listener.onError(page, e);
                                 } finally {
@@ -91,8 +87,14 @@ public class ChapterDownloadManager {
                                         downloadingChapters.remove(page.getPageId());
                                     }
                                 }
+                                if (dest.exists()) {
+                                    if (listener != null)
+                                        listener.onDownloadCompleted(page);
+                                }
                             }
                         }));
+            } else {
+                SimpleAppLog.error("This chapter page is downloading. " + page.getUrl());
             }
         }
     }

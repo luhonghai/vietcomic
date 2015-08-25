@@ -40,16 +40,8 @@ public class AndroidHelper {
     private static final String VIET_COMIC_DIR = "Vietcomic";
 
     public static File getApplicationDir(Context context) {
-        Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
-        File dir;
-        if(isSDPresent)
-        {
-            dir = new File(context.getExternalFilesDir(null), VIET_COMIC_DIR);
-        }
-        else
-        {
-            dir = new File(context.getFilesDir(), VIET_COMIC_DIR);
-        }
+        //Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
+        File dir = new File(context.getFilesDir(), VIET_COMIC_DIR);
         if (!dir.exists() || !dir.isDirectory()) {
             dir.mkdirs();
         }

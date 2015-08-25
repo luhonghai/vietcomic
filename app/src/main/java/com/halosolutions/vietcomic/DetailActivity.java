@@ -175,7 +175,9 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         mAdView = (AdView) findViewById(R.id.adView);
         if (mAdView != null && BuildConfig.IS_FREE) {
             mAdView.setVisibility(View.VISIBLE);
-            AdRequest adRequest = new AdRequest.Builder().build();
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice("7898660F3293A11BB56ED538658F9B0F")
+                    .build();
             mAdView.loadAd(adRequest);
         }
     }
