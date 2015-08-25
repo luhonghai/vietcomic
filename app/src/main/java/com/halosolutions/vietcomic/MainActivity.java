@@ -185,7 +185,9 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 					searchView.findViewById(R.id.search_src_text);
 
 			if (autoCompleteTextView != null) {
-				autoCompleteTextView.setDropDownBackgroundResource(R.color.colorPrimary);
+				try {
+					autoCompleteTextView.setDropDownBackgroundResource(R.color.colorPrimary);
+				} catch (Exception e) {}
 			}
 		} else {
 			SimpleAppLog.error("No search view");

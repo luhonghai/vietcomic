@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.widget.CursorAdapter;
 
 import com.halosolutions.vietcomic.comic.ComicBook;
+import com.halosolutions.vietcomic.comic.ComicService;
 import com.halosolutions.vietcomic.sqlite.AbstractData;
 import com.halosolutions.vietcomic.sqlite.DBAdapter;
 import com.halosolutions.vietcomic.util.DateHelper;
@@ -164,7 +165,7 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
     public Cursor cursorByAuthor(String author) throws Exception {
         return getDB().query(getTableName(), getAllColumns(),
                 ComicBook.KEY_AUTHOR + " = ? and " + ComicBook.KEY_DELETED + " = 0",
-                new String[] {
+                new String[]{
                         author
                 },
                 null,
@@ -280,7 +281,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
             }
             for (ComicBook book : comicBooks) {
                 //SimpleAppLog.debug("Insert new comic book: " + book.getName() + ". URL: " + book.getUrl());
-                insert(book);
+                if (!book.getService().equalsIgnoreCase(ComicService.SEVICE_VIETCOMIC_V2))
+                    insert(book);
             }
             if (useTransaction) {
                 getDB().setTransactionSuccessful();

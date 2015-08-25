@@ -32,8 +32,8 @@ android {
     defaultConfig {
         minSdkVersion 12
         targetSdkVersion 22
-        versionCode 10000
-        versionName "1.0.000"
+        versionCode 10001
+        versionName "1.0.001"
         archivesBaseName = "viet-comic"
     }
     productFlavors {
