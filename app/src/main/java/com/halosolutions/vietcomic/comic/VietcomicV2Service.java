@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class VietcomicV2Service extends ComicService {
         File tmpFile = null;
         try {
             tmpFile = new File(FileUtils.getTempDirectory(), Hash.md5(chapter.getUrl()));
+            FileUtils.copyURLToFile(new URL(chapter.getUrl()), tmpFile);
             if (tmpFile.exists()) {
                 List<String> lines = FileUtils.readLines(tmpFile, "UTF-8");
                 for (String line : lines) {
