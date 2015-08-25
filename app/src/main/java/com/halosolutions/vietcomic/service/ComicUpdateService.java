@@ -82,7 +82,10 @@ public class ComicUpdateService extends Service {
                                 cursorChapters.close();
                             chapterDBAdapter.close();
                         }
-
+                        // Start check for download
+                        Intent comicDownloadIntent = new Intent(this, ComicDownloaderService.class);
+                        comicDownloadIntent.putExtra(ComicDownloaderService.Action.class.getName(), ComicDownloaderService.Action.DOWNLOAD);
+                        startService(comicDownloadIntent);
                     }
                 }
             }
@@ -116,6 +119,14 @@ public class ComicUpdateService extends Service {
                         try {
                             count.count++;
                             ComicChapter oldChapter = comicChapterDBAdapter.getByChapterId(chapter.getChapterId());
+                            if (comicBook.isFavorite()) {
+                                if (oldChapter != null) {
+                                    chapter.setStatus(oldChapter.getStatus());
+                                }
+                                if (chapter.getStatus() == ComicChapter.STATUS_NEW) {
+                                    chapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
+                                }
+                            }
                             if (oldChapter != null) {
                                 chapter.setId(oldChapter.getId());
                                 chapter.setStatus(oldChapter.getStatus());
