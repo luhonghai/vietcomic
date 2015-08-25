@@ -37,6 +37,7 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
                     + AbstractData.KEY_THUMBNAIL + " text, "
                     + AbstractData.KEY_URL + " text, "
                     + AbstractData.KEY_SOURCE + " text, "
+                    + AbstractData.KEY_SERVICE + " text, "
                     + AbstractData.KEY_CATEGORIES + " text, "
                     + AbstractData.KEY_RATE + " integer, "
                     + AbstractData.KEY_DELETED + " integer, "

@@ -47,6 +47,14 @@ public class ComicBook {
         this.source = source;
     }
 
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
+    }
+
     public static class Chapter {
         private int index;
         private String url;
@@ -99,6 +107,7 @@ public class ComicBook {
     private List<Chapter> chapters;
 
     private String source;
+    private String service;
     private boolean isDeleted;
     private boolean isNew;
     private boolean isHot;
@@ -112,6 +121,7 @@ public class ComicBook {
     }
 
     public String getName() {
+        if (name == null) return "";
         return name;
     }
 

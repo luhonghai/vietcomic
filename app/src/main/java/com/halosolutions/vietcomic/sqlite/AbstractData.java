@@ -82,6 +82,8 @@ public abstract class AbstractData<T> {
 
     public static final String KEY_TIMESTAMP = "c_timestamp";
 
+    public static final String KEY_SERVICE = "service";
+
     private long id;
 
     private Date createdDate;

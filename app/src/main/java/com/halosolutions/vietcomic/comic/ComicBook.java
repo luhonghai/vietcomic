@@ -26,6 +26,8 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     private String source;
 
+    private String service;
+
     private String url;
 
     private String thumbnail;
@@ -54,6 +56,14 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     private Date timestamp;
 
+    public ComicBook() {
+
+    }
+
+    public ComicBook(String source) {
+        this.source = source;
+    }
+
     @Override
     public String toPrettyString(Context context) {
         return name;
@@ -79,6 +89,7 @@ public class ComicBook extends AbstractData<ComicBook> {
         cv.put(KEY_FAVORITE, isFavorite() ? 1 : 0);
         cv.put(KEY_DOWNLOADED, isDownloaded() ? 1 : 0);
         cv.put(KEY_WATCHED, isWatched() ? 1 : 0);
+        cv.put(KEY_SERVICE, getService());
         if (getCreatedDate() != null)
             cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
         if (getTimestamp() != null)
@@ -266,5 +277,14 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getService() {
+        if (service == null || service.length() == 0) return getSource();
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
 }

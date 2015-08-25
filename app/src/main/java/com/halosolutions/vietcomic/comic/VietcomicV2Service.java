@@ -6,72 +6,73 @@ import com.halosolutions.vietcomic.util.Hash;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.halosolutions.vietcomic.util.StringHelper;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
  * Created by cmg on 18/08/15.
  */
-public class VechaiComicService extends ComicService {
+public class VietcomicV2Service extends ComicService {
 
-    private static final String VECHAI_ROOT_URL = "http://vechai.info/";
 
-    private static final String SELECTOR_BOOK_CHAPTER_PAGE_IMAGE = "#contentChapter img";
-
-    private static final String SELECTOR_BOOK_TITLE = ".BoxContent .IntroText .TitleH2";
-
-    private static final String SELECTOR_BOOK_INFO_TEXT = ".BoxContent .IntroText";
-
-    private SimpleDateFormat sdfPublishDate = new SimpleDateFormat("dd/MM/yyyy");
-
-    protected VechaiComicService(Context context) {
+    protected VietcomicV2Service(Context context) {
         super(context);
     }
 
     @Override
     public String getRootUrl() {
-        return VECHAI_ROOT_URL;
+        return "http://v2.vietcomic.net/";
     }
 
     @Override
     public void fetchChapterPage(ComicChapter chapter, FetchChapterPageListener listener) throws Exception {
         long start =System.currentTimeMillis();
         SimpleAppLog.debug("Start fetch comic book chapter pages at " + chapter.getUrl());
-        Document doc = Jsoup.connect(chapter.getUrl())
-                .userAgent(USER_AGENT)
-                .timeout(PAGE_REQUEST_TIMEOUT)
-                .get();
-        removeElements(doc, "#advInPage");
-        Elements images = doc.select(SELECTOR_BOOK_CHAPTER_PAGE_IMAGE);
-        if (images != null) {
-            SimpleAppLog.debug("Found images");
-            try {
-                int count = 0;
-                for (int i = 0; i < images.size(); i++) {
-                    Element img = images.get(i);
-                    String url = fixUrl(img.attr("src"));
-                    if (!url.contains("http://adx.kul.vn")) {
-                        ComicChapterPage page = new ComicChapterPage();
-                        page.setBookId(chapter.getBookId());
-                        page.setChapterId(chapter.getChapterId());
-                        page.setPageId(Hash.md5(url));
-                        page.setUrl(url);
-                        page.setIndex(count);
-                        if (listener != null)
-                            listener.onChapterPageFound(page);
-                        count ++;
+        File tmpFile = null;
+        try {
+            tmpFile = new File(FileUtils.getTempDirectory(), Hash.md5(chapter.getUrl()));
+            if (tmpFile.exists()) {
+                List<String> lines = FileUtils.readLines(tmpFile, "UTF-8");
+                for (String line : lines) {
+                    line = line.trim();
+                    if (line.startsWith("data =")) {
+                        SimpleAppLog.debug("Found data line: " + line);
+                        String raw = line.substring("data =".length() + 1, line.length()).trim();
+                        raw = raw.substring(1, raw.length() - 1);
+                        SimpleAppLog.debug("Trim data line to: "+ raw);
+                        String[] images = raw.split("\\|");
+                        if (images.length > 0) {
+                            for (int i = 0; i < images.length; i++) {
+                                String url = fixUrl(images[i]);
+                                ComicChapterPage page = new ComicChapterPage();
+                                page.setBookId(chapter.getBookId());
+                                page.setChapterId(chapter.getChapterId());
+                                page.setPageId(Hash.md5(url));
+                                page.setUrl(url);
+                                page.setIndex(i);
+                                if (listener != null)
+                                    listener.onChapterPageFound(page);
+                            }
+                        }
+                        break;
                     }
                 }
-            } finally {
-
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (tmpFile != null && tmpFile.exists()) {
+                try {
+                    FileUtils.forceDelete(tmpFile);
+                } catch (Exception e) {}
             }
         }
         long end = System.currentTimeMillis();
@@ -86,17 +87,16 @@ public class VechaiComicService extends ComicService {
                 .connect(comicBook.getUrl())
                 .userAgent(USER_AGENT)
                 .timeout(REQUEST_TIMEOUT).get();
-        removeElements(doc, SELECTOR_BOOK_TITLE);
-        //comicBook.setDescription(getText(doc, SELECTOR_BOOK_INFO_TEXT, 0, ""));
+        removeElements(doc, ".manga-info-content .noidung");
         if (listener != null)
-            listener.onDescriptionFound(getText(doc, SELECTOR_BOOK_INFO_TEXT, 0, ""));
+            listener.onDescriptionFound(getText(doc, ".manga-info-content", 0, ""));
         SimpleAppLog.info("Found description: " + comicBook.getDescription());
-        Elements elements = doc.select("#chapterList ul.accordion > li ul > li");
+        Elements elements = doc.select(".manga-info-chapter .chapter-list .row");
         List<String> keys = new ArrayList<String>();
         if (elements != null) {
             try {
                 int count = 0;
-                for (int i = 0; i < elements.size(); i++) {
+                for (int i = elements.size() - 1; i >= 0; i--) {
                     Element element = elements.get(i);
                     String url = fixUrl(getText(element, "a", 0, "href"));
                     String name = getText(element, "a", 0, "");
@@ -132,19 +132,11 @@ public class VechaiComicService extends ComicService {
                         name = name.substring(name.toLowerCase().lastIndexOf("chap"), name.length()).trim();
                     }
 
-                    String date = getText(element, "span.Date", 0, "");
-                    Date pDate = null;
-                    try {
-                        pDate = sdfPublishDate.parse(date);
-                    } catch (Exception e) {
-                        SimpleAppLog.error("Could not parse date: " + date,e);
-                    }
                     ComicChapter chapter = new ComicChapter();
                     chapter.setUrl(url);
                     chapter.setIndex(count);
                     chapter.setBookId(comicBook.getBookId());
                     chapter.setChapterId(Hash.md5(url));
-                    chapter.setPublishDate(pDate);
                     chapter.setName(name);
                     if (!keys.contains(chapter.getChapterId())) {
                         keys.add(chapter.getChapterId());
@@ -164,55 +156,33 @@ public class VechaiComicService extends ComicService {
 
     @Override
     public void fetchHotAndNewComic(FetchHotAndNewListener listener) throws Exception {
-        Document doc = Jsoup.connect("http://vechai.info")
+        Document doc = Jsoup.
+                connect("http://v2.vietcomic.net/danh_sach_truyen?type=hot&category=all&alpha=all&page=1&state=all&group=all")
                 .userAgent(USER_AGENT)
                 .timeout(REQUEST_TIMEOUT).get();
-        Elements elements = doc.select("#hotStory .NewList li");
-        if (elements != null && elements.size() > 0) {
-            for (int i = 0; i < elements.size() ; i++) {
-                Element element = elements.get(i);
-                Element firstA = element.select("a").get(0);
-                String href = firstA.attr("href");
-                if (!(href.startsWith("http") || href.startsWith("https"))) {
-                    href = "http://vechai.info/" + href;
-                }
-                String bookId = Hash.md5(href);
+        Elements comics = doc.select("div.truyen-list div.list-truyen-item-wrap");
+        if (comics != null && comics.size() > 0) {
+            for (int i = 0; i < comics.size(); i++) {
+                Element element = comics.get(i);
+                String url = fixUrl(element.select("a").get(0).attr("href"));
+                String bookId = Hash.md5(url);
                 listener.onHotComicFound(bookId);
             }
         }
 
-        doc = Jsoup.connect("http://vechai.info/truyen-danh-cho-ban.html").userAgent(USER_AGENT)
+        doc = Jsoup.
+                connect("http://v2.vietcomic.net/danh_sach_truyen?type=new&category=all&alpha=all&page=1&state=all&group=all")
+                .userAgent(USER_AGENT)
                 .timeout(REQUEST_TIMEOUT).get();
-        elements = doc.select("#mostStory ul.NewsList li");
-        if (elements != null && elements.size() > 0) {
-            for (int i = 0; i < elements.size() ; i++) {
-                Element element = elements.get(i);
-                Element firstA = element.select("a").get(0);
-                String href = firstA.attr("href");
-                if (!(href.startsWith("http") || href.startsWith("https"))) {
-                    href = "http://vechai.info/" + href;
-                }
-                String bookId = Hash.md5(href);
-                listener.onHotComicFound(bookId);
-            }
-        }
-
-        doc = Jsoup.connect("http://vechai.info").userAgent(USER_AGENT)
-                .timeout(REQUEST_TIMEOUT).get();
-        elements = doc.select("#mainStory ul.NewsList li");
-        if (elements != null && elements.size() > 0) {
-            for (int i = 0; i < elements.size() ; i++) {
-                Element element = elements.get(i);
-                Element firstA = element.select("a").get(0);
-                String href = firstA.attr("href");
-                if (!(href.startsWith("http") || href.startsWith("https"))) {
-                    href = "http://vechai.info/" + href;
-                }
-                String bookId = Hash.md5(href);
+        comics = doc.select("div.truyen-list div.list-truyen-item-wrap");
+        if (comics != null && comics.size() > 0) {
+            for (int i = 0; i < comics.size(); i++) {
+                Element element = comics.get(i);
+                String url = fixUrl(element.select("a").get(0).attr("href"));
+                String bookId = Hash.md5(url);
                 listener.onNewComicFound(bookId);
             }
         }
-
 
     }
 }

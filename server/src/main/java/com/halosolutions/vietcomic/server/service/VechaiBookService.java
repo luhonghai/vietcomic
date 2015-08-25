@@ -21,39 +21,34 @@ import java.util.Map;
 /**
  * Created by cmg on 12/08/15.
  */
-public class BookManager {
+public class VechaiBookService extends BookService {
 
-    private static List<String> BOOK_HOT;
+    @Override
+    protected String getKeyVersion() {
+        return "vechai_key_version";
+    }
 
-    private static List<String> BOOK_NEW;
+    @Override
+    protected String getKeyBookData() {
+        return "vechai_key_data";
+    }
 
-    private static Map<String, ComicBook> BOOK_DATA;
-
-    private static String BOOK_DATA_JSON;
-
-    private static final String KEY_BOOK_DATA = "book_data";
-
-    private static final String KEY_VERSION = "version";
-
-    public static int DATA_VERSION = -1;
-
-    private static final Object lock = new Object();
-
-    public static void load(boolean clearCache) {
+    @Override
+    public void load(boolean clearCache) {
         MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         int latestVersion = 0;
-        Key vKey = KeyFactory.createKey(KEY_VERSION, KEY_VERSION);
+        Key vKey = KeyFactory.createKey(getKeyVersion(), getKeyVersion());
         if (clearCache) {
             if (DATA_VERSION > 0) {
                 latestVersion = DATA_VERSION;
             } else {
-                if (syncCache.contains(KEY_VERSION)) {
-                    latestVersion = Integer.parseInt(syncCache.get(KEY_VERSION).toString());
+                if (syncCache.contains(getKeyVersion())) {
+                    latestVersion = Integer.parseInt(syncCache.get(getKeyVersion()).toString());
                 } else {
                     try {
                         Entity eVersion = datastore.get(vKey);
-                        latestVersion = Integer.parseInt(eVersion.getProperty(KEY_VERSION).toString());
+                        latestVersion = Integer.parseInt(eVersion.getProperty(getKeyVersion()).toString());
                     } catch (EntityNotFoundException e) {
                     }
                 }
@@ -106,29 +101,31 @@ public class BookManager {
         if (clearCache) {
             latestVersion++;
             DATA_VERSION = latestVersion;
-            syncCache.put(KEY_VERSION, latestVersion);
+            syncCache.put(getKeyVersion(), latestVersion);
             Entity eVersion = new Entity(vKey);
-            eVersion.setProperty(KEY_VERSION, latestVersion);
+            eVersion.setProperty(getKeyVersion(), latestVersion);
             datastore.put(eVersion);
             BOOK_DATA_JSON = null;
         }
 
     }
 
-    private static void loadHotAndNewComic() {
+    @Override
+    protected String getRootUrl() {
+        return "http://vechai.info/";
+    }
+
+    private void loadHotAndNewComic() {
         BOOK_HOT = new ArrayList<String>();
         BOOK_NEW = new ArrayList<String>();
         try {
-            Document doc = Jsoup.connect("http://vechai.info").get();
+            Document doc = Jsoup.connect("http://vechai.info").timeout(FETCH_TIMEOUT).get();
             Elements elements = doc.select("#hotStory .NewList li");
             if (elements != null && elements.size() > 0) {
                 for (int i = 0; i < elements.size() ; i++) {
                     Element element = elements.get(i);
                     Element firstA = element.select("a").get(0);
-                    String href = firstA.attr("href");
-                    if (!(href.startsWith("http") || href.startsWith("https"))) {
-                        href = "http://vechai.info/" + href;
-                    }
+                    String href = fixUrl(firstA.attr("href"));
                     String bookId = Hash.md5(href);
                     if (!BOOK_HOT.contains(bookId)) {
                         System.out.println("Found hot comic: " + href);
@@ -136,16 +133,13 @@ public class BookManager {
                     }
                 }
             }
-            doc = Jsoup.connect("http://vechai.info").get();
+            doc = Jsoup.connect("http://vechai.info").timeout(FETCH_TIMEOUT).get();
             elements = doc.select("#mainStory ul.NewsList li");
             if (elements != null && elements.size() > 0) {
                 for (int i = 0; i < elements.size() ; i++) {
                     Element element = elements.get(i);
                     Element firstA = element.select("a").get(0);
-                    String href = firstA.attr("href");
-                    if (!(href.startsWith("http") || href.startsWith("https"))) {
-                        href = "http://vechai.info/" + href;
-                    }
+                    String href = fixUrl(firstA.attr("href"));
                     String bookId = Hash.md5(href);
                     if (!BOOK_NEW.contains(bookId)) {
                         System.out.println("Found new comic: " + href);
@@ -158,21 +152,10 @@ public class BookManager {
         }
     }
 
-    public static String getBookDataJson() {
-        if (BOOK_DATA_JSON == null || BOOK_DATA_JSON.length() == 0) {
-            load(false);
-            if (BOOK_DATA != null && BOOK_DATA.size() > 0) {
-                Gson gson = new Gson();
-                BOOK_DATA_JSON = gson.toJson(BOOK_DATA.values());
-            }
-        }
-        return BOOK_DATA_JSON;
-    }
-
-    private static boolean getComic(final List<ComicBook> comicBooks, final String c, final int index) {
+    private boolean getComic(final List<ComicBook> comicBooks, final String c, final int index) {
         try {
             System.out.println("Char: " + c + ". Index: " + index);
-            Document doc = Jsoup.connect("http://vechai.info/danh-sach.tall.p" + index + ".json?fc=" + c).get();
+            Document doc = Jsoup.connect("http://vechai.info/danh-sach.tall.p" + index + ".json?fc=" + c).timeout(FETCH_TIMEOUT).get();
             boolean noComic = false;
             Elements eleText = doc.select("#comic-list li");
             System.out.println("Comic size: " + eleText.size());
@@ -186,10 +169,7 @@ public class BookManager {
                     Element ele = eleText.get(i);
                     Element firstA = ele.child(0);
                     if (firstA.tagName().equalsIgnoreCase("a")) {
-                        String href = firstA.attr("href");
-                        if (!(href.startsWith("http") || href.startsWith("https"))) {
-                            href = "http://vechai.info/" + href;
-                        }
+                        String href = fixUrl(firstA.attr("href"));
                         ComicBook comicBook = new ComicBook();
                         comicBook.setBookId(Hash.md5(href));
                         comicBook.setUrl(href);
@@ -209,11 +189,15 @@ public class BookManager {
         return false;
     }
 
-    private static boolean loadComicBookInfo(final ComicBook comicBook) {
+    private boolean loadComicBookInfo(final ComicBook comicBook) {
         try {
-            Document doc = Jsoup.connect(comicBook.getUrl()).get();
+            Document doc = Jsoup.connect(comicBook.getUrl()).timeout(FETCH_TIMEOUT).get();
             comicBook.setSource("vechai.info");
+            comicBook.setService("vechai.info");
             comicBook.setName(getText(doc, ".BoxContent .IntroText .TitleH2",0,""));
+            if (comicBook.getName().trim().length() == 0 || comicBook.getName().toLowerCase().contains("vechai.info")) {
+                return false;
+            }
             comicBook.setRate(Float.parseFloat(getText(doc, "#mainStory .VoteScore", 0, "")));
             comicBook.setOtherName(getText(doc, ".MoreInfo dl dd", 0, ""));
             String rawCategories =getText(doc, ".MoreInfo dl dd", 1, "");
@@ -242,26 +226,5 @@ public class BookManager {
             e.printStackTrace();
         }
         return false;
-    }
-
-    private static String getText(final Document doc, final String selector, final int index, final String attr) {
-        Elements eles = doc.select(selector);
-        if (eles.size() > index) {
-            if (attr != null && attr.length() > 0) {
-                return eles.get(index).attr(attr).trim();
-            } else {
-                return eles.get(index).text().trim();
-            }
-        }
-        return "";
-    }
-
-    private static void removeElements(final Document doc, String selector) {
-        Elements elements = doc.select(selector);
-        if (!elements.isEmpty()) {
-            for (Element ele : elements) {
-                ele.remove();
-            }
-        }
     }
 }

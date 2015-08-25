@@ -1,10 +1,12 @@
 package com.halosolutions.vietcomic.sqlite.ext;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.widget.CursorAdapter;
 
 import com.halosolutions.vietcomic.comic.ComicBook;
+import com.halosolutions.vietcomic.sqlite.AbstractData;
 import com.halosolutions.vietcomic.sqlite.DBAdapter;
 import com.halosolutions.vietcomic.util.DateHelper;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
@@ -61,6 +63,7 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 ComicBook.KEY_CATEGORIES,
                 ComicBook.KEY_TIMESTAMP,
                 ComicBook.KEY_CREATED_DATE,
+                ComicBook.KEY_SERVICE
         };
     }
 
@@ -78,6 +81,7 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
         comicBook.setThumbnail(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_THUMBNAIL)));
         comicBook.setUrl(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_URL)));
         comicBook.setSource(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_SOURCE)));
+        comicBook.setService(cursor.getString(cursor.getColumnIndex(ComicBook.KEY_SERVICE)));
         comicBook.setIsDeleted(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_DELETED)) == 1);
         comicBook.setIsNew(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_NEW)) == 1);
         comicBook.setIsHot(cursor.getInt(cursor.getColumnIndex(ComicBook.KEY_HOT)) == 1);
@@ -226,6 +230,18 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     public List<ComicBook> listByCategory(String category) throws Exception {
         return toCollection(cursorByCategory(category));
+    }
+
+    public void cleanHotComic() throws Exception {
+        ContentValues cv = new ContentValues();
+        cv.put(AbstractData.KEY_HOT, 0);
+        getDB().update(getTableName(), cv, AbstractData.KEY_HOT + " = 1", null);
+    }
+
+    public void cleanNewComic() throws Exception {
+        ContentValues cv = new ContentValues();
+        cv.put(AbstractData.KEY_NEW, 0);
+        getDB().update(getTableName(), cv, AbstractData.KEY_NEW + " = 1", null);
     }
 
     @Override

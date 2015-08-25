@@ -52,8 +52,12 @@ public class ComicChapterCursorAdapter extends CursorAdapter {
         view.setTag(comicChapter);
         EllipsizingTextView textName = (EllipsizingTextView) view.findViewById(R.id.txtName);
         textName.setText(comicChapter.getName());
-        if (comicChapter.getPublishDate() != null)
+        if (comicChapter.getPublishDate() != null) {
             ((TextView) view.findViewById(R.id.txtPublishDate)).setText(sdf.format(comicChapter.getPublishDate()));
+            view.findViewById(R.id.txtPublishDate).setVisibility(View.VISIBLE);
+        } else {
+            view.findViewById(R.id.txtPublishDate).setVisibility(View.GONE);
+        }
 
         NumberProgressBar progressBar = (NumberProgressBar) view.findViewById(R.id.progressDownload);
         if (progressBar != null) {

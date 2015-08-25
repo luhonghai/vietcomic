@@ -1,11 +1,3 @@
-/*
- * Copyright (c) 2013. CMG Ltd All rights reserved.
- *
- * This software is the confidential and proprietary information of CMG
- * ("Confidential Information"). You shall not disclose such Confidential
- * Information and shall use it only in accordance with the terms of the
- * license agreement you entered into with CMG.
- */
 
 package com.cmg.android.cmgpdf;
 
@@ -22,8 +14,10 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -44,9 +38,18 @@ import android.widget.TextView;
 
 import com.cmg.android.cmgpdf.view.TwoWayView;
 import com.cmg.android.cmgpdf.view.TwoWayView.Orientation;
+import com.google.gson.Gson;
+import com.halosolutions.vietcomic.BaseActivity;
 import com.halosolutions.vietcomic.R;
+import com.halosolutions.vietcomic.comic.ComicBook;
+import com.halosolutions.vietcomic.comic.ComicChapter;
+import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
+import com.halosolutions.vietcomic.util.SimpleAppLog;
+import com.rey.material.app.ThemeManager;
+import com.rey.material.drawable.NavigationDrawerDrawable;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 
 /**
  * DOCME
@@ -57,7 +60,7 @@ import java.io.InputStream;
  * @Last changed: $LastChangedDate$
  */
 
-public class PDFActivity extends Activity implements
+public class PDFActivity extends BaseActivity implements
         FilePicker.FilePickerSupport, SearchView.OnQueryTextListener {
 
     /* The core rendering instance */
@@ -133,6 +136,8 @@ public class PDFActivity extends Activity implements
 
     private boolean needRefreshPrevActivity = false;
     private boolean needRefreshDetailActivity = false;
+
+    private Toolbar toolbar;
 
     public void createAlertWaiter() {
         mAlertsActive = true;
@@ -490,6 +495,7 @@ public class PDFActivity extends Activity implements
         if (core == null)
             return;
         final Context mContext = this;
+        toolbar = (Toolbar) getLayoutInflater().inflate(R.layout.tool_bar, null);
         // Now create the UI.
         // First create the document view
         mDocView = new MuPDFReaderView(this) {
@@ -735,10 +741,45 @@ public class PDFActivity extends Activity implements
 
         // Stick the document view and the buttons overlay into a parent view
         RelativeLayout layout = new RelativeLayout(this);
+        layout.addView(toolbar);
         layout.addView(mDocView);
         layout.addView(mButtonsView);
         setContentView(layout);
+        if (toolbar != null) {
+            Bundle bundle = getIntent().getExtras();
+            if (bundle != null && bundle.containsKey(ComicChapter.class.getName())) {
+                Gson gson = new Gson();
+                ComicChapter chapter = gson.fromJson(bundle.getString(ComicChapter.class.getName()), ComicChapter.class);
+                if (chapter != null) {
+                    ComicBookDBAdapter dbAdapter = new ComicBookDBAdapter(this);
+                    String title = "";
+                    try {
+                        dbAdapter.open();
+                        ComicBook comicBook = dbAdapter.getComicByBookId(chapter.getBookId());
+                        if (comicBook != null)
+                            title = comicBook.getName();
+                    } catch (Exception e) {
+                        SimpleAppLog.error("Could not get comic book info", e);
+                    } finally {
+                        dbAdapter.close();
+                    }
+                    if (title != null && title.length() > 0) title += " - ";
+                    title += chapter.getName();
+
+                    ((TextView) findViewById(R.id.toolbar_title)).setText(title);
+                }
+            }
+
+            setSupportActionBar(toolbar);
+            final NavigationDrawerDrawable drawable =
+                    (new com.rey.material.drawable.NavigationDrawerDrawable.Builder(toolbar.getContext(),
+                            ThemeManager.getInstance().getCurrentStyle(R.array.navigation_drawer)))
+                            .build();
+            toolbar.setNavigationIcon(drawable);
+            drawable.switchIconState(NavigationDrawerDrawable.STATE_ARROW, false);
+        }
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -758,11 +799,11 @@ public class PDFActivity extends Activity implements
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public Object onRetainNonConfigurationInstance() {
-        MuPDFCore mycore = core;
-        core = null;
-        return mycore;
-    }
+//    public Object onRetainNonConfigurationInstance() {
+//        MuPDFCore mycore = core;
+//        core = null;
+//        return mycore;
+//    }
 
     private void reflowModeSet(boolean reflow) {
         mReflow = reflow;
@@ -877,40 +918,8 @@ public class PDFActivity extends Activity implements
                 // showKeyboard();
             }
 
-            // Animation anim = new TranslateAnimation(0, 0,
-            // -mTopBarSwitcher.getHeight(), 0);
-            // anim.setDuration(200);
-            // anim.setAnimationListener(new Animation.AnimationListener() {
-            // public void onAnimationStart(Animation animation) {
-            // mTopBarSwitcher.setVisibility(View.VISIBLE);
-            // }
-            //
-            // public void onAnimationRepeat(Animation animation) {
-            // }
-            //
-            // public void onAnimationEnd(Animation animation) {
-            // }
-            // });
-            // mTopBarSwitcher.startAnimation(anim);
             setCurrentlyViewedPreview();
 
-            // anim = new TranslateAnimation(0, 0, mPageSlider.getHeight(), 0);
-            // anim.setDuration(200);
-            // anim.setAnimationListener(new Animation.AnimationListener() {
-            // public void onAnimationStart(Animation animation) {
-            // mPageSlider.setVisibility(View.VISIBLE);
-            // }
-            //
-            // public void onAnimationRepeat(Animation animation) {
-            // }
-            //
-            // public void onAnimationEnd(Animation animation) {
-            // mPageNumberView.setVisibility(View.VISIBLE);
-            // }
-            // });
-            // mPageSlider.startAnimation(anim);
-
-            // mPreviewBarHolder.startAnimation(anim);
 
             Animation anim = new TranslateAnimation(0, 0,
                     mPreviewBarHolder.getHeight(), 0);
@@ -928,6 +937,23 @@ public class PDFActivity extends Activity implements
                 }
             });
             mPreviewBarHolder.startAnimation(anim);
+            if (toolbar != null) {
+                Animation animToolBar = new TranslateAnimation(0, 0,
+                        -toolbar.getHeight(), 0);
+                animToolBar.setDuration(200);
+                animToolBar.setAnimationListener(new Animation.AnimationListener() {
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                    public void onAnimationEnd(Animation animation) {
+                        toolbar.setVisibility(View.VISIBLE);
+                    }
+                });
+                toolbar.startAnimation(animToolBar);
+            }
         }
     }
 
@@ -984,6 +1010,23 @@ public class PDFActivity extends Activity implements
                 }
             });
             mPreviewBarHolder.startAnimation(anim);
+            if (toolbar != null) {
+                Animation animToolBar = new TranslateAnimation(0, 0,
+                        0, -toolbar.getHeight());
+                animToolBar.setDuration(200);
+                animToolBar.setAnimationListener(new Animation.AnimationListener() {
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                    public void onAnimationEnd(Animation animation) {
+                        toolbar.setVisibility(View.INVISIBLE);
+                    }
+                });
+                toolbar.startAnimation(animToolBar);
+            }
         }
     }
 
@@ -1462,53 +1505,53 @@ public class PDFActivity extends Activity implements
         // Intent intent = new Intent(this, ChoosePDFActivity.class);
         // startActivityForResult(intent, FILEPICK_REQUEST);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        this.menu = menu;
-        inflater.inflate(R.menu.bookreader_menu, menu);
-
-        searchView = (SearchView) menu.findItem(R.id.action_search)
-                .getActionView();
-
-        searchView.setOnQueryTextListener(this);
-
-        if (search != null && search.length() > 0) {
-            searchView.setIconified(false);
-            // menu.findItem(R.id.action_search).expandActionView();
-            // searchView.performClick();
-            searchView.setQuery(search, false);
-            inSearch = true;
-            setButtonEnabled(mSearchBack, true);
-            setButtonEnabled(mSearchFwd, true);
-            searchModeOn();
-        } else {
-            inSearch = false;
-            searchModeOff();
-        }
-
-        searchView
-                .setOnQueryTextFocusChangeListener(new OnFocusChangeListener() {
-
-                    @Override
-                    public void onFocusChange(View v, boolean hasFocus) {
-                        Log.i("onFocusChange", "onFocusChange");
-                        inSearch = hasFocus;
-                        if (!inSearch
-                                && (search == null || search.length() == 0)) {
-                            // reset list
-                            // inSearch = false;
-                            Log.i("onFocusChange", "searchModeOff");
-                            searchModeOff();
-                        } else if (inSearch) {
-                            Log.i("onFocusChange", "searchModeOn");
-                            searchModeOn();
-                        }
-                    }
-                });
-        return super.onCreateOptionsMenu(menu);
-    }
+//
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        this.menu = menu;
+//        inflater.inflate(R.menu.bookreader_menu, menu);
+//
+//        searchView = (SearchView) menu.findItem(R.id.action_search)
+//                .getActionView();
+//
+//        searchView.setOnQueryTextListener(this);
+//
+//        if (search != null && search.length() > 0) {
+//            searchView.setIconified(false);
+//            // menu.findItem(R.id.action_search).expandActionView();
+//            // searchView.performClick();
+//            searchView.setQuery(search, false);
+//            inSearch = true;
+//            setButtonEnabled(mSearchBack, true);
+//            setButtonEnabled(mSearchFwd, true);
+//            searchModeOn();
+//        } else {
+//            inSearch = false;
+//            searchModeOff();
+//        }
+//
+//        searchView
+//                .setOnQueryTextFocusChangeListener(new OnFocusChangeListener() {
+//
+//                    @Override
+//                    public void onFocusChange(View v, boolean hasFocus) {
+//                        Log.i("onFocusChange", "onFocusChange");
+//                        inSearch = hasFocus;
+//                        if (!inSearch
+//                                && (search == null || search.length() == 0)) {
+//                            // reset list
+//                            // inSearch = false;
+//                            Log.i("onFocusChange", "searchModeOff");
+//                            searchModeOff();
+//                        } else if (inSearch) {
+//                            Log.i("onFocusChange", "searchModeOn");
+//                            searchModeOn();
+//                        }
+//                    }
+//                });
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
     @Override
     public boolean onQueryTextChange(String arg0) {

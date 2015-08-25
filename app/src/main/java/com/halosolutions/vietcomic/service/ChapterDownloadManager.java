@@ -103,7 +103,7 @@ public class ChapterDownloadManager {
         synchronized (downloadingChapters) {
             if (downloadingChapters.containsKey(pageId)) {
                 final Future future = downloadingChapters.get(pageId);
-                if (future.isCancelled()) {
+                if (!future.isCancelled()) {
                     try {
                         future.cancel(true);
                     } catch (Exception e) {

@@ -6,6 +6,7 @@ import android.database.Cursor;
 
 import com.google.gson.Gson;
 import com.halosolutions.vietcomic.comic.ComicBook;
+import com.halosolutions.vietcomic.comic.ComicService;
 import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 
@@ -14,6 +15,11 @@ import com.halosolutions.vietcomic.util.SimpleAppLog;
  */
 public class ComicCheckerService extends IntentService {
 
+    private static class CheckStatus {
+        boolean isCleanHot = false;
+        boolean isCleanNew = false;
+    }
+
     public ComicCheckerService() {
         super(ComicCheckerService.class.getName());
     }
@@ -21,11 +27,66 @@ public class ComicCheckerService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         SimpleAppLog.info("Start comic checker service");
-        ComicBookDBAdapter dbAdapter = new ComicBookDBAdapter(getApplicationContext());
+        final ComicBookDBAdapter dbAdapter = new ComicBookDBAdapter(getApplicationContext());
         Gson gson = new Gson();
         Cursor favoriteBooks = null;
         try {
             dbAdapter.open();
+            final CheckStatus checkStatus = new CheckStatus();
+            for (String comicSource : ComicService.ALL_SOURCES) {
+                try {
+                    ComicService.getService(this, new ComicBook(comicSource)).fetchHotAndNewComic(new ComicService.FetchHotAndNewListener() {
+                        @Override
+                        public void onHotComicFound(String bookId) {
+                            if (!checkStatus.isCleanHot) {
+                                try {
+                                    dbAdapter.cleanHotComic();
+                                    checkStatus.isCleanHot = true;
+                                } catch (Exception e) {
+                                    SimpleAppLog.error("Could not clean all hot comic", e);
+                                }
+                            }
+                            try {
+                                ComicBook comicBook = dbAdapter.getComicByBookId(bookId);
+                                if (comicBook != null) {
+                                    comicBook.setIsHot(true);
+                                    dbAdapter.update(comicBook);
+                                }
+                            } catch (Exception e) {
+                                SimpleAppLog.error("Could not update comic book", e);
+                            }
+                        }
+
+                        @Override
+                        public void onNewComicFound(String bookId) {
+                            if (!checkStatus.isCleanNew) {
+                                try {
+                                    dbAdapter.cleanNewComic();
+                                    checkStatus.isCleanNew = true;
+                                } catch (Exception e) {
+                                    SimpleAppLog.error("Could not clean all new comic", e);
+                                }
+                            }
+                            try {
+                                ComicBook comicBook = dbAdapter.getComicByBookId(bookId);
+                                if (comicBook != null) {
+                                    comicBook.setIsNew(true);
+                                    dbAdapter.update(comicBook);
+                                }
+                            } catch (Exception e) {
+                                SimpleAppLog.error("Could not update comic book", e);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    SimpleAppLog.error("Could not update comic hot and new source", e);
+                }
+            }
+            if (checkStatus.isCleanNew || checkStatus.isCleanHot) {
+                BroadcastHelper broadcastHelper = new BroadcastHelper(this);
+                broadcastHelper.sendComicUpdate(new ComicBook());
+            }
+
             favoriteBooks = dbAdapter.cursorAllFavorites();
             favoriteBooks.moveToFirst();
             while (!favoriteBooks.isAfterLast()) {
