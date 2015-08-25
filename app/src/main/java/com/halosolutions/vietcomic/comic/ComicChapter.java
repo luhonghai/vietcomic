@@ -27,7 +27,7 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     public static final int STATUS_DOWNLOADED = 6;
 
-    public static final int STATUS_READED = 7;
+    public static final int STATUS_WATCHED = 7;
 
     private String chapterId;
 

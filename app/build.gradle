@@ -54,6 +54,12 @@ android {
             keyAlias "halo.solutions"
             keyPassword "W3lcom3123"
         }
+        debug {
+            storeFile file("../keystore/keystore.jks")
+            storePassword "W3lcom3123"
+            keyAlias "halo.solutions"
+            keyPassword "W3lcom3123"
+        }
     }
     buildTypes {
         release {

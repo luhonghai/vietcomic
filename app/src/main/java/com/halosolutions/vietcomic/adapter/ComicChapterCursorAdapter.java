@@ -85,7 +85,7 @@ public class ComicChapterCursorAdapter extends CursorAdapter {
         view.findViewById(R.id.imgStatusDownloaded).setVisibility(
                 comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADED ? View.VISIBLE : View.GONE);
         view.findViewById(R.id.imgStatusEye).setVisibility(
-                comicChapter.getStatus() == ComicChapter.STATUS_READED ? View.VISIBLE : View.GONE);
+                comicChapter.getStatus() == ComicChapter.STATUS_WATCHED ? View.VISIBLE : View.GONE);
         view.findViewById(R.id.imgStatusDownloadFailed).setVisibility(
                 comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOAD_FAILED ? View.VISIBLE : View.GONE);
     }
