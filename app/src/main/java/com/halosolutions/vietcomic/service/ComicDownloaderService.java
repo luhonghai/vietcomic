@@ -525,7 +525,7 @@ public class ComicDownloaderService extends Service {
 
     private void showForegroundNotification(String title, String description, int downloadingNumber) {
         SimpleAppLog.debug("Send foreground notification: " + title + ". Description: " + description);
-        Notification notification = new Notification(R.drawable.app_icon, getText(R.string.app_name),
+        Notification notification = new Notification(R.drawable.launch_icon, getText(R.string.app_name),
                 System.currentTimeMillis());
         Intent notificationIntent = new Intent(ComicDownloaderService.this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(ComicDownloaderService.this, 0, notificationIntent, 0);
