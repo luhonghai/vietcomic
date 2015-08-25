@@ -43,9 +43,9 @@ public abstract class ComicService {
 
     protected static final int REQUEST_TIMEOUT = 10 * 1000;
 
-    private static final String SEVICE_VECHAI = "vechai.info";
+    public static final String SEVICE_VECHAI = "vechai.info";
 
-    private static final String SEVICE_VIETCOMIC_V2 = "v2.vietcomic.net";
+    public static final String SEVICE_VIETCOMIC_V2 = "v2.vietcomic.net";
 
     public static final String[] ALL_SOURCES = new String[] {
             SEVICE_VECHAI,
