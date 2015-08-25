@@ -1,7 +1,6 @@
 
 package com.cmg.android.cmgpdf;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -17,12 +16,9 @@ import android.os.Handler;
 import android.support.v7.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnFocusChangeListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
@@ -49,7 +45,6 @@ import com.rey.material.app.ThemeManager;
 import com.rey.material.drawable.NavigationDrawerDrawable;
 
 import java.io.InputStream;
-import java.sql.SQLException;
 
 /**
  * DOCME
@@ -449,8 +444,10 @@ public class PDFActivity extends BaseActivity implements
         // (Activity) this, R.animator.info, (View) mPageNumberView);
         // } else {
         if (!mPageNumberView.isShown()) {
+            int extraHeight = 0;
             Animation anim = new TranslateAnimation(0, 0,
-                    -mPageNumberView.getHeight(), 0);
+                    -mPageNumberView
+                            .getHeight() + extraHeight, 0 + extraHeight);
             anim.setDuration(200);
             anim.setAnimationListener(new Animation.AnimationListener() {
                 public void onAnimationStart(Animation animation) {
@@ -463,6 +460,7 @@ public class PDFActivity extends BaseActivity implements
                 public void onAnimationEnd(Animation animation) {
                 }
             });
+            mPageNumberView.setTag(extraHeight);
             mPageNumberView.startAnimation(anim);
         }
 
@@ -470,8 +468,9 @@ public class PDFActivity extends BaseActivity implements
             mHandlerPageNumber.removeCallbacks(runnablePageNumber);
         runnablePageNumber = new Runnable() {
             public void run() {
-                Animation anim = new TranslateAnimation(0, 0, 0,
-                        -mPageNumberView.getHeight());
+                int extraHeight = 0;
+                Animation anim = new TranslateAnimation(0, 0, extraHeight,
+                        -mPageNumberView.getHeight() + extraHeight);
                 anim.setDuration(200);
                 anim.setAnimationListener(new Animation.AnimationListener() {
                     public void onAnimationStart(Animation animation) {
@@ -495,7 +494,7 @@ public class PDFActivity extends BaseActivity implements
         if (core == null)
             return;
         final Context mContext = this;
-        toolbar = (Toolbar) getLayoutInflater().inflate(R.layout.tool_bar, null);
+
         // Now create the UI.
         // First create the document view
         mDocView = new MuPDFReaderView(this) {
@@ -741,8 +740,9 @@ public class PDFActivity extends BaseActivity implements
 
         // Stick the document view and the buttons overlay into a parent view
         RelativeLayout layout = new RelativeLayout(this);
-        layout.addView(toolbar);
         layout.addView(mDocView);
+        toolbar = (Toolbar) getLayoutInflater().inflate(R.layout.tool_bar, layout, true).findViewById(R.id.main_toolbar);
+        //layout.addView(toolbar);
         layout.addView(mButtonsView);
         setContentView(layout);
         if (toolbar != null) {
