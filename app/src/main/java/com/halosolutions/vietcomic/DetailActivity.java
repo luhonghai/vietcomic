@@ -153,7 +153,10 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         broadcastHelper.registerOnComicBookUpdated(new BroadcastHelper.OnComicBookUpdated() {
             @Override
             public void onUpdated(ComicBook comicBook) {
-                if (selectedBook != null && comicBook.getBookId().equals(selectedBook.getBookId())) {
+                if (selectedBook != null && comicBook != null
+                        && comicBook.getBookId() != null
+                        && comicBook.getBookId().length() > 0
+                        && comicBook.getBookId().equals(selectedBook.getBookId())) {
                     selectedBook = comicBook;
                     runOnUiThread(new Runnable() {
                         @Override

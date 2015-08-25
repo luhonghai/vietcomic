@@ -1,38 +1,54 @@
 package com.halosolutions.vietcomic.server.servlet;
 
 import com.google.gson.Gson;
-import com.halosolutions.vietcomic.server.service.BookManager;
+import com.halosolutions.vietcomic.server.data.ComicBook;
+import com.halosolutions.vietcomic.server.service.BookService;
+import com.halosolutions.vietcomic.server.service.VechaiBookService;
+import com.halosolutions.vietcomic.server.service.VietcomicBookService;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cmg on 12/08/15.
  */
 public class BookServlet extends HttpServlet {
 
-    public static class ResponseData {
-        int version;
-        String data;
+    private static final List<BookService> SERVICES;
+
+    static {
+        SERVICES = new ArrayList<BookService>();
+        SERVICES.add(new VechaiBookService());
+        SERVICES.add(new VietcomicBookService());
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        String v = req.getParameter("v");
-        int version = 0;
-        try {
-            version = Integer.parseInt(v);
-        } catch (Exception e) {}
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        ResponseData responseData = new ResponseData();
-        if (version < BookManager.DATA_VERSION || BookManager.DATA_VERSION == -1) {
-            responseData.data =BookManager.getBookDataJson();
+
+        System.out.println("Start");
+        long start = System.currentTimeMillis();
+        resp.getWriter().flush();
+
+        List<ComicBook> comicBookList = new ArrayList<ComicBook>();
+        for (BookService bookService : SERVICES) {
+            bookService.load(true);
+            comicBookList.addAll(bookService.getBookData().values());
         }
-        responseData.version = BookManager.DATA_VERSION;
-        resp.getWriter().println(BookManager.getBookDataJson());
+        Gson gson = new Gson();
+        //File output = new File("comic.json");
+
+        resp.getWriter().println(gson.toJson(comicBookList));
+
+        //System.out.println("Write to file: " + output.getAbsolutePath());
+        System.out.println("Done. Execution time: " + (System.currentTimeMillis() - start) + "ms");
+        //resp.getWriter().flush();
     }
 }

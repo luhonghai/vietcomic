@@ -43,6 +43,7 @@ public class ComicUpdateService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
             Gson gson = new Gson();
+            if (intent == null) return START_STICKY;
             Bundle bundle = intent.getExtras();
             if (bundle != null && bundle.containsKey(ComicBook.class.getName())) {
                 final ComicBook comicBook = gson.fromJson(bundle.getString(ComicBook.class.getName()), ComicBook.class);

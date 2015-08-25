@@ -43,7 +43,14 @@ public abstract class ComicService {
 
     protected static final int REQUEST_TIMEOUT = 10 * 1000;
 
-    private static final String SOURCE_VECHAI = "vechai.info";
+    private static final String SEVICE_VECHAI = "vechai.info";
+
+    private static final String SEVICE_VIETCOMIC_V2 = "v2.vietcomic.net";
+
+    public static final String[] ALL_SOURCES = new String[] {
+            SEVICE_VECHAI,
+            SEVICE_VIETCOMIC_V2
+    };
 
     private final Context context;
 
@@ -58,11 +65,15 @@ public abstract class ComicService {
     }
 
     public static ComicService getService(Context context, ComicBook comicBook) {
-        if (comicBook.getSource().equalsIgnoreCase(SOURCE_VECHAI)) {
+        if (comicBook.getService().equalsIgnoreCase(SEVICE_VECHAI)) {
             return new VechaiComicService(context);
+        } else if (comicBook.getService().equalsIgnoreCase(SEVICE_VIETCOMIC_V2)) {
+            return new VietcomicV2Service(context);
         }
-        return null;
+        return new DefaultComicService(context);
     }
+
+    public abstract String getRootUrl();
 
     public abstract void fetchChapterPage(final ComicChapter chapter, FetchChapterPageListener listener) throws Exception;
 
@@ -189,6 +200,13 @@ public abstract class ComicService {
                 ele.remove();
             }
         }
+    }
+
+    protected String fixUrl(String url) {
+        if (!(url.startsWith("http") || url.startsWith("https"))) {
+            url = getRootUrl() + url;
+        }
+        return url;
     }
 
 }

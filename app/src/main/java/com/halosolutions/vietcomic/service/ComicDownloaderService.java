@@ -71,6 +71,8 @@ public class ComicDownloaderService extends Service {
 
     private int currentDownloading = 0;
 
+    private static final Object lock = new Object();
+
     private void submitDownloadChapter(final String chapterId) {
         synchronized (downloadQueue) {
             if (!downloadQueue.containsKey(chapterId)) {
@@ -108,16 +110,18 @@ public class ComicDownloaderService extends Service {
     }
 
     private void sendUpdateChapter(ComicChapter chapter) {
-        try {
-            chapterDBAdapter.update(chapter);
-            broadcastHelper.sendComicChaptersUpdate(chapter);
-            SimpleAppLog.debug("Send chapter update. Status: " + chapter.getStatus()
-                    + ". Name: " + chapter.getName()
-                    + ". URL: " + chapter.getUrl());
-        } catch (Exception e) {
-            SimpleAppLog.error("Could not send chapter update. Status " + chapter.getStatus()
-                    + ". Name: " + chapter.getName()
-                    + ". URL: " + chapter.getUrl() , e);
+        synchronized (lock) {
+            try {
+                chapterDBAdapter.update(chapter);
+                broadcastHelper.sendComicChaptersUpdate(chapter);
+                SimpleAppLog.debug("Send chapter update. Status: " + chapter.getStatus()
+                        + ". Name: " + chapter.getName()
+                        + ". URL: " + chapter.getUrl());
+            } catch (Exception e) {
+                SimpleAppLog.error("Could not send chapter update. Status " + chapter.getStatus()
+                        + ". Name: " + chapter.getName()
+                        + ". URL: " + chapter.getUrl(), e);
+            }
         }
     }
 
@@ -162,7 +166,7 @@ public class ComicDownloaderService extends Service {
         } else {
             if (willFetch) {
                 fetchChapterPage(chapter);
-                downloadChapterPage(chapter, true);
+                downloadChapterPage(chapter, false);
             } else {
                 SimpleAppLog.error("No chapter page found from database");
                 chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
@@ -489,29 +493,33 @@ public class ComicDownloaderService extends Service {
     }
 
     private void checkDownloadingByStatus(int status) {
-        Cursor cursorDownloadInit = null;
-        try {
-            int requestSize = INIT_POOL_SIZE - downloadQueue.size();
-            if (requestSize > 0) {
-                cursorDownloadInit = chapterDBAdapter
-                        .listByStatus(new Integer[]{
-                                        status
-                                },
-                                downloadQueue.keySet(),
-                                Integer.toString(requestSize));
-                if (cursorDownloadInit.moveToFirst()) {
-                    while (!cursorDownloadInit.isAfterLast()) {
-                        ComicChapter chapter = chapterDBAdapter.toObject(cursorDownloadInit);
-                        submitDownloadChapter(chapter.getChapterId());
-                        cursorDownloadInit.moveToNext();
+        synchronized (downloadQueue) {
+            if (downloadQueue.size() == 0) {
+                Cursor cursorDownloadInit = null;
+                try {
+                    int requestSize = INIT_POOL_SIZE - downloadQueue.size();
+                    if (requestSize > 0) {
+                        cursorDownloadInit = chapterDBAdapter
+                                .listByStatus(new Integer[]{
+                                                status
+                                        },
+                                        downloadQueue.keySet(),
+                                        Integer.toString(requestSize));
+                        if (cursorDownloadInit.moveToFirst()) {
+                            while (!cursorDownloadInit.isAfterLast()) {
+                                ComicChapter chapter = chapterDBAdapter.toObject(cursorDownloadInit);
+                                submitDownloadChapter(chapter.getChapterId());
+                                cursorDownloadInit.moveToNext();
+                            }
+                        }
                     }
+                } catch (Exception e) {
+                    throw e;
+                } finally {
+                    if (cursorDownloadInit != null)
+                        cursorDownloadInit.close();
                 }
             }
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (cursorDownloadInit != null)
-                cursorDownloadInit.close();
         }
     }
 

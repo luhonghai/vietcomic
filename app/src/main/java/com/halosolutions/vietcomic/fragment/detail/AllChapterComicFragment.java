@@ -1,6 +1,8 @@
 package com.halosolutions.vietcomic.fragment.detail;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -16,7 +18,11 @@ import android.widget.ListView;
 
 import com.cmg.android.cmgpdf.AsyncTask;
 import com.cmg.android.cmgpdf.PDFActivity;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
+import com.halosolutions.vietcomic.BuildConfig;
 import com.halosolutions.vietcomic.R;
 import com.halosolutions.vietcomic.adapter.ComicChapterCursorAdapter;
 import com.halosolutions.vietcomic.comic.ComicBook;
@@ -36,9 +42,15 @@ import java.util.Date;
  */
 public class AllChapterComicFragment extends DetailComicFragment {
 
+    private static class ReadCount {
+        public static int MAX_COUNT = 7;
+    }
+
     private ComicChapterDBAdapter dbAdapter;
 
     private Gson gson;
+
+    private InterstitialAd mInterstitialAd;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,7 +68,28 @@ public class AllChapterComicFragment extends DetailComicFragment {
         } catch (Exception e) {
             SimpleAppLog.error("Could not list comic", e);
         }
+
+        if (BuildConfig.IS_FREE) {
+            mInterstitialAd = new InterstitialAd(getActivity());
+            mInterstitialAd.setAdUnitId(getString(R.string.ad_unit_popup));
+
+            mInterstitialAd.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    requestNewInterstitial();
+                }
+            });
+            requestNewInterstitial();
+        }
+
         return v;
+    }
+
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("7898660F3293A11BB56ED538658F9B0F")
+                .build();
+        mInterstitialAd.loadAd(adRequest);
     }
 
     @Override
@@ -69,38 +102,12 @@ public class AllChapterComicFragment extends DetailComicFragment {
         final ComicChapter comicChapter = (ComicChapter) view.getTag();
         SimpleAppLog.debug("Chapter status: " + comicChapter.getStatus());
 
-        if (comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADED
-                || comicChapter.getStatus() == ComicChapter.STATUS_WATCHED) {
-            File pdfComic = new File(comicChapter.getFilePath());
-            if (pdfComic.exists()) {
-                comicChapter.setStatus(ComicChapter.STATUS_WATCHED);
-                SimpleAppLog.debug("File is exists. Try to open");
-                Uri uri = Uri.fromFile(pdfComic);
-                final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                Bundle bundle = new Bundle();
-                bundle.putString(ComicChapter.class.getName(), gson.toJson(comicChapter));
-                intent.putExtras(bundle);
-                intent.setClass(getActivity(), PDFActivity.class);
-                startActivity(intent);
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        try {
-                            dbAdapter.update(comicChapter);
-                            broadcastHelper.sendComicChaptersUpdate(comicChapter);
-                            ComicBook comicBook = comicBookDBAdapter.getComicByBookId(comicChapter.getBookId());
-                            if (comicBook != null) {
-                                comicBook.setIsWatched(true);
-                                comicBook.setTimestamp(new Date(System.currentTimeMillis()));
-                                comicBookDBAdapter.update(comicBook);
-                                broadcastHelper.sendComicUpdate(comicBook);
-                            }
-                        } catch (Exception e) {
-                            SimpleAppLog.error("Could not update chapter status",e);
-                        }
-                        return null;
-                    }
-                }.execute();
+        if ((comicChapter.getStatus() == ComicChapter.STATUS_DOWNLOADED
+                || comicChapter.getStatus() == ComicChapter.STATUS_WATCHED)) {
+            File pdfComic;
+            if (comicChapter.getFilePath().length() > 0
+                    && (pdfComic = new File(comicChapter.getFilePath())).exists()) {
+                readComicChapter(comicChapter, pdfComic);
             } else {
                 SimpleAppLog.debug("File not is exists. Try to re-download");
                 sendDownloadChapter(view, comicChapter);
@@ -109,6 +116,48 @@ public class AllChapterComicFragment extends DetailComicFragment {
                 || comicChapter.getStatus() == ComicChapter.STATUS_NEW
                 || comicChapter.getStatus() == ComicChapter.STATUS_SELECTED) {
             sendDownloadChapter(view, comicChapter);
+        }
+    }
+
+    private void readComicChapter(final ComicChapter comicChapter, final File pdfComic) {
+        SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+        int currentCount = preferences.getInt(ReadCount.class.getName(), 0);
+        boolean readBook = true;
+        if (currentCount >= ReadCount.MAX_COUNT && BuildConfig.IS_FREE && mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+            readBook = false;
+            currentCount = 0;
+        }
+        preferences.edit().putInt(ReadCount.class.getName(), ++currentCount).apply();
+        if (readBook) {
+            comicChapter.setStatus(ComicChapter.STATUS_WATCHED);
+            SimpleAppLog.debug("File is exists. Try to open");
+            Uri uri = Uri.fromFile(pdfComic);
+            final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            Bundle bundle = new Bundle();
+            bundle.putString(ComicChapter.class.getName(), gson.toJson(comicChapter));
+            intent.putExtras(bundle);
+            intent.setClass(getActivity(), PDFActivity.class);
+            startActivity(intent);
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        dbAdapter.update(comicChapter);
+                        broadcastHelper.sendComicChaptersUpdate(comicChapter);
+                        ComicBook comicBook = comicBookDBAdapter.getComicByBookId(comicChapter.getBookId());
+                        if (comicBook != null) {
+                            comicBook.setIsWatched(true);
+                            comicBook.setTimestamp(new Date(System.currentTimeMillis()));
+                            comicBookDBAdapter.update(comicBook);
+                            broadcastHelper.sendComicUpdate(comicBook);
+                        }
+                    } catch (Exception e) {
+                        SimpleAppLog.error("Could not update chapter status", e);
+                    }
+                    return null;
+                }
+            }.execute();
         }
     }
 

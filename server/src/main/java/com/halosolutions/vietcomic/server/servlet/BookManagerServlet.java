@@ -1,7 +1,8 @@
 package com.halosolutions.vietcomic.server.servlet;
 
 import com.google.gson.Gson;
-import com.halosolutions.vietcomic.server.service.BookManager;
+import com.halosolutions.vietcomic.server.service.BookService;
+import com.halosolutions.vietcomic.server.service.VechaiBookService;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,9 +25,7 @@ public class BookManagerServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         ResponseData responseData = new ResponseData();
-        responseData.oldVersion = BookManager.DATA_VERSION;
-        BookManager.load(true);
-        responseData.latestVersion = BookManager.DATA_VERSION;
+        new VechaiBookService().load(true);
         resp.getWriter().println(new Gson().toJson(responseData));
     }
 }
