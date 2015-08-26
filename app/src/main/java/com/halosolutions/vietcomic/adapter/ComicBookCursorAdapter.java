@@ -78,6 +78,9 @@ public class ComicBookCursorAdapter extends CursorAdapter {
         }
 
         final ImageView imgThumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+        if (AndroidHelper.isLowerThanApiLevel11()) {
+            imgThumbnail.setBackgroundDrawable(null);
+        }
         String thumbnail = comicBook.getThumbnail();
         ImageLoader.getInstance().displayImage(thumbnail,
                 imgThumbnail,

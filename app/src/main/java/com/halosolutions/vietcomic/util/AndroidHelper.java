@@ -238,4 +238,16 @@ public class AndroidHelper {
         paint.getTextBounds(text, 0, text.length(), bounds);
         return bounds.width() <= textView.getWidth();
     }
+
+    public static boolean isGreatThanApiLevel9() {
+        return (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.GINGERBREAD);
+    }
+
+    public static boolean isLowerThanApiLevel11() {
+        return (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB);
+    }
+
+    public static boolean isLowerThanApiLevel12() {
+        return (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB_MR1);
+    }
 }

@@ -58,7 +58,7 @@ public class AllChapterComicFragment extends DetailComicFragment {
         final View view = v.findViewById(R.id.listComic);
         try {
             CursorAdapter bookCursorAdapter = new ComicChapterCursorAdapter(getActivity(), getCursor());
-            ((AbsListView) view).setAdapter(bookCursorAdapter);
+            setSafeAdapter(view, bookCursorAdapter);
             ((AbsListView) view).setOnItemClickListener(this);
             ColorDrawable sage = new ColorDrawable(this.getResources().getColor(R.color.colorPrimary));
             ((ListView) view).setDivider(sage);

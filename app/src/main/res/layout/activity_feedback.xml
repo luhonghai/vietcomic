@@ -38,7 +38,7 @@
                         <ImageView
                             android:id="@+id/thumbnail"
                             android:src="@drawable/comic_thumbnail_default"
-                            android:background="@android:drawable/dialog_holo_light_frame"
+                            android:background="@drawable/item_shadow_background"
                             android:scaleType="centerCrop"
                             android:layout_width="96dp"
                             android:layout_height="132dp"

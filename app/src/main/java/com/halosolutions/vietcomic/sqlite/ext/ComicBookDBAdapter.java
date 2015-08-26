@@ -29,7 +29,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
     public Cursor getAll() throws Exception {
         return
                 getDB().query(getTableName(), getAllColumns(),
-                        ComicBook.KEY_DELETED + " = 0",
+                        ComicBook.KEY_DELETED + " = 0"
+                                + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                         null,
                         null,
                         null,
@@ -98,7 +99,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
     public Cursor cursorSearch(String s) throws Exception {
         if (s != null) s = StringHelper.removeAccent(s).toLowerCase();
         return getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_SEARCH + " like ? and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_SEARCH + " like ? and " + ComicBook.KEY_DELETED + " = 0"
+                        + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                 new String[]{
                         "%" + s + "%"
                 },
@@ -118,7 +120,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     public Cursor cursorAllFavorites() throws Exception {
         return getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_FAVORITE + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_FAVORITE + " = 1 and " + ComicBook.KEY_DELETED + " = 0"
+                        + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                 null,
                 null,
                 null,
@@ -127,7 +130,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     public Cursor cursorAllNew() throws Exception {
         return getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_NEW + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_NEW + " = 1 and " + ComicBook.KEY_DELETED + " = 0"
+                        + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                 null,
                 null,
                 null,
@@ -140,7 +144,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     public Cursor cursorAllHot() throws Exception {
         return (getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_HOT + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_HOT + " = 1 and " + ComicBook.KEY_DELETED + " = 0"
+                        + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                 null,
                 null,
                 null,
@@ -153,7 +158,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     public Cursor cursorByCategory(String category) throws Exception {
         return getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_CATEGORIES + " like ? and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_CATEGORIES + " like ? and " + ComicBook.KEY_DELETED + " = 0"
+                + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                 new String[]{
                         "%|" + category + "|%"
                 },
@@ -164,7 +170,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     public Cursor cursorByAuthor(String author) throws Exception {
         return getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_AUTHOR + " = ? and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_AUTHOR + " = ? and " + ComicBook.KEY_DELETED + " = 0"
+                        + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                 new String[]{
                         author
                 },
@@ -175,7 +182,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     public Cursor cursorDownloaded() throws Exception {
         return getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_DOWNLOADED + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_DOWNLOADED + " = 1 and " + ComicBook.KEY_DELETED + " = 0"
+                        + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                 null,
                 null,
                 null,
@@ -184,7 +192,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
 
     public Cursor cursorWatched() throws Exception {
         return getDB().query(getTableName(), getAllColumns(),
-                ComicBook.KEY_WATCHED + " = 1 and " + ComicBook.KEY_DELETED + " = 0",
+                ComicBook.KEY_WATCHED + " = 1 and " + ComicBook.KEY_DELETED + " = 0"
+                        + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'",
                 null,
                 null,
                 null,
@@ -220,7 +229,8 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
             }
         }
         selection += ")";
-        selection +=  " and " + ComicBook.KEY_DELETED + " = 0";
+        selection +=  " and " + ComicBook.KEY_DELETED + " = 0"
+                + " and " + ComicBook.KEY_SERVICE + " != '" + ComicService.SEVICE_VIETCOMIC_V2 +"'";
         return getDB().query(getTableName(), getAllColumns(),
                 selection,
                 args,
@@ -280,8 +290,6 @@ public class ComicBookDBAdapter extends DBAdapter<ComicBook> {
                 getDB().beginTransaction();
             }
             for (ComicBook book : comicBooks) {
-                //SimpleAppLog.debug("Insert new comic book: " + book.getName() + ". URL: " + book.getUrl());
-                if (!book.getService().equalsIgnoreCase(ComicService.SEVICE_VIETCOMIC_V2))
                     insert(book);
             }
             if (useTransaction) {

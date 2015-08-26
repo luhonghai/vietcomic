@@ -56,7 +56,7 @@ import java.io.InputStream;
  */
 
 public class PDFActivity extends BaseActivity implements
-        FilePicker.FilePickerSupport, SearchView.OnQueryTextListener {
+        FilePicker.FilePickerSupport {
 
     /* The core rendering instance */
     enum TopBarMode {
@@ -1553,30 +1553,30 @@ public class PDFActivity extends BaseActivity implements
 //        return super.onCreateOptionsMenu(menu);
 //    }
 
-    @Override
-    public boolean onQueryTextChange(String arg0) {
-        SearchTaskResult.set(null);
-        search = arg0;
-        if (search != null && search.trim().length() > 0) {
-            setButtonEnabled(mSearchBack, true);
-            setButtonEnabled(mSearchFwd, true);
-        } else {
-            setButtonEnabled(mSearchBack, false);
-            setButtonEnabled(mSearchFwd, false);
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String search) {
-        SearchTaskResult.set(null);
-        this.search = search;
-        search(1, search);
-        searchView.clearFocus();
-        mSearchFwd.requestFocus();
-        return false;
-    }
+//    @Override
+//    public boolean onQueryTextChange(String arg0) {
+//        SearchTaskResult.set(null);
+//        search = arg0;
+//        if (search != null && search.trim().length() > 0) {
+//            setButtonEnabled(mSearchBack, true);
+//            setButtonEnabled(mSearchFwd, true);
+//        } else {
+//            setButtonEnabled(mSearchBack, false);
+//            setButtonEnabled(mSearchFwd, false);
+//        }
+//
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean onQueryTextSubmit(String search) {
+//        SearchTaskResult.set(null);
+//        this.search = search;
+//        search(1, search);
+//        searchView.clearFocus();
+//        mSearchFwd.requestFocus();
+//        return false;
+//    }
 
 
     @Override

@@ -4,7 +4,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -181,14 +180,14 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 			} catch (Exception e) {
 				SimpleAppLog.error("Could not set suggestion adapter",e);
 			}
-			SearchView.SearchAutoComplete autoCompleteTextView = (SearchView.SearchAutoComplete)
-					searchView.findViewById(R.id.search_src_text);
-
-			if (autoCompleteTextView != null) {
-				try {
-					autoCompleteTextView.setDropDownBackgroundResource(R.color.colorPrimary);
-				} catch (Exception e) {}
-			}
+//			SearchView.SearchAutoComplete autoCompleteTextView = (SearchView.SearchAutoComplete)
+//					searchView.findViewById(R.id.search_src_text);
+//
+//			if (autoCompleteTextView != null) {
+//				try {
+//					autoCompleteTextView.setDropDownBackgroundResource(R.color.colorPrimary);
+//				} catch (Exception e) {}
+//			}
 		} else {
 			SimpleAppLog.error("No search view");
 		}

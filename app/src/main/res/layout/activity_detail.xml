@@ -16,6 +16,7 @@
             android:textAppearance="@style/Base.TextAppearance.Widget.AppCompat.Toolbar.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             android:ellipsize="marquee"
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
@@ -44,7 +45,7 @@
                         <ImageView
                             android:id="@+id/thumbnail"
                             android:src="@drawable/comic_thumbnail_default"
-                            android:background="@android:drawable/dialog_holo_light_frame"
+                            android:background="@drawable/item_shadow_background"
                             android:scaleType="centerCrop"
                             android:layout_width="132dp"
                             android:layout_height="198dp"

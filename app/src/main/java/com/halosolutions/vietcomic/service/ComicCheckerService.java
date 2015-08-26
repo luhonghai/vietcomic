@@ -40,7 +40,7 @@ public class ComicCheckerService extends IntentService {
                         public void onHotComicFound(String bookId) {
                             if (!checkStatus.isCleanHot) {
                                 try {
-                                    dbAdapter.cleanHotComic();
+                                    //dbAdapter.cleanHotComic();
                                     checkStatus.isCleanHot = true;
                                 } catch (Exception e) {
                                     SimpleAppLog.error("Could not clean all hot comic", e);
@@ -61,7 +61,7 @@ public class ComicCheckerService extends IntentService {
                         public void onNewComicFound(String bookId) {
                             if (!checkStatus.isCleanNew) {
                                 try {
-                                    dbAdapter.cleanNewComic();
+                                    //dbAdapter.cleanNewComic();
                                     checkStatus.isCleanNew = true;
                                 } catch (Exception e) {
                                     SimpleAppLog.error("Could not clean all new comic", e);
