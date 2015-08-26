@@ -39,7 +39,7 @@ android {
     productFlavors {
         pro {
             applicationId = "com.halosolutions.vietcomic"
-            buildConfigField "boolean", "IS_FREE", "false"
+            buildConfigField "boolean", "IS_FREE", "true"
         }
         free {
             applicationId = "com.halosolutions.vietcomic.free"
