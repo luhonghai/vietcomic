@@ -2,7 +2,6 @@ package com.halosolutions.vietcomic.sqlite;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 
 import java.util.Date;
 

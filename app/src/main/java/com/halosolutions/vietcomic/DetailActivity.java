@@ -9,28 +9,18 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cmg.android.cmgpdf.AsyncTask;
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.gson.Gson;
 import com.halosolutions.vietcomic.comic.ComicBook;
-import com.halosolutions.vietcomic.comic.ComicChapter;
-import com.halosolutions.vietcomic.comic.ComicService;
-import com.halosolutions.vietcomic.fragment.AllComicFragment;
-import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
-import com.halosolutions.vietcomic.fragment.HotComicFragment;
-import com.halosolutions.vietcomic.fragment.NewComicFragment;
 import com.halosolutions.vietcomic.fragment.detail.AllChapterComicFragment;
 import com.halosolutions.vietcomic.fragment.detail.SameAuthorComicFragment;
 import com.halosolutions.vietcomic.fragment.detail.SameCategoriesComicFragment;
@@ -46,16 +36,13 @@ import com.rey.material.app.ToolbarManager;
 import com.rey.material.drawable.NavigationDrawerDrawable;
 import com.rey.material.drawable.ThemeDrawable;
 import com.rey.material.util.ViewUtil;
-import com.rey.material.widget.ProgressView;
 import com.rey.material.widget.TabPageIndicator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sufficientlysecure.htmltextview.HtmlTextView;
 
 import java.lang.reflect.Field;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by cmg on 18/08/15.
@@ -194,6 +181,9 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
             }
             final ImageView imgThumbnail = (ImageView) findViewById(R.id.thumbnail);
             if (imgThumbnail != null && imgThumbnail.getTag() == null) {
+                if (AndroidHelper.isLowerThanApiLevel11()) {
+                    imgThumbnail.setBackgroundDrawable(null);
+                }
                 String thumbnail = selectedBook.getThumbnail();
                 ImageLoader.getInstance().displayImage(thumbnail,
                         imgThumbnail,
@@ -338,40 +328,54 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
                 int visibility = rlBookInfo.getVisibility();
                 if (visibility == View.VISIBLE) {
                     rlBookInfo.setTag(rlBookInfo.getHeight());
-                    rlBookInfo.animate()
-                            .translationY(rlBookInfo.getHeight())
-                            .alpha(0.0f)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    super.onAnimationEnd(animation);
-                                    rlBookInfo.setVisibility(View.GONE);
-                                    img.setImageDrawable(getResources().getDrawable(R.drawable.app_icon_up_grey));
-                                    img.setEnabled(true);
-                                    img.setVisibility(View.VISIBLE);
-                                }
-                            });
+                    if (AndroidHelper.isLowerThanApiLevel12()) {
+                        rlBookInfo.setVisibility(View.GONE);
+                        img.setImageDrawable(getResources().getDrawable(R.drawable.app_icon_up_grey));
+                        img.setEnabled(true);
+                        img.setVisibility(View.VISIBLE);
+                    } else {
+                        rlBookInfo.animate()
+                                .translationY(rlBookInfo.getHeight())
+                                .alpha(0.0f)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        rlBookInfo.setVisibility(View.GONE);
+                                        img.setImageDrawable(getResources().getDrawable(R.drawable.app_icon_up_grey));
+                                        img.setEnabled(true);
+                                        img.setVisibility(View.VISIBLE);
+                                    }
+                                });
+                    }
 
                 } else if (visibility == View.GONE) {
-                    rlBookInfo.animate()
-                            .translationY(0)
-                            .alpha(1.0f)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationStart(Animator animation) {
-                                    super.onAnimationEnd(animation);
-                                    rlBookInfo.setVisibility(View.VISIBLE);
-                                    rlBookInfo.setAlpha(0.0f);
-                                }
+                    if (AndroidHelper.isLowerThanApiLevel12()) {
+                        rlBookInfo.setVisibility(View.VISIBLE);
+                        img.setImageDrawable(getResources().getDrawable(R.drawable.app_icon_down_grey));
+                        img.setVisibility(View.VISIBLE);
+                        img.setEnabled(true);
+                    } else {
+                        rlBookInfo.animate()
+                                .translationY(0)
+                                .alpha(1.0f)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        rlBookInfo.setVisibility(View.VISIBLE);
+                                        rlBookInfo.setAlpha(0.0f);
+                                    }
 
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    super.onAnimationEnd(animation);
-                                    img.setImageDrawable(getResources().getDrawable(R.drawable.app_icon_down_grey));
-                                    img.setVisibility(View.VISIBLE);
-                                    img.setEnabled(true);
-                                }
-                            });
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        img.setImageDrawable(getResources().getDrawable(R.drawable.app_icon_down_grey));
+                                        img.setVisibility(View.VISIBLE);
+                                        img.setEnabled(true);
+                                    }
+                                });
+                    }
                 }
                 break;
         }

@@ -1,9 +1,7 @@
 package com.halosolutions.vietcomic.fragment;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -13,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.ListView;
 
 import com.google.gson.Gson;
 import com.halosolutions.vietcomic.DetailActivity;
@@ -60,7 +60,6 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 
 	private boolean needUpdate = false;
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(getViewLayout(), container, false);
@@ -75,13 +74,21 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 				}
 			}
 			ComicBookCursorAdapter bookCursorAdapter = new ComicBookCursorAdapter(getActivity(), getCursor(), itemLayout);
-			((AbsListView) view).setAdapter(bookCursorAdapter);
+			setSafeAdapter(view, bookCursorAdapter);
 			((AbsListView) view).setOnItemClickListener(this);
 			((AbsListView) view).setEmptyView(v.findViewById(R.id.txtEmpty));
 		} catch (Exception e) {
 			SimpleAppLog.error("Could not list comic", e);
 		}
 		return v;
+	}
+
+	protected void setSafeAdapter(final View view, final BaseAdapter adapter){
+		if (view instanceof ListView){
+			((ListView)view).setAdapter(adapter);
+		} else if (view instanceof GridView) {
+			((GridView)view).setAdapter(adapter);
+		}
 	}
 
 	protected int getItemLayout() {

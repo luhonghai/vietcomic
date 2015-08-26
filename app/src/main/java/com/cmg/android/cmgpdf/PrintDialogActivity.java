@@ -54,8 +54,8 @@ public class PrintDialogActivity extends Activity {
 		settings.setJavaScriptEnabled(true);
 
 		dialogWebView.setWebViewClient(new PrintDialogWebClient());
-		dialogWebView.addJavascriptInterface(
-			new PrintDialogJavaScriptInterface(), JS_INTERFACE);
+//		dialogWebView.addJavascriptInterface(
+//			new PrintDialogJavaScriptInterface(), JS_INTERFACE);
 
 		dialogWebView.loadUrl(PRINT_DIALOG_URL);
 	}
