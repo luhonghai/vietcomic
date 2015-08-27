@@ -7,11 +7,25 @@ import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.halosolutions.vietcomic.util.StringHelper;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +38,7 @@ public class VechaiComicService extends ComicService {
 
     private static final String VECHAI_ROOT_URL = "http://vechai.info/";
 
-    private static final String SELECTOR_BOOK_CHAPTER_PAGE_IMAGE = "#contentChapter img";
+    private static final String SELECTOR_BOOK_CHAPTER_PAGE_IMAGE = "img";
 
     private static final String SELECTOR_BOOK_TITLE = ".BoxContent .IntroText .TitleH2";
 
@@ -43,13 +57,51 @@ public class VechaiComicService extends ComicService {
 
     @Override
     public void fetchChapterPage(ComicChapter chapter, FetchChapterPageListener listener) throws Exception {
-        long start =System.currentTimeMillis();
         SimpleAppLog.debug("Start fetch comic book chapter pages at " + chapter.getUrl());
-        Document doc = Jsoup.connect(chapter.getUrl())
-                .userAgent(USER_AGENT)
-                .timeout(PAGE_REQUEST_TIMEOUT)
-                .get();
-        removeElements(doc, "#advInPage");
+        long start =System.currentTimeMillis();
+        HttpParams httpParameters = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParameters, REQUEST_TIMEOUT);
+        HttpConnectionParams.setSoTimeout(httpParameters, REQUEST_TIMEOUT);
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpGet httpget = new HttpGet(chapter.getUrl());
+        HttpResponse response = httpclient.execute(httpget);
+        HttpEntity entity = response.getEntity();
+        InputStream in = null;
+        StringBuilder result = new StringBuilder();
+        try
+        {
+            in = new BufferedInputStream(entity.getContent());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            result.append("<div>");
+            String line;
+            int state = 0;
+            while((line = reader.readLine()) != null) {
+                if (line.contains("<div class=\"Content\">") && state == 0) {
+                    state = 1;
+                } else if (line.contains("</noscript>") && state == 1) {
+                    state = 2;
+                } else if (state == 2 && line.contains("<img")) {
+                    state = 3;
+                } else if (state == 3 && line.contains("<div class=\"Center ChapterNav\">")) {
+                    break;
+                }
+                if (state == 3) {
+                    result.append(line);
+                }
+
+            }
+        } finally
+        {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {}
+            }
+        }
+
+        String html = result.toString();
+        SimpleAppLog.debug("Found html source: " + html);
+        Document doc = Jsoup.parse(html);
         Elements images = doc.select(SELECTOR_BOOK_CHAPTER_PAGE_IMAGE);
         if (images != null) {
             SimpleAppLog.debug("Found images");
