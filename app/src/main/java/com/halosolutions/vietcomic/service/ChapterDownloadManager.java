@@ -1,6 +1,7 @@
 package com.halosolutions.vietcomic.service;
 
 import com.halosolutions.vietcomic.comic.ComicChapterPage;
+import com.halosolutions.vietcomic.util.AndroidHelper;
 import com.halosolutions.vietcomic.util.Hash;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 
@@ -8,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
@@ -34,11 +36,11 @@ public class ChapterDownloadManager {
 
     private static final int MAX_POOL_SIZE = 5;
 
-    private ExecutorService tpExecutor = Executors.newFixedThreadPool(MAX_POOL_SIZE);
+    private ExecutorService tpExecutor = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 2 : MAX_POOL_SIZE);
 
     private final DownloadListener listener;
 
-    private final Map<String, Future> downloadingChapters = new WeakHashMap<String, Future>();
+    private final Map<String, Future> downloadingChapters = new HashMap<String, Future>();
 
     public ChapterDownloadManager(DownloadListener listener) {
         this.listener = listener;
