@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -36,11 +37,12 @@ public class ChapterDownloadManager {
 
     private static final int MAX_POOL_SIZE = 5;
 
-    private ExecutorService tpExecutor = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 2 : MAX_POOL_SIZE);
+    private static final ExecutorService tpExecutor
+            = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 2 : MAX_POOL_SIZE);
 
     private final DownloadListener listener;
 
-    private final Map<String, Future> downloadingChapters = new HashMap<String, Future>();
+    private static final Map<String, Future> downloadingChapters = new ConcurrentHashMap<String, Future>();
 
     public ChapterDownloadManager(DownloadListener listener) {
         this.listener = listener;
