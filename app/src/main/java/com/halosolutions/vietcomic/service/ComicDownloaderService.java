@@ -30,9 +30,11 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -47,6 +49,8 @@ public class ComicDownloaderService extends Service {
         public static final int DOWNLOAD = 1;
 
         public static final int STOP = 2;
+
+        public static final int CHECK = 3;
     }
 
     private static final int INIT_POOL_SIZE = 5;
@@ -63,11 +67,13 @@ public class ComicDownloaderService extends Service {
     private BroadcastHelper broadcastHelper;
     private boolean isForeGround;
 
-    private final Map<String, Future> downloadQueue = new WeakHashMap<String, Future>();
+    private static final Map<String, Future> downloadQueue = new ConcurrentHashMap<>();
 
-    private final ExecutorService executorDownload = Executors.newFixedThreadPool(POOL_SIZE);
+    private static final ExecutorService executorDownload
+            = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 1 : POOL_SIZE);
 
-    private final ExecutorService executorCheck = Executors.newFixedThreadPool(POOL_SIZE);
+    private static final ExecutorService executorCheck
+            = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 1 : POOL_SIZE);
 
     private int currentDownloading = 0;
 
@@ -161,16 +167,16 @@ public class ComicDownloaderService extends Service {
             }
             chapter.setImageCount(pages.size());
             chapter.setStatus(ComicChapter.STATUS_DOWNLOADING);
-            //sendUpdateChapter(chapter);
+            sendUpdateChapter(chapter);
             verifyDownloadedPages(chapter);
         } else {
             if (willFetch) {
                 fetchChapterPage(chapter);
                 downloadChapterPage(chapter, false);
             } else {
-                SimpleAppLog.error("No chapter page found from database");
-                chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-                sendUpdateChapter(chapter);
+//                SimpleAppLog.error("No chapter page found from database");
+//                chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+//                sendUpdateChapter(chapter);
                 checkDownloading();
             }
         }
@@ -340,13 +346,14 @@ public class ComicDownloaderService extends Service {
                 updateChapterPage(page);
                 ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
                 if (chapter != null) {
-//                    SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
-//                            ". Chapter URL: " + chapter.getUrl()
-//                            + ". Page URL: " + page.getUrl());
-//                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-//                    sendUpdateChapter(chapter);
-//                    stopDownloadChapter(chapter);
-                    verifyDownloadedPages(chapter);
+                    SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
+                            ". Chapter URL: " + chapter.getUrl()
+                            + ". Page URL: " + page.getUrl());
+                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+                    sendUpdateChapter(chapter);
+                    stopDownloadChapter(chapter);
+                    //verifyDownloadedPages(chapter);
+                    checkDownloading();
                 } else {
                     SimpleAppLog.error("Could not found chapter with Page URL: " + page.getUrl());
                 }
@@ -383,9 +390,14 @@ public class ComicDownloaderService extends Service {
             int action = bundle.getInt(Action.class.getName());
             SimpleAppLog.info("DownloadService start command action:  " + action);
             switch (action) {
+                case Action.CHECK:
+                    checkDownloading(false);
+                    break;
                 case Action.DOWNLOAD:
                     try {
-                        checkDownloading();
+                        if (downloadQueue.size() == 0) {
+                            checkDownloading(true);
+                        }
 //                        if (!downloadQueue.containsKey(comicChapter.getChapterId())) {
 //                            submitDownloadChapter(comicChapter.getChapterId());
 //                            Cursor cursorChapters = chapterDBAdapter.listByStatus(new Integer[]{
@@ -416,6 +428,7 @@ public class ComicDownloaderService extends Service {
                         }
                     }.execute();
                     break;
+
             }
 
         }
@@ -464,6 +477,10 @@ public class ComicDownloaderService extends Service {
     };
 
     private void checkDownloading() {
+        checkDownloading(false);
+    }
+
+    private void checkDownloading(boolean onlyInit) {
         boolean stopService = false;
         boolean isChapterDownloading;
         boolean isChapterPageDownloading;
@@ -487,8 +504,10 @@ public class ComicDownloaderService extends Service {
             isChapterPageDownloading = cursorChapterPages.getCount() > 0;
             stopService = !(isChapterDownloading || isChapterPageDownloading);
             checkDownloadingByStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
-            //checkDownloadingByStatus(ComicChapter.STATUS_DOWNLOADING);
-            //checkDownloadingByStatus(ComicChapter.STATUS_DOWNLOAD_JOINING);
+            if (!onlyInit) {
+                checkDownloadingByStatus(ComicChapter.STATUS_DOWNLOADING);
+                checkDownloadingByStatus(ComicChapter.STATUS_DOWNLOAD_JOINING);
+            }
         } catch (Exception e) {
             SimpleAppLog.error("Could not check downloading",e);
         } finally {
@@ -497,7 +516,7 @@ public class ComicDownloaderService extends Service {
             if (cursorChapterPages != null)
                 cursorChapterPages.close();
         }
-        if (stopService) {
+        if (stopService || (onlyInit && downloadCount == 0)) {
             stopForeground(true);
             isForeGround = false;
         } else {
