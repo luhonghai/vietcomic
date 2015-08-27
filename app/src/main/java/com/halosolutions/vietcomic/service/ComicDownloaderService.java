@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -66,11 +67,13 @@ public class ComicDownloaderService extends Service {
     private BroadcastHelper broadcastHelper;
     private boolean isForeGround;
 
-    private final Map<String, Future> downloadQueue = new HashMap<String, Future>();
+    private static final Map<String, Future> downloadQueue = new ConcurrentHashMap<>();
 
-    private final ExecutorService executorDownload = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 1 : POOL_SIZE);
+    private static final ExecutorService executorDownload
+            = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 1 : POOL_SIZE);
 
-    private final ExecutorService executorCheck = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 1 : POOL_SIZE);
+    private static final ExecutorService executorCheck
+            = Executors.newFixedThreadPool(AndroidHelper.isLowerThanApiLevel11() ? 1 : POOL_SIZE);
 
     private int currentDownloading = 0;
 
