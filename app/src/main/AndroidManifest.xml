@@ -3,14 +3,12 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         package="com.halosolutions.vietcomic">
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <application
         android:name=".MainApplication"
-        android:icon="@drawable/app_icon"
+        android:icon="@drawable/launch_icon"
         tools:replace="android:icon" android:label="@string/app_name"
+        android:largeHeap="true"
         android:theme="@style/Theme.AppTheme"
         >
         <meta-data
@@ -31,17 +29,83 @@
         </activity>
         <activity
             android:name=".MainActivity"
+            android:label=""
+            android:launchMode="singleInstance"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
+        </activity>
+        <activity
+            android:name=".DetailActivity"
+            android:label=""
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
+        <activity
+            android:name=".FeedbackActivity"
+            android:label=""
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
+        <activity android:name="com.cmg.android.cmgpdf.PDFActivity"
+            android:label=""
+            android:theme="@style/Theme.AppTheme"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/pdf"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="file"/>
+                <data android:mimeType="*/*"/>
+                <data android:pathPattern="/*\\.pdf"/>
+                <data android:host="*"/>
+            </intent-filter>
         </activity>
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent" />
 
+        <receiver android:name=".receiver.ComicScheduleReceiver"
+            android:enabled="true" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receiver.ComicCheckReceiver"
+            android:enabled="true" android:exported="false">
+        </receiver>
+
+        <service
+            android:name=".service.ComicUpdateService"
+            android:exported="false"/>
+
+        <service
+            android:name=".service.ComicDownloaderService"
+            android:exported="false"/>
+
+        <service
+            android:name=".service.ComicCheckerService"
+            android:exported="false"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f91d00ada9662ee8c98f921db08791e554cec5af" />
 
     </application>
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 </manifest>

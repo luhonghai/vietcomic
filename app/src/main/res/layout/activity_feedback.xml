@@ -1,0 +1,114 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:id="@+id/main_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:minHeight="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:theme="@style/AppBar"/>
+
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#ffffff"
+                android:orientation="vertical"
+                android:padding="10dp">
+                <LinearLayout
+                    android:id="@+id/rlBookInfo"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:id="@+id/thumbnail"
+                            android:src="@drawable/comic_thumbnail_default"
+                            android:background="@drawable/item_shadow_background"
+                            android:scaleType="centerCrop"
+                            android:layout_width="96dp"
+                            android:layout_height="132dp"
+                            android:layout_margin="5dp"/>
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent">
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:paddingTop="8dp">
+                            <ScrollView
+                                android:layout_weight="1"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:padding="8dp">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+                                    <org.sufficientlysecure.htmltextview.HtmlTextView
+                                        android:id="@+id/txtComicName"
+                                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="@dimen/comic_book_detail_text_margin"
+                                        android:text="@string/comic_other_name"/>
+                                    <org.sufficientlysecure.htmltextview.HtmlTextView
+                                        android:id="@+id/txtComicOtherName"
+                                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="@dimen/comic_book_detail_text_margin"
+                                        android:text="@string/comic_other_name"/>
+                                    <org.sufficientlysecure.htmltextview.HtmlTextView
+                                        android:id="@+id/txtComicAuthor"
+                                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="@dimen/comic_book_detail_text_margin"
+                                        android:text="@string/comic_author"/>
+                                </LinearLayout>
+                            </ScrollView>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+                <EditText
+                    android:id="@+id/textDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:ems="10"
+                    android:layout_margin="3dp"
+                    android:hint="Nhập phản hồi hoặc báo lỗi của bạn"
+                    android:paddingBottom="10dp" />
+
+                <com.rey.material.widget.FloatingActionButton
+                    style="@style/FloatingWaveColorActionButtonFeedback"
+                    android:id="@+id/btnSend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fab_iconSize="28dp"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</RelativeLayout>
+

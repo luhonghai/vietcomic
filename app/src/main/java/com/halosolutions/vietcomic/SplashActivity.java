@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import com.cmg.android.cmgpdf.AsyncTask;
+import com.halosolutions.vietcomic.receiver.ComicScheduleReceiver;
+import com.halosolutions.vietcomic.service.ComicCheckerService;
 import com.halosolutions.vietcomic.service.DataPrepareService;
 import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.rey.material.widget.ProgressView;
@@ -14,7 +16,7 @@ import com.rey.material.widget.ProgressView;
  * Created by cmg on 14/08/15.
  */
 public class SplashActivity extends BaseActivity {
-    private static final int MIN_LOAD_TIME = 3000;
+    private static final int MIN_LOAD_TIME = 2 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,31 +30,35 @@ public class SplashActivity extends BaseActivity {
                 SimpleAppLog.info("Start load data");
                 DataPrepareService prepareService = new DataPrepareService(SplashActivity.this);
                 prepareService.prepare();
-                long executionTime = System.currentTimeMillis() - start;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent comicCheckerIntent = new Intent(SplashActivity.this, ComicCheckerService.class);
+                        SplashActivity.this.startService(comicCheckerIntent);
+
+                        Intent comicScheduleIntent = new Intent(SplashActivity.this, ComicScheduleReceiver.class);
+                        SplashActivity.this.sendBroadcast(comicScheduleIntent);
+                    }
+                });
+                final long executionTime = System.currentTimeMillis() - start;
                 SimpleAppLog.info("Finish load data. Execution time: " + executionTime + "ms");
                 if (executionTime >= MIN_LOAD_TIME) {
-                    startActivity(MainActivity.class);
+                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 } else {
-                    new Handler().postDelayed(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            startActivity(MainActivity.class);
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                                }
+                            }, MIN_LOAD_TIME - executionTime);
                         }
-                    }, MIN_LOAD_TIME - executionTime);
+                    });
                 }
                 return null;
             }
         }.execute();
-    }
-
-    private void startActivity(final Class clazz) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                startActivity(new Intent(SplashActivity.this, clazz));
-                SplashActivity.this.finish();
-            }
-        });
-
     }
 }

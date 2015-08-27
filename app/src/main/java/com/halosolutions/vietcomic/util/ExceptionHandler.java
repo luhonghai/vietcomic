@@ -1,11 +1,3 @@
-/*
- * Copyright (c) 2013. CMG Ltd All rights reserved.
- *
- * This software is the confidential and proprietary information of CMG
- * ("Confidential Information"). You shall not disclose such Confidential
- * Information and shall use it only in accordance with the terms of the
- * license agreement you entered into with CMG.
- */
 package com.halosolutions.vietcomic.util;
 
 import android.content.Context;
@@ -13,7 +5,7 @@ import android.content.Intent;
 import android.os.Process;
 
 
-import com.halosolutions.itranslator.activity.FeedbackActivity;
+import com.halosolutions.vietcomic.FeedbackActivity;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -27,7 +19,9 @@ import java.io.StringWriter;
  * @Last changed: $LastChangedDate$
  */
 public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
+
     private final Context context;
+
     public final static String STACK_TRACE = "bug";
 
     /**
@@ -45,10 +39,9 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
      */
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
-        ex.printStackTrace();
         StringWriter stackTrace = new StringWriter();
         ex.printStackTrace(new PrintWriter(stackTrace));
-        SimpleAppLog.error("Error: " + stackTrace.toString());
+        SimpleAppLog.error("UncaughtExceptionHandler catch",ex);
         Intent forceClose = new Intent(context, FeedbackActivity.class);
         forceClose.putExtra(STACK_TRACE, stackTrace.toString());
         context.startActivity(forceClose);

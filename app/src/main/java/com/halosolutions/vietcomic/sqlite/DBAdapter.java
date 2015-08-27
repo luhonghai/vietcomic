@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.halosolutions.vietcomic.comic.ComicBook;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,26 +22,60 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
     private static final int DATABASE_VERSION = 1;
 
     private static final String[] DATABASE_TABLE_CREATE = new String[] {
-            "create table " + ComicBook.TABLE_COMIC_BOOK
+            "create table " + AbstractData.TABLE_COMIC_BOOK
                     + " ("
                     + AbstractData.KEY_ROW_ID +" integer primary key autoincrement, "
-                    + ComicBook.KEY_AUTHOR + " text, "
-                    + ComicBook.KEY_BOOK_ID + " text, "
-                    + ComicBook.KEY_DESCRIPTION + " text, "
-                    + ComicBook.KEY_NAME + " text, "
-                    + ComicBook.KEY_OTHER_NAME + " text, "
-                    + ComicBook.KEY_STATUS + " text, "
-                    + ComicBook.KEY_THUMBNAIL + " text, "
-                    + ComicBook.KEY_URL + " text, "
-                    + ComicBook.KEY_SOURCE + " text, "
-                    + ComicBook.KEY_RATE + " integer, "
-                    + ComicBook.KEY_DELETED + " integer, "
-                    + ComicBook.KEY_NEW + " integer, "
-                    + ComicBook.KEY_HOT + " integer, "
-                    + ComicBook.KEY_FAVORITE + " integer, "
+                    + AbstractData.KEY_SEARCH + " text, "
+                    + AbstractData.KEY_AUTHOR + " text, "
+                    + AbstractData.KEY_BOOK_ID + " text, "
+                    + AbstractData.KEY_DESCRIPTION + " text, "
+                    + AbstractData.KEY_NAME + " text, "
+                    + AbstractData.KEY_OTHER_NAME + " text, "
+                    + AbstractData.KEY_STATUS + " text, "
+                    + AbstractData.KEY_THUMBNAIL + " text, "
+                    + AbstractData.KEY_URL + " text, "
+                    + AbstractData.KEY_SOURCE + " text, "
+                    + AbstractData.KEY_SERVICE + " text, "
+                    + AbstractData.KEY_CATEGORIES + " text, "
+                    + AbstractData.KEY_RATE + " integer, "
+                    + AbstractData.KEY_DELETED + " integer, "
+                    + AbstractData.KEY_NEW + " integer, "
+                    + AbstractData.KEY_HOT + " integer, "
+                    + AbstractData.KEY_FAVORITE + " integer, "
+                    + AbstractData.KEY_DOWNLOADED + " integer, "
+                    + AbstractData.KEY_WATCHED + " integer, "
+                    + AbstractData.KEY_TIMESTAMP + " date,"
                     + AbstractData.KEY_CREATED_DATE + " date not null"
-                    + ");"
-
+                    + ");",
+            "create table " + AbstractData.TABLE_COMIC_CHAPTER
+                    + " ("
+                    + AbstractData.KEY_ROW_ID +" integer primary key autoincrement, "
+                    + AbstractData.KEY_BOOK_ID + " text, "
+                    + AbstractData.KEY_NAME + " text, "
+                    + AbstractData.KEY_STATUS + " integer, "
+                    + AbstractData.KEY_URL + " text, "
+                    + AbstractData.KEY_CHAPTER_ID + " text, "
+                    + AbstractData.KEY_FILE_PATH + " text, "
+                    + AbstractData.KEY_PUBLISH_DATE + " date, "
+                    + AbstractData.KEY_IMAGE_COUNT + " integer, "
+                    + AbstractData.KEY_COMPLETED_COUNT + " integer, "
+                    + AbstractData.KEY_INDEX + " integer, "
+                    + AbstractData.KEY_TIMESTAMP + " date,"
+                    + AbstractData.KEY_CREATED_DATE + " date not null"
+                    + ");",
+            "create table " + AbstractData.TABLE_COMIC_CHAPTER_PAGE
+                    + " ("
+                    + AbstractData.KEY_ROW_ID +" integer primary key autoincrement, "
+                    + AbstractData.KEY_BOOK_ID + " text, "
+                    + AbstractData.KEY_STATUS + " integer, "
+                    + AbstractData.KEY_URL + " text, "
+                    + AbstractData.KEY_CHAPTER_ID + " text, "
+                    + AbstractData.KEY_FILE_PATH + " text, "
+                    + AbstractData.KEY_INDEX + " integer, "
+                    + AbstractData.KEY_TASK_ID + " integer, "
+                    + AbstractData.KEY_PAGE_ID + " text, "
+                    + AbstractData.KEY_CREATED_DATE + " date not null"
+                    + ");",
     };
 
     private final Context context;
@@ -101,6 +133,9 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
     public SQLiteDatabase open() throws SQLException
     {
         db = DBHelper.getWritableDatabase();
+        while(db.isDbLockedByCurrentThread() || db.isDbLockedByOtherThreads()) {
+            //db is locked, keep looping
+        }
         return db;
     }
 
@@ -193,5 +228,13 @@ public abstract class DBAdapter<T> implements IDBAdapter<T> {
 
     public List<T> findAll() throws Exception {
         return toCollection(getAll());
+    }
+
+    public int count() throws Exception {
+        Cursor mCount= db.rawQuery("select count(*) from " + getTableName(), null);
+        mCount.moveToFirst();
+        int count= mCount.getInt(0);
+        mCount.close();
+        return count;
     }
 }

@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -17,6 +16,8 @@ public interface IDBAdapter<T> {
     public void close();
 
     public Cursor getAll() throws Exception;
+
+    public int count() throws Exception;
 
     public String getTableName();
 

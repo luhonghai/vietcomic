@@ -5,44 +5,16 @@ import android.content.Context;
 
 import com.halosolutions.vietcomic.sqlite.AbstractData;
 import com.halosolutions.vietcomic.util.DateHelper;
+import com.halosolutions.vietcomic.util.StringHelper;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Created by cmg on 12/08/15.
  */
 public class ComicBook extends AbstractData<ComicBook> {
-
-    public static final String TABLE_COMIC_BOOK = "comic_book";
-
-    public static final String KEY_BOOK_ID = "bookId";
-
-    public static final String KEY_NAME = "name";
-
-    public static final String KEY_OTHER_NAME = "name";
-
-    public static final String KEY_STATUS = "status";
-
-    public static final String KEY_URL = "url";
-
-    public static final String KEY_THUMBNAIL = "thumbnail";
-
-    public static final String KEY_AUTHOR = "author";
-
-    public static final String KEY_RATE = "rate";
-
-    public static final String KEY_DESCRIPTION = "description";
-
-    public static final String KEY_SOURCE = "source";
-
-    public static final String KEY_DELETED = "is_deleted";
-
-    public static final String KEY_NEW = "is_new";
-
-    public static final String KEY_HOT = "is_hot";
-
-    public static final String KEY_FAVORITE = "is_favorite";
-
 
     private String bookId;
 
@@ -53,6 +25,8 @@ public class ComicBook extends AbstractData<ComicBook> {
     private String status;
 
     private String source;
+
+    private String service;
 
     private String url;
 
@@ -72,7 +46,23 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     private boolean isFavorite;
 
+    private boolean isDownloaded;
+
+    private boolean isWatched;
+
     private List<String> categories;
+
+    private String strCategories;
+
+    private Date timestamp;
+
+    public ComicBook() {
+
+    }
+
+    public ComicBook(String source) {
+        this.source = source;
+    }
 
     @Override
     public String toPrettyString(Context context) {
@@ -82,6 +72,7 @@ public class ComicBook extends AbstractData<ComicBook> {
     @Override
     public ContentValues toContentValues() {
         ContentValues cv = new ContentValues();
+        cv.put(KEY_SEARCH, StringHelper.removeAccent(getName()).toLowerCase());
         cv.put(KEY_NAME, getName());
         cv.put(KEY_AUTHOR, getAuthor());
         cv.put(KEY_BOOK_ID, getBookId());
@@ -96,8 +87,14 @@ public class ComicBook extends AbstractData<ComicBook> {
         cv.put(KEY_NEW, isNew() ?  1 : 0);
         cv.put(KEY_HOT, isHot() ? 1 : 0);
         cv.put(KEY_FAVORITE, isFavorite() ? 1 : 0);
+        cv.put(KEY_DOWNLOADED, isDownloaded() ? 1 : 0);
+        cv.put(KEY_WATCHED, isWatched() ? 1 : 0);
+        cv.put(KEY_SERVICE, getService());
         if (getCreatedDate() != null)
             cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
+        if (getTimestamp() != null)
+            cv.put(KEY_TIMESTAMP, DateHelper.convertDateToString(getTimestamp()));
+        cv.put(KEY_CATEGORIES, getStrCategories());
         return cv;
     }
 
@@ -150,6 +147,17 @@ public class ComicBook extends AbstractData<ComicBook> {
     }
 
     public List<String> getCategories() {
+        if (categories == null && strCategories != null && strCategories.length() > 0) {
+            categories = new ArrayList<>();
+            String[] raw = strCategories.split("\\|");
+            if (raw.length > 0) {
+                for (String cat : raw) {
+                    if (cat.trim().length() > 0) {
+                        categories.add(cat);
+                    }
+                }
+            }
+        }
         return categories;
     }
 
@@ -158,6 +166,7 @@ public class ComicBook extends AbstractData<ComicBook> {
     }
 
     public String getOtherName() {
+        if (otherName == null) return "";
         return otherName;
     }
 
@@ -227,5 +236,55 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     public void setIsFavorite(boolean isFavorite) {
         this.isFavorite = isFavorite;
+    }
+
+    public String getStrCategories() {
+        if (strCategories == null || strCategories.length() == 0 ) {
+            String strCat = "|";
+            if (categories != null && categories.size() > 0) {
+                for (String cat : categories) {
+                    strCat += (cat + "|");
+                }
+            }
+            strCategories = strCat;
+        }
+        return strCategories;
+    }
+
+    public void setStrCategories(String strCategories) {
+        this.strCategories = strCategories;
+    }
+
+    public boolean isDownloaded() {
+        return isDownloaded;
+    }
+
+    public void setIsDownloaded(boolean isDownloaded) {
+        this.isDownloaded = isDownloaded;
+    }
+
+    public boolean isWatched() {
+        return isWatched;
+    }
+
+    public void setIsWatched(boolean isWatched) {
+        this.isWatched = isWatched;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getService() {
+        if (service == null || service.length() == 0) return getSource();
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
 }

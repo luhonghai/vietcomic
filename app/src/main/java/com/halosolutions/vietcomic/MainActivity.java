@@ -1,13 +1,19 @@
 package com.halosolutions.vietcomic;
 
+import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,10 +25,19 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.halosolutions.vietcomic.fragment.ComicFragment;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.gson.Gson;
+import com.halosolutions.vietcomic.adapter.ComicBookCursorAdapter;
+import com.halosolutions.vietcomic.comic.ComicBook;
+import com.halosolutions.vietcomic.fragment.AllComicFragment;
+import com.halosolutions.vietcomic.fragment.DownloadedComicFragment;
 import com.halosolutions.vietcomic.fragment.FavoriteComicFragment;
 import com.halosolutions.vietcomic.fragment.HotComicFragment;
 import com.halosolutions.vietcomic.fragment.NewComicFragment;
+import com.halosolutions.vietcomic.fragment.WatchedComicFragment;
+import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
+import com.halosolutions.vietcomic.util.SimpleAppLog;
 import com.rey.material.app.ToolbarManager;
 import com.rey.material.drawable.ThemeDrawable;
 import com.rey.material.util.ThemeUtil;
@@ -33,14 +48,16 @@ import com.rey.material.widget.TabPageIndicator;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class MainActivity extends BaseActivity implements ToolbarManager.OnToolbarGroupChangedListener {
+public class MainActivity extends BaseActivity implements ToolbarManager.OnToolbarGroupChangedListener,
+		SearchView.OnQueryTextListener,
+		SearchView.OnSuggestionListener{
 
 	private DrawerLayout dl_navigator;
 	private FrameLayout fl_drawer;
 	private ListView lv_drawer;
 	private CustomViewPager vp;
 	private TabPageIndicator tpi;
-	
+
 	private DrawerAdapter mDrawerAdapter;
 	private PagerAdapter mPagerAdapter;
 	
@@ -48,8 +65,16 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
     private ToolbarManager mToolbarManager;
     private SnackBar mSnackBar;
 
-	private Tab[] mItems = new Tab[]{Tab.HOT,Tab.NEW,Tab.FAVORITE, Tab.ALL };
-	
+	private SearchView searchView;
+
+	private ComicBookDBAdapter dbAdapter;
+
+	private ComicBookCursorAdapter adapter;
+
+	private Tab[] mItems = new Tab[]{Tab.HOT,Tab.NEW,Tab.FAVORITE, Tab.DOWNLOADED, Tab.WATCHED, Tab.ALL };
+
+	private AdView mAdView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,6 +93,7 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
         mToolbarManager.setNavigationManager(new ToolbarManager.ThemableNavigationManager(R.array.navigation_drawer, getSupportFragmentManager(), mToolbar, dl_navigator) {
             @Override
             public void onNavigationClick() {
+				SimpleAppLog.debug("onNavigationClick");
                 if(mToolbarManager.getCurrentGroup() != R.id.tb_group_main)
                     mToolbarManager.setCurrentGroup(R.id.tb_group_main);
                 else
@@ -117,27 +143,102 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 
         ViewUtil.setBackground(getWindow().getDecorView(), new ThemeDrawable(R.array.bg_window));
         ViewUtil.setBackground(mToolbar, new ThemeDrawable(R.array.bg_toolbar));
+		dbAdapter = new ComicBookDBAdapter(this);
+		setSupportActionBar(mToolbar);
+
+
+		mAdView = (AdView) findViewById(R.id.adView);
+		if (mAdView != null && BuildConfig.IS_FREE) {
+			mAdView.setVisibility(View.VISIBLE);
+			AdRequest adRequest = new AdRequest.Builder()
+					.addTestDevice("7898660F3293A11BB56ED538658F9B0F")
+					.build();
+			mAdView.loadAd(adRequest);
+		}
     }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
         mToolbarManager.createMenu(R.menu.menu_main);
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		searchView = (SearchView) MenuItemCompat.getActionView(mToolbar.getMenu().findItem(R.id.action_search));
+		if (null != searchView) {
+			searchView.setIconified(true);
+			try {
+				dbAdapter.open();
+			} catch (Exception e) {
+				SimpleAppLog.error("Could not open database", e);
+			}
+			searchView.setQueryHint("Tìm kiếm truyện");
+			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+			searchView.setIconifiedByDefault(true);
+			searchView.setOnQueryTextListener(this);
+			searchView.setOnSuggestionListener(this);
+			try {
+				adapter = new ComicBookCursorAdapter(this, dbAdapter.cursorSearch(""), R.layout.comic_item_lite);
+				searchView.setSuggestionsAdapter(adapter);
+			} catch (Exception e) {
+				SimpleAppLog.error("Could not set suggestion adapter",e);
+			}
+//			SearchView.SearchAutoComplete autoCompleteTextView = (SearchView.SearchAutoComplete)
+//					searchView.findViewById(R.id.search_src_text);
+//
+//			if (autoCompleteTextView != null) {
+//				try {
+//					autoCompleteTextView.setDropDownBackgroundResource(R.color.colorPrimary);
+//				} catch (Exception e) {}
+//			}
+		} else {
+			SimpleAppLog.error("No search view");
+		}
 		return true;
 	}
 
-    @Override
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (mAdView != null)
+			mAdView.resume();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (mAdView != null)
+			mAdView.pause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (dbAdapter != null) {
+			dbAdapter.close();
+		}
+		if (mAdView != null)
+			mAdView.destroy();
+	}
+
+	@Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         mToolbarManager.onPrepareMenu();
+
         return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+		SimpleAppLog.debug("onOptionsItemSelected " + item.getItemId());
         switch (item.getItemId()){
+			case android.R.id.home:
+				if (dl_navigator.isDrawerOpen(GravityCompat.START)) {
+					dl_navigator.closeDrawer(fl_drawer);
+				} else {
+					dl_navigator.openDrawer(GravityCompat.START);
+				}
             default:
                 break;
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -149,11 +250,78 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
         return mSnackBar;
     }
 
-    public enum Tab {
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+		return false;
+	}
+
+	private Runnable updateQueryRunnable = new Runnable() {
+		@Override
+		public void run() {
+			try {
+				updateQuery();
+			} catch (Exception e) {
+				SimpleAppLog.error("could not update suggestion query",e);
+			}
+		}
+	};
+
+	private void updateQuery() throws Exception {
+		try {
+			dbAdapter.close();
+			dbAdapter.open();
+		} catch (Exception e) {
+
+		}
+		final Cursor c = dbAdapter.cursorSearch(searchText);
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				searchView.getSuggestionsAdapter().changeCursor(c);
+			}
+		});
+	}
+
+	private Handler updateQueryHandler = new Handler();
+
+	private String searchText;
+
+	@Override
+	public boolean onQueryTextChange(String s) {
+		searchText = s;
+		updateQueryHandler.removeCallbacks(updateQueryRunnable);
+		updateQueryHandler.postDelayed(updateQueryRunnable, 200);
+		return true;
+	}
+
+	@Override
+	public boolean onSuggestionSelect(int position) {
+		//Toast.makeText(this, "Select position: " + position, Toast.LENGTH_LONG).show();
+		//startActivity(new Intent(this, DetailActivity.class));
+		return true;
+	}
+
+	@Override
+	public boolean onSuggestionClick(int position) {
+		if (searchView != null) {
+			ComicBook comicBook = dbAdapter.toObject(
+					(Cursor) searchView.getSuggestionsAdapter().getItem(position));
+			Gson gson = new Gson();
+			Intent intent = new Intent(this, DetailActivity.class);
+			intent.putExtra(ComicBook.class.getName(), gson.toJson(comicBook));
+			startActivity(intent);
+		}
+		return true;
+	}
+
+	public enum Tab {
 	    HOT("Truyện HOT"),
 		NEW("Truyện mới"),
         ALL("Toàn bộ"),
-        FAVORITE("Yêu thích");
+        FAVORITE("Yêu thích"),
+		DOWNLOADED("Đã tải"),
+		WATCHED("Đã xem");
+
 	    private final String name;       
 
 	    private Tab(String s) {
@@ -269,12 +437,16 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
     				for(Fragment fragment : mActive){
     					if(fragment instanceof HotComicFragment)
     						setFragment(Tab.HOT, fragment);
-                        else if(fragment instanceof ComicFragment)
+                        else if(fragment instanceof AllComicFragment)
                             setFragment(Tab.ALL, fragment);
                         else if(fragment instanceof FavoriteComicFragment)
                             setFragment(Tab.FAVORITE, fragment);
 						else if(fragment instanceof NewComicFragment)
 							setFragment(Tab.NEW, fragment);
+						else if(fragment instanceof WatchedComicFragment)
+							setFragment(Tab.WATCHED, fragment);
+						else if(fragment instanceof DownloadedComicFragment)
+							setFragment(Tab.DOWNLOADED, fragment);
     				}
     			}
     		}
@@ -294,16 +466,22 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 			if(mFragments[position] == null){
 	        	switch (mTabs[position]) {
 					case HOT:
-						mFragments[position] = HotComicFragment.newInstance();
+						mFragments[position] = new HotComicFragment();
 						break;
                     case ALL:
-                        mFragments[position] = ComicFragment.newInstance();
+                        mFragments[position] = new AllComicFragment();
                         break;
                     case FAVORITE:
-                        mFragments[position] = FavoriteComicFragment.newInstance();
+                        mFragments[position] = new FavoriteComicFragment();
                         break;
 					case NEW:
-						mFragments[position] = NewComicFragment.newInstance();
+						mFragments[position] = new NewComicFragment();
+						break;
+					case WATCHED:
+						mFragments[position] = new WatchedComicFragment();
+						break;
+					case DOWNLOADED:
+						mFragments[position] = new DownloadedComicFragment();
 						break;
 				}
 			}
