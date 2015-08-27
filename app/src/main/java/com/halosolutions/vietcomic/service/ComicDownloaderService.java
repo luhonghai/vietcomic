@@ -55,8 +55,6 @@ public class ComicDownloaderService extends Service {
 
     private static final int ONGOING_NOTIFICATION_ID = 17031989;
 
-    private static final int CHECK_DOWNLOADING_TIME = 2 * 60 * 1000;
-
     private Gson gson;
     private ComicBookDBAdapter bookDBAdapter;
     private ComicChapterDBAdapter chapterDBAdapter;
@@ -67,7 +65,9 @@ public class ComicDownloaderService extends Service {
 
     private final Map<String, Future> downloadQueue = new WeakHashMap<String, Future>();
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(POOL_SIZE);
+    private final ExecutorService executorDownload = Executors.newFixedThreadPool(POOL_SIZE);
+
+    private final ExecutorService executorCheck = Executors.newFixedThreadPool(POOL_SIZE);
 
     private int currentDownloading = 0;
 
@@ -76,13 +76,13 @@ public class ComicDownloaderService extends Service {
     private void submitDownloadChapter(final String chapterId) {
         synchronized (downloadQueue) {
             if (!downloadQueue.containsKey(chapterId)) {
-                downloadQueue.put(chapterId, executorService.submit(new Runnable() {
+                downloadQueue.put(chapterId, executorDownload.submit(new Runnable() {
                     @Override
                     public void run() {
                         ComicChapter comicChapter = chapterDBAdapter.getByChapterId(chapterId);
                         try {
                             comicChapter.setStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
-                            comicChapter.setCompletedCount(0);
+                            //comicChapter.setCompletedCount(0);
                             sendUpdateChapter(comicChapter);
                             SimpleAppLog.debug("Start download chapter: " + comicChapter.getName() + ". URL: " + comicChapter.getUrl());
                             downloadChapterPage(comicChapter, true);
@@ -171,6 +171,7 @@ public class ComicDownloaderService extends Service {
                 SimpleAppLog.error("No chapter page found from database");
                 chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
                 sendUpdateChapter(chapter);
+                checkDownloading();
             }
         }
     }
@@ -194,80 +195,92 @@ public class ComicDownloaderService extends Service {
                 + ". URL: " + page.getUrl());
     }
 
-    private void verifyDownloadedPages(ComicChapter chapter) {
-        try {
-            boolean willCheck = false;
-            List<ComicChapterPage> pages = chapterPageDBAdapter.listByComicChapter(chapter.getChapterId());
-            if (pages != null && pages.size() > 0) {
-                int completedCount = 0;
-                int failedCount = 0;
-                for (ComicChapterPage page : pages) {
-                    if (page.getStatus() == ComicChapterPage.STATUS_DOWNLOADED) {
-                        completedCount++;
-                    } else if (page.getStatus() == ComicChapterPage.STATUS_DOWNLOAD_FAILED) {
-                        failedCount++;
-                    }
-                }
-                SimpleAppLog.debug("Completed task " + completedCount + "/" + pages.size());
-                chapter.setCompletedCount(completedCount);
-                if ( (completedCount == pages.size() || ((completedCount + failedCount) == pages.size() && failedCount < 2))
-                        && chapter.getStatus() != ComicChapter.STATUS_DOWNLOAD_JOINING) {
-                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_JOINING);
-                    sendUpdateChapter(chapter);
-                    File pdf = new File(AndroidHelper.getFolder(getApplicationContext(), AndroidHelper.DOWNLOADED_BOOK_DIR),
-                            chapter.getBookId() + "-" + chapter.getChapterId() + ".pdf");
-                    chapter.setFilePath(pdf.getAbsolutePath());
-                    SimpleAppLog.debug("Try to join pdf to " + pdf);
-
-                    if (ComicService.joinComicBook(chapter, pages)) {
-                        chapter.setStatus(ComicChapter.STATUS_DOWNLOADED);
-                        sendUpdateChapter(chapter);
-                        ComicBook comicBook = bookDBAdapter.getComicByBookId(chapter.getBookId());
-                        if (comicBook != null) {
-                            comicBook.setIsDownloaded(true);
-                            comicBook.setTimestamp(new Date(System.currentTimeMillis()));
-                            bookDBAdapter.update(comicBook);
-                            broadcastHelper.sendComicUpdate(comicBook);
-                            willCheck = true;
-                        }
-
+    private void verifyDownloadedPages(final ComicChapter chap) {
+        executorCheck.submit(new Runnable() {
+            @Override
+            public void run() {
+                final ComicChapter chapter = chapterDBAdapter.getByChapterId(chap.getChapterId());
+                try {
+                    boolean willCheck = false;
+                    List<ComicChapterPage> pages = chapterPageDBAdapter.listByComicChapter(chapter.getChapterId());
+                    if (pages != null && pages.size() > 0) {
+                        int completedCount = 0;
+                        int failedCount = 0;
                         for (ComicChapterPage page : pages) {
-                            File f = new File(page.getFilePath());
-                            if (f.exists()) {
-                                try {
-                                    FileUtils.forceDelete(f);
-                                } catch (Exception e) {
-                                }
+                            if (page.getStatus() == ComicChapterPage.STATUS_DOWNLOADED) {
+                                completedCount++;
+                            } else if (page.getStatus() == ComicChapterPage.STATUS_DOWNLOAD_FAILED) {
+                                failedCount++;
                             }
-                            chapterPageDBAdapter.delete(page);
+                        }
+                        SimpleAppLog.debug("Completed task " + completedCount + "/" + pages.size());
+                        chapter.setCompletedCount(completedCount);
+                        if ( (completedCount == pages.size() || ((completedCount + failedCount) == pages.size() && failedCount <= 2))
+                                && chapter.getStatus() != ComicChapter.STATUS_DOWNLOAD_JOINING) {
+                            chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_JOINING);
+                            sendUpdateChapter(chapter);
+                            File pdf = new File(AndroidHelper.getFolder(getApplicationContext(), AndroidHelper.DOWNLOADED_BOOK_DIR),
+                                    chapter.getBookId() + "-" + chapter.getChapterId() + ".pdf");
+                            chapter.setFilePath(pdf.getAbsolutePath());
+                            SimpleAppLog.debug("Try to join pdf to " + pdf);
+
+                            if (ComicService.joinComicBook(chapter, pages)) {
+                                chapter.setStatus(ComicChapter.STATUS_DOWNLOADED);
+                                sendUpdateChapter(chapter);
+                                ComicBook comicBook = bookDBAdapter.getComicByBookId(chapter.getBookId());
+                                if (comicBook != null) {
+                                    comicBook.setIsDownloaded(true);
+                                    comicBook.setTimestamp(new Date(System.currentTimeMillis()));
+                                    bookDBAdapter.update(comicBook);
+                                    broadcastHelper.sendComicUpdate(comicBook);
+                                    willCheck = true;
+                                }
+
+                                for (ComicChapterPage page : pages) {
+                                    File f = new File(page.getFilePath());
+                                    if (f.exists()) {
+                                        try {
+                                            FileUtils.forceDelete(f);
+                                        } catch (Exception e) {
+                                        }
+                                    }
+                                    chapterPageDBAdapter.delete(page);
+                                }
+                            } else {
+                                SimpleAppLog.error("Could not join comic chapter: " + chapter.getName() + ". URL: " + chapter.getUrl());
+                                chapter.setFilePath(null);
+                                chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+                                sendUpdateChapter(chapter);
+                                willCheck = true;
+                            }
+                        } else if (failedCount >= 3) {
+                            stopDownloadChapter(chapter);
+                            chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+                            sendUpdateChapter(chapter);
+                        } else {
+                            sendUpdateChapter(chapter);
                         }
                     } else {
-                        SimpleAppLog.error("Could not join comic chapter: " + chapter.getName() + ". URL: " + chapter.getUrl());
-                        chapter.setFilePath(null);
+                        SimpleAppLog.error("No pending download pages found!");
                         chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
                         sendUpdateChapter(chapter);
                         willCheck = true;
                     }
-                } else {
-                    sendUpdateChapter(chapter);
+                    if (willCheck) {
+                        synchronized (downloadQueue) {
+                            if (downloadQueue.containsKey(chapter.getChapterId()))
+                                downloadQueue.remove(chapter.getChapterId());
+                        }
+//                handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
+//                handlerCheckDownloading.post(runnableCheckDownloading);
+                        checkDownloading();
+                    }
+                } catch (Exception e) {
+                    SimpleAppLog.error("Could not verify comic chapter: "+ chapter.getName() + ". URL: " + chapter.getUrl(), e);
                 }
-            } else {
-                SimpleAppLog.error("No pending download pages found!");
-                chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-                sendUpdateChapter(chapter);
-                willCheck = true;
             }
-            if (willCheck) {
-                synchronized (downloadQueue) {
-                    if (downloadQueue.containsKey(chapter.getChapterId()))
-                        downloadQueue.remove(chapter.getChapterId());
-                }
-                handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
-                handlerCheckDownloading.post(runnableCheckDownloading);
-            }
-        } catch (Exception e) {
-            SimpleAppLog.error("Could not verify comic chapter: "+ chapter.getName() + ". URL: " + chapter.getUrl(), e);
-        }
+        });
+
     }
 
     @Nullable
@@ -327,12 +340,13 @@ public class ComicDownloaderService extends Service {
                 updateChapterPage(page);
                 ComicChapter chapter = chapterDBAdapter.getByChapterId(page.getChapterId());
                 if (chapter != null) {
-                    SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
-                            ". Chapter URL: " + chapter.getUrl()
-                            + ". Page URL: " + page.getUrl());
-                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
-                    sendUpdateChapter(chapter);
-                    stopDownloadChapter(chapter);
+//                    SimpleAppLog.debug("Mask download chapter as failed. So user can resume it." +
+//                            ". Chapter URL: " + chapter.getUrl()
+//                            + ". Page URL: " + page.getUrl());
+//                    chapter.setStatus(ComicChapter.STATUS_DOWNLOAD_FAILED);
+//                    sendUpdateChapter(chapter);
+//                    stopDownloadChapter(chapter);
+                    verifyDownloadedPages(chapter);
                 } else {
                     SimpleAppLog.error("Could not found chapter with Page URL: " + page.getUrl());
                 }
@@ -432,11 +446,12 @@ public class ComicDownloaderService extends Service {
                     downloadQueue.remove(chapter.getChapterId());
                 }
             }
-            handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
-            handlerCheckDownloading.post(runnableCheckDownloading);
+//            handlerCheckDownloading.removeCallbacks(runnableCheckDownloading);
+//            handlerCheckDownloading.post(runnableCheckDownloading);
         } catch (Exception e) {
             SimpleAppLog.error("Could not stop download chapter " + chapter.getUrl(),e);
         }
+        checkDownloading();
     }
 
     private Handler handlerCheckDownloading = new Handler();
@@ -472,8 +487,8 @@ public class ComicDownloaderService extends Service {
             isChapterPageDownloading = cursorChapterPages.getCount() > 0;
             stopService = !(isChapterDownloading || isChapterPageDownloading);
             checkDownloadingByStatus(ComicChapter.STATUS_INIT_DOWNLOADING);
-            checkDownloadingByStatus(ComicChapter.STATUS_DOWNLOADING);
-            checkDownloadingByStatus(ComicChapter.STATUS_DOWNLOAD_JOINING);
+            //checkDownloadingByStatus(ComicChapter.STATUS_DOWNLOADING);
+            //checkDownloadingByStatus(ComicChapter.STATUS_DOWNLOAD_JOINING);
         } catch (Exception e) {
             SimpleAppLog.error("Could not check downloading",e);
         } finally {
@@ -488,38 +503,37 @@ public class ComicDownloaderService extends Service {
         } else {
             showForegroundNotification("Đang tải " + downloadCount + " tập truyện",
                     "Vui lòng chờ trong giây lát", downloadCount);
-            handlerCheckDownloading.postDelayed(runnableCheckDownloading, CHECK_DOWNLOADING_TIME);
+            //handlerCheckDownloading.postDelayed(runnableCheckDownloading, CHECK_DOWNLOADING_TIME);
         }
     }
 
     private void checkDownloadingByStatus(int status) {
         synchronized (downloadQueue) {
-            if (downloadQueue.size() == 0) {
-                Cursor cursorDownloadInit = null;
-                try {
-                    int requestSize = INIT_POOL_SIZE - downloadQueue.size();
-                    if (requestSize > 0) {
-                        cursorDownloadInit = chapterDBAdapter
-                                .listByStatus(new Integer[]{
-                                                status
-                                        },
-                                        downloadQueue.keySet(),
-                                        Integer.toString(requestSize));
-                        if (cursorDownloadInit.moveToFirst()) {
-                            while (!cursorDownloadInit.isAfterLast()) {
-                                ComicChapter chapter = chapterDBAdapter.toObject(cursorDownloadInit);
-                                submitDownloadChapter(chapter.getChapterId());
-                                cursorDownloadInit.moveToNext();
-                            }
+            Cursor cursorDownloadInit = null;
+            try {
+                int requestSize = INIT_POOL_SIZE - downloadQueue.size();
+                if (requestSize > 0) {
+                    cursorDownloadInit = chapterDBAdapter
+                            .listByStatus(new Integer[]{
+                                            status
+                                    },
+                                    downloadQueue.keySet(),
+                                    Integer.toString(requestSize));
+                    if (cursorDownloadInit.moveToFirst()) {
+                        while (!cursorDownloadInit.isAfterLast()) {
+                            ComicChapter chapter = chapterDBAdapter.toObject(cursorDownloadInit);
+                            submitDownloadChapter(chapter.getChapterId());
+                            cursorDownloadInit.moveToNext();
                         }
                     }
-                } catch (Exception e) {
-                    throw e;
-                } finally {
-                    if (cursorDownloadInit != null)
-                        cursorDownloadInit.close();
                 }
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                if (cursorDownloadInit != null)
+                    cursorDownloadInit.close();
             }
+
         }
     }
 
