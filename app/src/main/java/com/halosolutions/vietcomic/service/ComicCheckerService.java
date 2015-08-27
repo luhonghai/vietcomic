@@ -108,7 +108,7 @@ public class ComicCheckerService extends IntentService {
         }
         // Start check for download
         Intent comicDownloadIntent = new Intent(this, ComicDownloaderService.class);
-        comicDownloadIntent.putExtra(ComicDownloaderService.Action.class.getName(), ComicDownloaderService.Action.DOWNLOAD);
+        comicDownloadIntent.putExtra(ComicDownloaderService.Action.class.getName(), ComicDownloaderService.Action.CHECK);
         startService(comicDownloadIntent);
     }
 }
