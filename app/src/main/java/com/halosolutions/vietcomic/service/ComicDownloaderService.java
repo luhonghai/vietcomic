@@ -391,27 +391,7 @@ public class ComicDownloaderService extends Service {
                     checkDownloading(false);
                     break;
                 case Action.DOWNLOAD:
-                    try {
-                        if (downloadQueue.size() == 0) {
-                            checkDownloading(true);
-                        }
-//                        if (!downloadQueue.containsKey(comicChapter.getChapterId())) {
-//                            submitDownloadChapter(comicChapter.getChapterId());
-//                            Cursor cursorChapters = chapterDBAdapter.listByStatus(new Integer[]{
-//                                    ComicChapter.STATUS_INIT_DOWNLOADING,
-//                                    ComicChapter.STATUS_DOWNLOADING,
-//                                    ComicChapter.STATUS_DOWNLOAD_JOINING
-//                            });
-//                            int downloadCount = cursorChapters.getCount();
-//                            cursorChapters.close();
-//                            showForegroundNotification("Đang tải " + downloadCount + " tập truyện",
-//                                    "Vui lòng chờ trong giây lát", downloadCount);
-//                        } else {
-//                            SimpleAppLog.debug("Chapter " + comicChapter.getUrl() +" is download. Skip by default");
-//                        }
-                    } catch (Exception e) {
-                        SimpleAppLog.error("Could not start download",e);
-                    }
+                    checkDownloading(true);
                     break;
                 case Action.STOP:
                     new AsyncTask<Void, Void, Void>() {

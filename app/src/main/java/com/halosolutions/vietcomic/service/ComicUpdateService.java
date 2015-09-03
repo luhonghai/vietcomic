@@ -129,7 +129,7 @@ public class ComicUpdateService extends Service {
                             }
                             if (oldChapter != null) {
                                 chapter.setId(oldChapter.getId());
-                                chapter.setStatus(oldChapter.getStatus());
+                                //chapter.setStatus(oldChapter.getStatus());
                                 chapter.setFilePath(oldChapter.getFilePath());
                                 chapter.setImageCount(oldChapter.getImageCount());
                                 chapter.setCompletedCount(oldChapter.getCompletedCount());
