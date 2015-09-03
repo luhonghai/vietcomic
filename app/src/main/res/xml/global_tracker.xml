@@ -6,5 +6,5 @@
     <!-- Enable automatic Activity measurement -->
     <bool name="ga_autoActivityTracking">true</bool>
     <!--  The following value should be replaced with correct property id. -->
-    <string name="ga_trackingId">UA-62672514-4</string>
+    <string name="ga_trackingId">UA-62672514-5</string>
 </resources>

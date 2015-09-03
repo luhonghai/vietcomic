@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <string name="app_name">Viet Comic</string>
+    <string name="app_name">Manga World</string>
 
   <string name="url_version">http://luhonghai.com/vietcomic/version.json</string>
 

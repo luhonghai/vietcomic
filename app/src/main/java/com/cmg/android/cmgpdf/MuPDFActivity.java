@@ -42,7 +42,7 @@ import android.widget.TextView;
 
 import com.cmg.android.cmgpdf.view.TwoWayView;
 import com.cmg.android.cmgpdf.view.TwoWayView.Orientation;
-import com.halosolutions.vietcomic.R;
+import com.halosolutions.mangaworld.R;
 
 /** 
  * DOCME
