@@ -29,7 +29,7 @@ import android.widget.TextView;
 
 import com.cmg.android.cmgpdf.util.ImageHelper;
 import com.cmg.android.cmgpdf.util.Utility;
-import com.halosolutions.vietcomic.R;
+import com.halosolutions.mangaworld.R;
 
 import java.io.BufferedWriter;
 import java.io.File;

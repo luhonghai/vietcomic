@@ -13,7 +13,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
 
-import com.halosolutions.vietcomic.R;
+import com.halosolutions.mangaworld.R;
 
 public class MuPDFCore {
 	/* load our native library */

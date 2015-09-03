@@ -102,17 +102,17 @@
 # work without any subsequent effort. If you choose this strategy, the proguard
 # configuration for the project is simply the line below.
 
-#-keep class com.halosolutions.vietcomic.service.** { *; }
-#-keep class com.halosolutions.vietcomic.receiver.** { *; }
+#-keep class com.halosolutions.mangaworld.service.** { *; }
+#-keep class com.halosolutions.mangaworld.receiver.** { *; }
 
 
 # Additionally you will need to keep specific classes. A common use case is keeping all
 # of the models that are JSON parsed using something like Jackson.
 
-#-keep class com.halosolutions.vietcomic.comic.ComicBook { *; }
-#-keep class com.halosolutions.vietcomic.comic.ComicChapter { *; }
-#-keep class com.halosolutions.vietcomic.comic.ComicChapterPage { *; }
-#-keep class com.halosolutions.vietcomic.comic.ComicVersion { *; }
+#-keep class com.halosolutions.mangaworld.comic.ComicBook { *; }
+#-keep class com.halosolutions.mangaworld.comic.ComicChapter { *; }
+#-keep class com.halosolutions.mangaworld.comic.ComicChapterPage { *; }
+#-keep class com.halosolutions.mangaworld.comic.ComicVersion { *; }
 
 # Crashlytics 1.+
 

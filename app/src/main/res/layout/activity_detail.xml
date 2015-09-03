@@ -181,7 +181,7 @@
                         android:clipToPadding="false"
                         app:v_styleId="@array/tab_indicator"/>
 
-                    <com.halosolutions.vietcomic.CustomViewPager
+                    <com.halosolutions.mangaworld.CustomViewPager
                         android:id="@+id/main_vp"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />

@@ -6,7 +6,7 @@ import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.view.View;
 
-import com.halosolutions.vietcomic.util.AndroidHelper;
+import com.halosolutions.mangaworld.util.AndroidHelper;
 
 public class SafeAnimatorInflater
 {

@@ -16,7 +16,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.Scroller;
 
-import com.halosolutions.vietcomic.R;
+import com.halosolutions.mangaworld.R;
 
 public class ReaderView
 		extends AdapterView<Adapter>

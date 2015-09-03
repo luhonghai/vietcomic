@@ -32,17 +32,17 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 22
-        versionCode 10003
-        versionName "1.0.003"
-        archivesBaseName = "viet-comic"
+        versionCode 20000
+        versionName "2.0.000"
+        archivesBaseName = "manga-world"
     }
     productFlavors {
         pro {
-            applicationId = "com.halosolutions.vietcomic"
-            buildConfigField "boolean", "IS_FREE", "true"
+            applicationId = "com.halosolutions.mangaworld"
+            buildConfigField "boolean", "IS_FREE", "false"
         }
         free {
-            applicationId = "com.halosolutions.vietcomic.free"
+            applicationId = "com.halosolutions.mangaworld.free"
             buildConfigField "boolean", "IS_FREE", "true"
         }
     }
@@ -51,13 +51,13 @@ android {
         release {
             storeFile file("../keystore/keystore.jks")
             storePassword "W3lcom3123"
-            keyAlias "halo.solutions"
+            keyAlias "mangaworld"
             keyPassword "W3lcom3123"
         }
         debug {
             storeFile file("../keystore/keystore.jks")
             storePassword "W3lcom3123"
-            keyAlias "halo.solutions"
+            keyAlias "mangaworld"
             keyPassword "W3lcom3123"
         }
     }

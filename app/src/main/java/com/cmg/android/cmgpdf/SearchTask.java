@@ -7,7 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.RectF;
 import android.os.Handler;
 
-import com.halosolutions.vietcomic.R;
+import com.halosolutions.mangaworld.R;
 
 class ProgressDialogX extends ProgressDialog {
 	public ProgressDialogX(Context context) {

@@ -35,12 +35,12 @@ import android.widget.TextView;
 import com.cmg.android.cmgpdf.view.TwoWayView;
 import com.cmg.android.cmgpdf.view.TwoWayView.Orientation;
 import com.google.gson.Gson;
-import com.halosolutions.vietcomic.BaseActivity;
-import com.halosolutions.vietcomic.R;
-import com.halosolutions.vietcomic.comic.ComicBook;
-import com.halosolutions.vietcomic.comic.ComicChapter;
-import com.halosolutions.vietcomic.sqlite.ext.ComicBookDBAdapter;
-import com.halosolutions.vietcomic.util.SimpleAppLog;
+import com.halosolutions.mangaworld.BaseActivity;
+import com.halosolutions.mangaworld.R;
+import com.halosolutions.mangaworld.comic.ComicBook;
+import com.halosolutions.mangaworld.comic.ComicChapter;
+import com.halosolutions.mangaworld.sqlite.ext.ComicBookDBAdapter;
+import com.halosolutions.mangaworld.util.SimpleAppLog;
 import com.rey.material.app.ThemeManager;
 import com.rey.material.drawable.NavigationDrawerDrawable;
 
