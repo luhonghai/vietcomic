@@ -73,7 +73,7 @@
         android:layout_margin="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <com.halosolutions.vietcomic.view.EllipsizingTextView
+        <com.halosolutions.mangaworld.view.EllipsizingTextView
             android:id="@+id/txtName"
             android:textColor="#FF000000"
             android:textAppearance="@style/Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
