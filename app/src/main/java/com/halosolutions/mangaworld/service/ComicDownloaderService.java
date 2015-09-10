@@ -300,23 +300,25 @@ public class ComicDownloaderService extends Service {
         broadcastHelper = new BroadcastHelper(getApplicationContext());
 
         gson = new Gson();
-
-        bookDBAdapter = new ComicBookDBAdapter(getApplicationContext());
         try {
+        bookDBAdapter = new ComicBookDBAdapter(getApplicationContext());
+
             bookDBAdapter.open();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             SimpleAppLog.error("Could not open comic book database",e);
         }
-        chapterDBAdapter = new ComicChapterDBAdapter(getApplicationContext());
         try {
+        chapterDBAdapter = new ComicChapterDBAdapter(getApplicationContext());
+
             chapterDBAdapter.open();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             SimpleAppLog.error("Could not open comic chapter database",e);
         }
-        chapterPageDBAdapter = new ComicChapterPageDBAdapter(getApplicationContext());
         try {
+        chapterPageDBAdapter = new ComicChapterPageDBAdapter(getApplicationContext());
+
             chapterPageDBAdapter.open();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             SimpleAppLog.error("Could not open comic chapter page database",e);
         }
         downloadManager = new ChapterDownloadManager(new ChapterDownloadManager.DownloadListener() {
@@ -525,7 +527,7 @@ public class ComicDownloaderService extends Service {
                     }
                 }
             } catch (Exception e) {
-                throw e;
+                SimpleAppLog.error("Could not check downloading", e);
             } finally {
                 if (cursorDownloadInit != null)
                     cursorDownloadInit.close();

@@ -1,11 +1,9 @@
 package com.halosolutions.mangaworld.comic;
 
-import android.content.ContentValues;
-import android.content.Context;
-
 import com.halosolutions.mangaworld.sqlite.AbstractData;
-import com.halosolutions.mangaworld.util.DateHelper;
 import com.halosolutions.mangaworld.util.StringHelper;
+import com.luhonghai.litedb.annotation.LiteColumn;
+import com.luhonghai.litedb.annotation.LiteTable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,47 +12,70 @@ import java.util.List;
 /**
  * Created by cmg on 12/08/15.
  */
-public class ComicBook extends AbstractData<ComicBook> {
+@LiteTable(allowedParent = AbstractData.class)
+public class ComicBook extends AbstractData {
 
+    @LiteColumn
     private String bookId;
 
+    @LiteColumn
     private String name;
 
+    @LiteColumn
     private String otherName;
 
+    @LiteColumn
     private String status;
 
+    @LiteColumn
     private String source;
 
+    @LiteColumn
     private String service;
 
+    @LiteColumn
     private String url;
 
+    @LiteColumn
     private String thumbnail;
 
+    @LiteColumn
     private String author;
 
+    @LiteColumn
     private float rate;
 
+    @LiteColumn
     private String description;
 
+    @LiteColumn
     private boolean isDeleted;
 
+    @LiteColumn
     private boolean isNew;
 
+    @LiteColumn
     private boolean isHot;
 
+    @LiteColumn
     private boolean isFavorite;
 
+    @LiteColumn
     private boolean isDownloaded;
 
+    @LiteColumn
     private boolean isWatched;
 
     private List<String> categories;
 
+    @LiteColumn
     private String strCategories;
 
+    @LiteColumn
     private Date timestamp;
+
+    @LiteColumn
+    private String search;
 
     public ComicBook() {
 
@@ -62,40 +83,6 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     public ComicBook(String source) {
         this.source = source;
-    }
-
-    @Override
-    public String toPrettyString(Context context) {
-        return name;
-    }
-
-    @Override
-    public ContentValues toContentValues() {
-        ContentValues cv = new ContentValues();
-        cv.put(KEY_SEARCH, StringHelper.removeAccent(getName()).toLowerCase());
-        cv.put(KEY_NAME, getName());
-        cv.put(KEY_AUTHOR, getAuthor());
-        cv.put(KEY_BOOK_ID, getBookId());
-        cv.put(KEY_DESCRIPTION, getDescription());
-        cv.put(KEY_OTHER_NAME, getOtherName());
-        cv.put(KEY_RATE, getRate());
-        cv.put(KEY_STATUS, getStatus());
-        cv.put(KEY_THUMBNAIL, getThumbnail());
-        cv.put(KEY_URL, getUrl());
-        cv.put(KEY_SOURCE, getSource());
-        cv.put(KEY_DELETED, isDeleted() ? 1 : 0);
-        cv.put(KEY_NEW, isNew() ?  1 : 0);
-        cv.put(KEY_HOT, isHot() ? 1 : 0);
-        cv.put(KEY_FAVORITE, isFavorite() ? 1 : 0);
-        cv.put(KEY_DOWNLOADED, isDownloaded() ? 1 : 0);
-        cv.put(KEY_WATCHED, isWatched() ? 1 : 0);
-        cv.put(KEY_SERVICE, getService());
-        if (getCreatedDate() != null)
-            cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
-        if (getTimestamp() != null)
-            cv.put(KEY_TIMESTAMP, DateHelper.convertDateToString(getTimestamp()));
-        cv.put(KEY_CATEGORIES, getStrCategories());
-        return cv;
     }
 
     public String getName() {
@@ -286,5 +273,16 @@ public class ComicBook extends AbstractData<ComicBook> {
 
     public void setService(String service) {
         this.service = service;
+    }
+
+    public String getSearch() {
+        if (search == null || search.length() == 0) {
+            search = StringHelper.removeAccent(getName()).toLowerCase();
+        }
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
     }
 }

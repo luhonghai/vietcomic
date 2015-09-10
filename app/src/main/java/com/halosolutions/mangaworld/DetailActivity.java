@@ -31,6 +31,8 @@ import com.halosolutions.mangaworld.service.ComicUpdateService;
 import com.halosolutions.mangaworld.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.mangaworld.util.AndroidHelper;
 import com.halosolutions.mangaworld.util.SimpleAppLog;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.rey.material.app.ThemeManager;
@@ -114,7 +116,11 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
         }
         ViewUtil.setBackground(getWindow().getDecorView(), new ThemeDrawable(R.array.bg_window));
         ViewUtil.setBackground(mToolbar, new ThemeDrawable(R.array.bg_toolbar));
-        dbAdapter = new ComicBookDBAdapter(this);
+        try {
+            dbAdapter = new ComicBookDBAdapter(this);
+        } catch (Exception e) {
+            SimpleAppLog.error("Could not open database",e);
+        }
         setSupportActionBar(mToolbar);
         final NavigationDrawerDrawable drawable =
                 (new com.rey.material.drawable.NavigationDrawerDrawable.Builder(this.mToolbar.getContext(),
@@ -306,7 +312,7 @@ public class DetailActivity extends BaseActivity implements ToolbarManager.OnToo
     private void updateSelectedBook() {
         try {
             if (selectedBook != null && dbAdapter != null)
-                if (dbAdapter.update(selectedBook)) {
+                if (dbAdapter.update(selectedBook) > 0) {
                     broadcastHelper.sendComicUpdate(selectedBook);
                 }
         } catch (Exception e) {

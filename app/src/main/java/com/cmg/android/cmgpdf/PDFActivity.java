@@ -41,6 +41,8 @@ import com.halosolutions.mangaworld.comic.ComicBook;
 import com.halosolutions.mangaworld.comic.ComicChapter;
 import com.halosolutions.mangaworld.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.mangaworld.util.SimpleAppLog;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
 import com.rey.material.app.ThemeManager;
 import com.rey.material.drawable.NavigationDrawerDrawable;
 
@@ -751,7 +753,14 @@ public class PDFActivity extends BaseActivity implements
                 Gson gson = new Gson();
                 ComicChapter chapter = gson.fromJson(bundle.getString(ComicChapter.class.getName()), ComicChapter.class);
                 if (chapter != null) {
-                    ComicBookDBAdapter dbAdapter = new ComicBookDBAdapter(this);
+                    ComicBookDBAdapter dbAdapter = null;
+                    try {
+                        dbAdapter = new ComicBookDBAdapter(this);
+                    } catch (Exception e) {
+                        SimpleAppLog.error("Could not open database", e);
+                        return;
+                    }
+
                     String title = "";
                     try {
                         dbAdapter.open();

@@ -40,6 +40,9 @@ import com.halosolutions.mangaworld.fragment.NewComicFragment;
 import com.halosolutions.mangaworld.fragment.WatchedComicFragment;
 import com.halosolutions.mangaworld.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.mangaworld.util.SimpleAppLog;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
+import com.luhonghai.litedb.exception.LiteDatabaseException;
 import com.rey.material.app.ToolbarManager;
 import com.rey.material.drawable.ThemeDrawable;
 import com.rey.material.util.ThemeUtil;
@@ -145,7 +148,11 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 
         ViewUtil.setBackground(getWindow().getDecorView(), new ThemeDrawable(R.array.bg_window));
         ViewUtil.setBackground(mToolbar, new ThemeDrawable(R.array.bg_toolbar));
-		dbAdapter = new ComicBookDBAdapter(this);
+		try {
+			dbAdapter = new ComicBookDBAdapter(this);
+		} catch (Exception e) {
+			SimpleAppLog.error("Could not open database",e);
+		}
 		setSupportActionBar(mToolbar);
 
 
@@ -306,12 +313,18 @@ public class MainActivity extends BaseActivity implements ToolbarManager.OnToolb
 	@Override
 	public boolean onSuggestionClick(int position) {
 		if (searchView != null) {
-			ComicBook comicBook = dbAdapter.toObject(
-					(Cursor) searchView.getSuggestionsAdapter().getItem(position));
-			Gson gson = new Gson();
-			Intent intent = new Intent(this, DetailActivity.class);
-			intent.putExtra(ComicBook.class.getName(), gson.toJson(comicBook));
-			startActivity(intent);
+			ComicBook comicBook = null;
+			try {
+				comicBook = dbAdapter.toObject(
+                        (Cursor) searchView.getSuggestionsAdapter().getItem(position));
+				Gson gson = new Gson();
+				Intent intent = new Intent(this, DetailActivity.class);
+				intent.putExtra(ComicBook.class.getName(), gson.toJson(comicBook));
+				startActivity(intent);
+			} catch (LiteDatabaseException e) {
+				SimpleAppLog.error("Could not get comic book",e);
+			}
+
 		}
 		return true;
 	}

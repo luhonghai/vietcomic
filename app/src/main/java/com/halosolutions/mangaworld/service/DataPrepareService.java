@@ -6,6 +6,8 @@ import com.halosolutions.mangaworld.comic.ComicBook;
 import com.halosolutions.mangaworld.comic.ComicVersion;
 import com.halosolutions.mangaworld.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.mangaworld.util.SimpleAppLog;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
 
 import java.util.List;
 
@@ -21,7 +23,11 @@ public class DataPrepareService {
 
     public DataPrepareService(Context context) {
         this.context = context;
-        comicBookDBAdapter = new ComicBookDBAdapter(context);
+        try {
+            comicBookDBAdapter = new ComicBookDBAdapter(context);
+        } catch (Exception e) {
+            SimpleAppLog.error("Could not open database", e);
+        }
     }
 
     public void prepare() {

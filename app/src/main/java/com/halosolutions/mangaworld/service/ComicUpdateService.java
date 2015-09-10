@@ -152,7 +152,7 @@ public class ComicUpdateService extends Service {
                         comicBook.setDescription(description);
                         comicBook.setTimestamp(new Date(System.currentTimeMillis()));
                         try {
-                            if (comicBookDBAdapter.update(comicBook)) {
+                            if (comicBookDBAdapter.update(comicBook) > 0) {
                                 broadcastHelper.sendComicUpdate(comicBook);
                             }
                         } catch (Exception e) {

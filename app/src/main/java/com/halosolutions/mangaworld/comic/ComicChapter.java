@@ -1,17 +1,16 @@
 package com.halosolutions.mangaworld.comic;
 
-import android.content.ContentValues;
-import android.content.Context;
-
 import com.halosolutions.mangaworld.sqlite.AbstractData;
-import com.halosolutions.mangaworld.util.DateHelper;
+import com.luhonghai.litedb.annotation.LiteColumn;
+import com.luhonghai.litedb.annotation.LiteTable;
 
 import java.util.Date;
 
 /**
  * Created by cmg on 11/08/15.
  */
-public class ComicChapter extends AbstractData<ComicChapter> {
+@LiteTable(allowedParent = AbstractData.class)
+public class ComicChapter extends AbstractData {
 
     public static final int STATUS_NEW = 0;
 
@@ -29,26 +28,37 @@ public class ComicChapter extends AbstractData<ComicChapter> {
 
     public static final int STATUS_WATCHED = 7;
 
+    @LiteColumn
     private String chapterId;
 
+    @LiteColumn
     private String bookId;
 
+    @LiteColumn
     private String name;
 
+    @LiteColumn
     private String url;
 
+    @LiteColumn
     private String filePath;
 
+    @LiteColumn
     private Date publishDate;
 
+    @LiteColumn
     private Date timestamp;
 
+    @LiteColumn
     private int index;
 
+    @LiteColumn
     private int imageCount;
 
+    @LiteColumn
     private int completedCount;
 
+    @LiteColumn
     private int status;
 
     public ComicChapter() {
@@ -76,38 +86,12 @@ public class ComicChapter extends AbstractData<ComicChapter> {
     }
 
     public String getChapterId() {
-        if (chapterId == null) return chapterId;
+        if (chapterId == null) return "";
         return chapterId;
     }
 
     public void setChapterId(String chapterId) {
         this.chapterId = chapterId;
-    }
-
-    @Override
-    public String toPrettyString(Context context) {
-        return name;
-    }
-
-    @Override
-    public ContentValues toContentValues() {
-        ContentValues cv = new ContentValues();
-        cv.put(KEY_NAME, getName());
-        cv.put(KEY_BOOK_ID, getBookId());
-        cv.put(KEY_STATUS, getStatus());
-        cv.put(KEY_URL, getUrl());
-        cv.put(KEY_CHAPTER_ID, getChapterId());
-        cv.put(KEY_INDEX, getIndex());
-        cv.put(KEY_IMAGE_COUNT, getImageCount());
-        cv.put(KEY_FILE_PATH, getFilePath());
-        cv.put(KEY_COMPLETED_COUNT, getCompletedCount());
-        if (getPublishDate() != null)
-            cv.put(KEY_PUBLISH_DATE, DateHelper.convertDateToString(getPublishDate()));
-        if (getCreatedDate() != null)
-            cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
-        if (getTimestamp() != null)
-            cv.put(KEY_TIMESTAMP, DateHelper.convertDateToString(getTimestamp()));
-        return cv;
     }
 
     public String getName() {

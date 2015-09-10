@@ -107,4 +107,7 @@ dependencies {
     compile 'com.daimajia.easing:library:1.0.1@aar'
     compile 'com.daimajia.androidanimations:library:1.1.3@aar'
     compile 'com.daimajia.numberprogressbar:library:1.2@aar'
+    compile ('com.luhonghai:litedb:1.0.7') {
+        exclude module: 'jodd-core'
+    }
 }

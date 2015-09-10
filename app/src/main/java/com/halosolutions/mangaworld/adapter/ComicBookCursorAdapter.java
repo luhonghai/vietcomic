@@ -15,6 +15,10 @@ import com.halosolutions.mangaworld.R;
 import com.halosolutions.mangaworld.comic.ComicBook;
 import com.halosolutions.mangaworld.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.mangaworld.util.AndroidHelper;
+import com.halosolutions.mangaworld.util.SimpleAppLog;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
+import com.luhonghai.litedb.exception.LiteDatabaseException;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -35,7 +39,11 @@ public class ComicBookCursorAdapter extends CursorAdapter {
         super(context, c, 0);
         itemLayout = R.layout.comic_item;
         layoutInflater = LayoutInflater.from(context);
-        comicBookDBAdapter = new ComicBookDBAdapter(context);
+        try {
+            comicBookDBAdapter = new ComicBookDBAdapter(context);
+        } catch (Exception e) {
+            SimpleAppLog.error("Could not open database", e);
+        }
         displayImageOptions = new DisplayImageOptions.Builder()
                 .showImageOnLoading(R.drawable.comic_thumbnail_default) // resource or drawable
                 .showImageForEmptyUri(R.drawable.comic_thumbnail_default) // resource or drawable
@@ -57,7 +65,12 @@ public class ComicBookCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        ComicBook comicBook = comicBookDBAdapter.toObject(cursor);
+        ComicBook comicBook = null;
+        try {
+            comicBook = comicBookDBAdapter.toObject(cursor);
+        } catch (Exception e) {
+            SimpleAppLog.error("Could not open database",e);
+        }
         updateView(view, comicBook);
     }
 

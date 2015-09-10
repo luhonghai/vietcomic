@@ -7,8 +7,11 @@ import android.database.Cursor;
 import com.google.gson.Gson;
 import com.halosolutions.mangaworld.comic.ComicBook;
 import com.halosolutions.mangaworld.comic.ComicService;
+import com.halosolutions.mangaworld.sqlite.ComicDatabaseHelper;
 import com.halosolutions.mangaworld.sqlite.ext.ComicBookDBAdapter;
 import com.halosolutions.mangaworld.util.SimpleAppLog;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
 
 /**
  * Created by cmg on 24/08/15.
@@ -27,10 +30,17 @@ public class ComicCheckerService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         SimpleAppLog.info("Start comic checker service");
-        final ComicBookDBAdapter dbAdapter = new ComicBookDBAdapter(getApplicationContext());
+        ComicBookDBAdapter dbAdapter = null;
+        try {
+            dbAdapter = new ComicBookDBAdapter(getApplicationContext());
+        } catch (Exception e) {
+            SimpleAppLog.error("Could not open database", e);
+        }
         Gson gson = new Gson();
         Cursor favoriteBooks = null;
         try {
+            if (dbAdapter == null) return;
+            final ComicBookDBAdapter fDbAdapter = dbAdapter;
             dbAdapter.open();
             final CheckStatus checkStatus = new CheckStatus();
             for (String comicSource : ComicService.ALL_SOURCES) {
@@ -47,10 +57,10 @@ public class ComicCheckerService extends IntentService {
                                 }
                             }
                             try {
-                                ComicBook comicBook = dbAdapter.getComicByBookId(bookId);
+                                ComicBook comicBook = fDbAdapter.getComicByBookId(bookId);
                                 if (comicBook != null) {
                                     comicBook.setIsHot(true);
-                                    dbAdapter.update(comicBook);
+                                    fDbAdapter.update(comicBook);
                                 }
                             } catch (Exception e) {
                                 SimpleAppLog.error("Could not update comic book", e);
@@ -68,10 +78,10 @@ public class ComicCheckerService extends IntentService {
                                 }
                             }
                             try {
-                                ComicBook comicBook = dbAdapter.getComicByBookId(bookId);
+                                ComicBook comicBook = fDbAdapter.getComicByBookId(bookId);
                                 if (comicBook != null) {
                                     comicBook.setIsNew(true);
-                                    dbAdapter.update(comicBook);
+                                    fDbAdapter.update(comicBook);
                                 }
                             } catch (Exception e) {
                                 SimpleAppLog.error("Could not update comic book", e);

@@ -199,10 +199,11 @@ public class AllChapterComicFragment extends DetailComicFragment {
                 }
             }
         });
-        dbAdapter = new ComicChapterDBAdapter(getActivity());
         try {
+            dbAdapter = new ComicChapterDBAdapter(getActivity());
+
             dbAdapter.open();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             SimpleAppLog.error("Could not open database",e);
         }
         gson = new Gson();

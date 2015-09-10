@@ -135,11 +135,12 @@ public abstract class ComicFragment extends Fragment implements AdapterView.OnIt
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		broadcastHelper = new BroadcastHelper(getActivity());
-		comicBookDBAdapter = new ComicBookDBAdapter(getActivity());
 		try {
+			comicBookDBAdapter = new ComicBookDBAdapter(getActivity());
+
 			comicBookDBAdapter.open();
-		} catch (SQLException e) {
-			SimpleAppLog.error("Could not open comic book database",e);
+		} catch (Exception e) {
+			SimpleAppLog.error("Could not open database",e);
 		}
 		broadcastHelper.registerOnComicBookUpdated(new BroadcastHelper.OnComicBookUpdated() {
 			@Override

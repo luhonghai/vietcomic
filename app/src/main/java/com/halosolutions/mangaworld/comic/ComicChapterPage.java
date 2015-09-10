@@ -1,15 +1,14 @@
 package com.halosolutions.mangaworld.comic;
 
-import android.content.ContentValues;
-import android.content.Context;
-
 import com.halosolutions.mangaworld.sqlite.AbstractData;
-import com.halosolutions.mangaworld.util.DateHelper;
+import com.luhonghai.litedb.annotation.LiteColumn;
+import com.luhonghai.litedb.annotation.LiteTable;
 
 /**
  * Created by cmg on 11/08/15.
  */
-public class ComicChapterPage extends AbstractData<ComicChapterPage> {
+@LiteTable(allowedParent = AbstractData.class)
+public class ComicChapterPage extends AbstractData {
 
     public static final int STATUS_DEFAULT = 0;
 
@@ -19,20 +18,28 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
     public static final int STATUS_DOWNLOAD_FAILED = 3;
 
+    @LiteColumn
     private String chapterId;
 
+    @LiteColumn
     private String bookId;
 
+    @LiteColumn
     private String pageId;
 
+    @LiteColumn
     private String url;
 
+    @LiteColumn
     private String filePath;
 
+    @LiteColumn
     private int index;
 
+    @LiteColumn
     private int taskId = -1;
 
+    @LiteColumn
     private int status;
 
     public String getUrl() {
@@ -49,27 +56,6 @@ public class ComicChapterPage extends AbstractData<ComicChapterPage> {
 
     public void setChapterId(String chapterId) {
         this.chapterId = chapterId;
-    }
-
-    @Override
-    public String toPrettyString(Context context) {
-        return bookId + "-" + chapterId + "-" + pageId;
-    }
-
-    @Override
-    public ContentValues toContentValues() {
-        ContentValues cv = new ContentValues();
-        cv.put(KEY_BOOK_ID, getBookId());
-        cv.put(KEY_STATUS, getStatus());
-        cv.put(KEY_URL, getUrl());
-        cv.put(KEY_CHAPTER_ID, getChapterId());
-        cv.put(KEY_INDEX, getIndex());
-        cv.put(KEY_FILE_PATH, getFilePath());
-        cv.put(KEY_TASK_ID, getTaskId());
-        cv.put(KEY_PAGE_ID, getPageId());
-        if (getCreatedDate() != null)
-            cv.put(KEY_CREATED_DATE, DateHelper.convertDateToString(getCreatedDate()));
-        return cv;
     }
 
     public int getIndex() {

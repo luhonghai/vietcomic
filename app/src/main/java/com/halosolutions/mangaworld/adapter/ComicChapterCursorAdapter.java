@@ -14,7 +14,11 @@ import com.halosolutions.mangaworld.R;
 import com.halosolutions.mangaworld.comic.ComicChapter;
 import com.halosolutions.mangaworld.sqlite.ext.ComicChapterDBAdapter;
 import com.halosolutions.mangaworld.util.DateHelper;
+import com.halosolutions.mangaworld.util.SimpleAppLog;
 import com.halosolutions.mangaworld.view.EllipsizingTextView;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
+import com.luhonghai.litedb.exception.LiteDatabaseException;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -33,7 +37,11 @@ public class ComicChapterCursorAdapter extends CursorAdapter {
     public ComicChapterCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
         layoutInflater = LayoutInflater.from(context);
-        dbAdapter = new ComicChapterDBAdapter(context);
+        try {
+            dbAdapter = new ComicChapterDBAdapter(context);
+        } catch (Exception e) {
+            SimpleAppLog.error("Could not open database", e);
+        }
         sdf = new SimpleDateFormat(DateHelper.DISPLAY_DATE_FORMAT, Locale.getDefault());
     }
 
@@ -44,7 +52,12 @@ public class ComicChapterCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        ComicChapter comicChapter = dbAdapter.toObject(cursor);
+        ComicChapter comicChapter = null;
+        try {
+            comicChapter = dbAdapter.toObject(cursor);
+        } catch (Exception e) {
+            SimpleAppLog.error("Could not open database", e);
+        }
         updateView(context, view, comicChapter);
     }
 

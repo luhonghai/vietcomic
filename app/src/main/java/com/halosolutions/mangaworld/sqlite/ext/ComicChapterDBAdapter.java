@@ -5,97 +5,39 @@ import android.database.Cursor;
 
 import com.halosolutions.mangaworld.comic.ComicBook;
 import com.halosolutions.mangaworld.comic.ComicChapter;
-import com.halosolutions.mangaworld.sqlite.AbstractData;
-import com.halosolutions.mangaworld.sqlite.DBAdapter;
-import com.halosolutions.mangaworld.util.DateHelper;
+import com.halosolutions.mangaworld.sqlite.ComicDatabaseHelper;
+import com.halosolutions.mangaworld.util.SimpleAppLog;
+import com.luhonghai.litedb.LiteBaseDao;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
+import com.luhonghai.litedb.exception.LiteDatabaseException;
 
-import java.util.List;
 import java.util.Set;
 
 /**
  * Created by cmg on 19/08/15.
  */
-public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
+public class ComicChapterDBAdapter extends LiteBaseDao<ComicChapter> {
 
-    public ComicChapterDBAdapter(Context ctx) {
-        super(ctx);
-    }
-
-    @Override
-    public Cursor getAll() throws Exception {
-        return getAll(AbstractData.KEY_INDEX + " ASC");
-    }
-
-    @Override
-    public String getTableName() {
-        return AbstractData.TABLE_COMIC_CHAPTER;
-    }
-
-    @Override
-    public String[] getAllColumns() {
-        return new String[] {
-                AbstractData.KEY_ROW_ID,
-                AbstractData.KEY_BOOK_ID,
-                AbstractData.KEY_CHAPTER_ID,
-                AbstractData.KEY_URL,
-                AbstractData.KEY_NAME,
-                AbstractData.KEY_PUBLISH_DATE,
-                AbstractData.KEY_FILE_PATH,
-                AbstractData.KEY_STATUS,
-                AbstractData.KEY_INDEX,
-                AbstractData.KEY_IMAGE_COUNT,
-                AbstractData.KEY_COMPLETED_COUNT,
-                AbstractData.KEY_TIMESTAMP,
-                AbstractData.KEY_CREATED_DATE
-        };
-    }
-
-    @Override
-    public ComicChapter toObject(Cursor cursor) {
-        ComicChapter chapter = new ComicChapter();
-        chapter.setId(cursor.getLong(cursor.getColumnIndex(AbstractData.KEY_ROW_ID)));
-        chapter.setName(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_NAME)));
-        chapter.setBookId(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_BOOK_ID)));
-        chapter.setChapterId(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_CHAPTER_ID)));
-        chapter.setStatus(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_STATUS)));
-        chapter.setIndex(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_INDEX)));
-        chapter.setFilePath(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_FILE_PATH)));
-        chapter.setUrl(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_URL)));
-        chapter.setImageCount(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_IMAGE_COUNT)));
-        chapter.setCompletedCount(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_COMPLETED_COUNT)));
-        chapter.setPublishDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_PUBLISH_DATE))));
-        chapter.setTimestamp(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_TIMESTAMP))));
-        chapter.setCreatedDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_CREATED_DATE))));
-        return chapter;
-    }
-
-    @Override
-    public List<ComicChapter> search(String s) throws Exception {
-        return toCollection(getDB().query(getTableName(),
-                getAllColumns(),
-                AbstractData.KEY_NAME + " like ? ",
-                new String[]{
-                        "%" + s + "%"
-                },
-                null,
-                null,
-                AbstractData.KEY_INDEX + " ASC",
-                null
-        ));
+    public ComicChapterDBAdapter(Context ctx) throws AnnotationNotFound, InvalidAnnotationData {
+        super(new ComicDatabaseHelper(ctx), ComicChapter.class);
     }
 
     public Cursor listByComic(ComicBook book) {
-        return getDB().query(getTableName(),
-                getAllColumns(),
-                AbstractData.KEY_BOOK_ID + " = ? ",
-                new String[]{
-                        book.getBookId()
-                },
-                null,
-                null,
-                AbstractData.KEY_INDEX + " ASC",
-                null
-        );
+        try {
+            return query("[bookId] = ? ",
+                    new String[]{
+                            book.getBookId()
+                    },
+                    null,
+                    null,
+                    "[index] ASC",
+                    null
+            );
+        } catch (LiteDatabaseException e) {
+            SimpleAppLog.error("Could not list by comic book",e);
+            return null;
+        }
     }
 
     public Cursor listByStatus(Integer[] status, Set<String> chapterIds, String limit) {
@@ -104,14 +46,14 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
         String[] params = new String[statusLength + ((chapterIds != null) ? chapterIds.size() : 0)];
         for (int i = 0; i < statusLength; i++) {
             params[i] = Integer.toString(status[i]);
-            selection += (AbstractData.KEY_STATUS + " = ?");
+            selection += ("[status] = ?");
             if (i != statusLength - 1) {
                 selection += " or ";
             }
         }
         selection += ")";
         if (chapterIds != null && chapterIds.size() > 0) {
-            selection += " and " + AbstractData.KEY_CHAPTER_ID + " not in (";
+            selection += " and [chapterId] not in (";
             int count = 0;
             for (String chapterId : chapterIds) {
                 params[statusLength + count++] = chapterId;
@@ -123,15 +65,19 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
             selection += ")";
         }
 
-        return getDB().query(getTableName(),
-                getAllColumns(),
-                selection,
-                params,
-                null,
-                null,
-                AbstractData.KEY_STATUS + " ASC, " + AbstractData.KEY_TIMESTAMP + " ASC",
-                limit
-        );
+        try {
+            return query(
+                    selection,
+                    params,
+                    null,
+                    null,
+                    "[status] ASC, [timestamp] ASC",
+                    limit
+            );
+        } catch (LiteDatabaseException e) {
+            SimpleAppLog.error("Could not list by status", e);
+            return null;
+        }
     }
 
     public Cursor listByStatus(Integer[] status) {
@@ -139,20 +85,30 @@ public class ComicChapterDBAdapter extends DBAdapter<ComicChapter> {
     }
 
     public ComicChapter getByChapterId(String chapterId) {
-        Cursor cursor =  getDB().query(getTableName(),
-                getAllColumns(),
-                AbstractData.KEY_CHAPTER_ID + " = ? ",
-                new String[] {
-                        chapterId
-                },
-                null,
-                null,
-                null,
-                null
-        );
+        Cursor cursor = null;
+        try {
+            cursor = query(
+                    "[chapterId] = ? ",
+                    new String[] {
+                            chapterId
+                    },
+                    null,
+                    null,
+                    null,
+                    null
+            );
+        } catch (LiteDatabaseException e) {
+            SimpleAppLog.error("Could not get chapter by id", e);
+        }
         if (cursor != null && cursor.moveToFirst()) {
-            ComicChapter chapter = toObject(cursor);
-            cursor.close();
+            ComicChapter chapter = null;
+            try {
+                chapter = toObject(cursor);
+            } catch (LiteDatabaseException e) {
+                SimpleAppLog.error("Could not get chapter by id", e);
+            } finally {
+                cursor.close();
+            }
             return chapter;
         }
         return null;

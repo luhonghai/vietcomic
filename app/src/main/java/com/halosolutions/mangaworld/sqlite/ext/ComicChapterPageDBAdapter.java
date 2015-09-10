@@ -4,112 +4,56 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.halosolutions.mangaworld.comic.ComicChapterPage;
-import com.halosolutions.mangaworld.sqlite.AbstractData;
-import com.halosolutions.mangaworld.sqlite.DBAdapter;
-import com.halosolutions.mangaworld.util.DateHelper;
+import com.halosolutions.mangaworld.sqlite.ComicDatabaseHelper;
+import com.halosolutions.mangaworld.util.SimpleAppLog;
+import com.luhonghai.litedb.LiteBaseDao;
+import com.luhonghai.litedb.exception.AnnotationNotFound;
+import com.luhonghai.litedb.exception.InvalidAnnotationData;
+import com.luhonghai.litedb.exception.LiteDatabaseException;
 
 import java.util.List;
 
 /**
  * Created by cmg on 19/08/15.
  */
-public class ComicChapterPageDBAdapter extends DBAdapter<ComicChapterPage> {
+public class ComicChapterPageDBAdapter extends LiteBaseDao<ComicChapterPage> {
 
-    public ComicChapterPageDBAdapter(Context ctx) {
-        super(ctx);
-    }
-
-    @Override
-    public Cursor getAll() throws Exception {
-        return getAll(AbstractData.KEY_INDEX + " ASC");
-    }
-
-    @Override
-    public String getTableName() {
-        return AbstractData.TABLE_COMIC_CHAPTER_PAGE;
-    }
-
-    @Override
-    public String[] getAllColumns() {
-        return new String[] {
-                AbstractData.KEY_ROW_ID,
-                AbstractData.KEY_BOOK_ID,
-                AbstractData.KEY_CHAPTER_ID,
-                AbstractData.KEY_URL,
-                AbstractData.KEY_FILE_PATH,
-                AbstractData.KEY_STATUS,
-                AbstractData.KEY_INDEX,
-                AbstractData.KEY_TASK_ID,
-                AbstractData.KEY_PAGE_ID,
-                AbstractData.KEY_CREATED_DATE
-        };
-    }
-
-    @Override
-    public ComicChapterPage toObject(Cursor cursor) {
-        ComicChapterPage page = new ComicChapterPage();
-        page.setId(cursor.getLong(cursor.getColumnIndex(AbstractData.KEY_ROW_ID)));
-        page.setBookId(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_BOOK_ID)));
-        page.setChapterId(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_CHAPTER_ID)));
-        page.setPageId(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_PAGE_ID)));
-        page.setStatus(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_STATUS)));
-        page.setIndex(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_INDEX)));
-        page.setTaskId(cursor.getInt(cursor.getColumnIndex(AbstractData.KEY_TASK_ID)));
-        page.setFilePath(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_FILE_PATH)));
-        page.setUrl(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_URL)));
-        page.setCreatedDate(DateHelper.convertStringToDate(cursor.getString(cursor.getColumnIndex(AbstractData.KEY_CREATED_DATE))));
-        return page;
-    }
-
-    @Override
-    public List<ComicChapterPage> search(String s) throws Exception {
-        return toCollection(getDB().query(getTableName(),
-                getAllColumns(),
-                AbstractData.KEY_FILE_PATH + " like ? ",
-                new String[]{
-                        "%" + s + "%"
-                },
-                null,
-                null,
-                AbstractData.KEY_INDEX + " ASC",
-                null
-        ));
+    public ComicChapterPageDBAdapter(Context ctx) throws AnnotationNotFound, InvalidAnnotationData {
+        super(new ComicDatabaseHelper(ctx), ComicChapterPage.class);
     }
 
     public void deleteByComicChapter(String chapterId) throws Exception {
-        getDB().delete(getTableName(),
-                AbstractData.KEY_CHAPTER_ID + "=?",
-                new String[] {
+        delete(
+                "[chapterId] = ?",
+                new String[]{
                         chapterId
                 });
     }
 
     public List<ComicChapterPage> listByComicChapter(String chapterId) throws Exception {
         Cursor c = cursorByComicChapter(chapterId);
-        List<ComicChapterPage> pages = toCollection(c);
+        List<ComicChapterPage> pages = toList(c);
         c.close();
         return pages;
     }
 
     public Cursor cursorByComicChapter(String chapterId) throws Exception {
-        return getDB().query(getTableName(),
-                getAllColumns(),
-                AbstractData.KEY_CHAPTER_ID + " = ? ",
+        return query(
+                "[chapterId] = ? ",
                 new String[]{
                         chapterId
                 },
                 null,
                 null,
-                AbstractData.KEY_INDEX + " ASC",
+                "[index] ASC",
                 null
         );
     }
 
     @Override
-    public long insert(ComicChapterPage obj) throws Exception {
-        Cursor cursor = getDB().query(getTableName(),
-                getAllColumns(),
-                AbstractData.KEY_PAGE_ID + " = ?",
+    public long insert(ComicChapterPage obj) throws LiteDatabaseException {
+        Cursor cursor = query(
+                "[pageId] = ?",
                 new String[]{
                         obj.getPageId()
                 },
@@ -133,20 +77,31 @@ public class ComicChapterPageDBAdapter extends DBAdapter<ComicChapterPage> {
     }
 
     public ComicChapterPage getByTaskId(long taskId) {
-        Cursor cursor =  getDB().query(getTableName(),
-                getAllColumns(),
-                AbstractData.KEY_TASK_ID + " = ? ",
-                new String[] {
-                        Long.toString(taskId)
-                },
-                null,
-                null,
-                null,
-                null
-        );
+        Cursor cursor = null;
+        try {
+            cursor = query(
+                    "[taskId] = ? ",
+                    new String[]{
+                            Long.toString(taskId)
+                    },
+                    null,
+                    null,
+                    null,
+                    null
+            );
+        } catch (LiteDatabaseException e) {
+            SimpleAppLog.error("Could not get task by Id",e);
+        }
         if (cursor != null && cursor.moveToFirst()) {
-            ComicChapterPage page = toObject(cursor);
-            cursor.close();
+            ComicChapterPage page = null;
+            try {
+                page = toObject(cursor);
+            } catch (LiteDatabaseException e) {
+                SimpleAppLog.error("Could not get task by Id",e);
+            } finally {
+                cursor.close();
+            }
+
             return page;
         }
         return null;
@@ -157,20 +112,24 @@ public class ComicChapterPageDBAdapter extends DBAdapter<ComicChapterPage> {
         String[] params = new String[status.length];
         for (int i = 0; i < status.length; i++) {
             params[i] = Integer.toString(status[i]);
-            selection += (AbstractData.KEY_STATUS + " = ?");
+            selection += ("[status] = ?");
             if (i != status.length - 1) {
                 selection += " or ";
             }
         }
 
-        return getDB().query(getTableName(),
-                getAllColumns(),
-                selection,
-                params,
-                null,
-                null,
-                AbstractData.KEY_STATUS + " ASC",
-                null
-        );
+        try {
+            return query(
+                    selection,
+                    params,
+                    null,
+                    null,
+                    "[status] ASC",
+                    null
+            );
+        } catch (LiteDatabaseException e) {
+            SimpleAppLog.error("Could not list by status", e);
+            return null;
+        }
     }
 }
